@@ -36,15 +36,15 @@ enum Command {
     Fix {},
     /// Delete all candles
     DeleteAll,
-    /// List  
+    /// List
     List {},
-    /// Import from excange
+    /// Import from exchange
     Import {},
     /// Plot graph
     Plot {},
     /// Triangle
     Triangle {},
-    /// Interative stream
+    /// Interactive stream
     Stream {},
     /// Run trader bot back test
     BackTest {},
@@ -56,7 +56,7 @@ struct Opt {
     /// Enabled debug level
     #[structopt(short, long)]
     debug: bool,
-    /// Symbol (e.g. BTCUST)
+    /// Symbol (e.g. BTCUSDT)
     #[structopt(short = "y", long, default_value = "BTCUSDT")]
     symbol: String,
     /// Minutes (e.g. 15)

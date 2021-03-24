@@ -1,4 +1,8 @@
-use super::{macd_trend::MacdTrend, trade_context_provider::TradeContextProvider, trader::Trader};
+use super::{
+    trade_context_provider::TradeContextProvider,
+    trader::Trader,
+    trend::{macd_trend_provider::MacdTrendProvider, trend_provider::TrendProvider},
+};
 use crate::{
     application::{
         app::Application,
@@ -29,20 +33,23 @@ impl TraderFactory {
         }
     }
 
-    pub fn create_trader(&self) -> Trader {
-        //info!("*************************** create_trader {:?}...", thread::current().id());
+    pub fn trade_context_provider(&self) -> TradeContextProvider {
         let mut candles_provider = self.candles_provider.clone();
         candles_provider.set_candles_selection(self.candles_selection.clone());
         let indicator_provider = IndicatorProvider::new();
-        let trend_context_provider = TradeContextProvider::new(&self.candles_selection.symbol_minutes.symbol, indicator_provider, candles_provider);
-        let mcad_trend = MacdTrend::new();
-        Trader::new(trend_context_provider, Box::new(mcad_trend))
+        TradeContextProvider::new(&self.candles_selection.symbol_minutes.symbol, indicator_provider, candles_provider)
+    }
+
+    pub fn create_trader(&self, trend_provider: Box<dyn TrendProvider + Send + Sync>) -> Trader {
+        //info!("*************************** create_trader {:?}...", thread::current().id());
+
+        Trader::new(trend_provider)
     }
 }
 
 pub fn run_trader_back_test(app: &mut Application) -> anyhow::Result<()> {
     let start = Instant::now();
-    info!("Initializing backtest...");
+    info!("Initializing back test...");
 
     let trader_factory = TraderFactory::new(app.selection.candles_selection.clone(), app.candles_provider.clone());
 
@@ -60,7 +67,14 @@ pub fn run_trader_back_test(app: &mut Application) -> anyhow::Result<()> {
     //  trader.check(&mut trader_register, /*candles_ref,*/ c.close_time, c.close).unwrap();
     //}
 
-    let pool = LinearObjectPool::<Trader>::new(move || trader_factory.create_trader(), |_| ());
+    let pool = LinearObjectPool::<Trader>::new(
+        move || {
+            let trade_context_provider = trader_factory.trade_context_provider();
+            let trend_provider: Box<dyn TrendProvider + Send + Sync> = Box::new(MacdTrendProvider::from(trade_context_provider));
+            trader_factory.create_trader(trend_provider)
+        },
+        |_| (),
+    );
     //let pool = Arc::new(pool);
 
     //let pool = Pool::<Trader>::new(32, || trader_factory.create_trader());
@@ -95,7 +109,12 @@ pub fn run_trader_back_test(app: &mut Application) -> anyhow::Result<()> {
 
     plot_selection(app.selection.clone(), app.candles_provider.clone_provider(), plotters)?;
 
-    info!("{}", iformat!("Finished backtest, elapsed: {start.elapsed():?}"));
+    info!("{}", iformat!("Finished back test, elapsed: {start.elapsed():?}"));
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
 }

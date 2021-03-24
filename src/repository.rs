@@ -69,7 +69,7 @@ impl Repository {
 
         let future = sqlx::query_as(
             r#"
-                SELECT symbol, minutes, count(*) as qtd FROM candle                 
+                SELECT symbol, minutes, count(*) as qtd FROM candle
                 GROUP BY symbol, minutes
                 "#,
         )
@@ -90,7 +90,7 @@ impl Repository {
         let future = sqlx::query_as!(
             Candle,
             r#"
-                SELECT * FROM candle 
+                SELECT * FROM candle
                 WHERE symbol = $1 AND minutes = $2 AND (open_time BETWEEN $3 AND $4 OR close_time BETWEEN $3 AND $4)
                 ORDER BY open_time
             "#,
@@ -110,7 +110,7 @@ impl Repository {
         let future = sqlx::query_as!(
             Candle,
             r#"
-                SELECT * FROM candle 
+                SELECT * FROM candle
                 WHERE symbol = $1 AND minutes = $2
                 ORDER BY open_time DESC
                 FETCH FIRST $3 ROWS ONLY
@@ -151,7 +151,7 @@ impl Repository {
     pub fn insert_candle(&self, candle: &Candle) -> anyhow::Result<Decimal> {
         let future = sqlx::query!(
             r#"
-                INSERT INTO candle ( 
+                INSERT INTO candle (
                     id,
                     symbol,
                     minutes,
@@ -195,8 +195,8 @@ impl Repository {
 
     pub fn delete_last_candle(&self, symbol_minutes: &SymbolMinutes) {
         let future = sqlx::query!(
-            r#"DELETE FROM candle WHERE id = 
-            (SELECT id FROM candle WHERE symbol = $1 AND minutes = $2 
+            r#"DELETE FROM candle WHERE id =
+            (SELECT id FROM candle WHERE symbol = $1 AND minutes = $2
                 ORDER BY close_time DESC FETCH FIRST 1 ROWS ONLY
             )"#,
             symbol_minutes.symbol,

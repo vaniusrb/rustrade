@@ -38,10 +38,12 @@ impl TradeContextProvider {
         let now = self.now;
         self.candles_opt = self.candles_opt.take().filter(|e| e.0 == now && e.1 == minutes);
 
-        let candles_selection = CandlesSelection::last_n(&self.symbol, &minutes, 200, now);
-        let mut candles_provider_selection = CandlesProviderSelection::new(self.candles_provider.clone(), candles_selection);
+        let candles_provider = &self.candles_provider;
+        let symbol = &self.symbol;
 
         let now_candles = self.candles_opt.get_or_insert_with(|| {
+            let candles_selection = CandlesSelection::last_n(symbol, &minutes, 200, now);
+            let mut candles_provider_selection = CandlesProviderSelection::new(candles_provider.clone(), candles_selection);
             let candles = candles_provider_selection.candles().unwrap();
             (now, minutes, candles)
         });

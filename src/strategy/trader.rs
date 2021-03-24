@@ -1,18 +1,16 @@
-use super::{trade_context_provider::TradeContextProvider, trader_register::Trade, trend::Trend, trend_provider::TrendProvider};
+use super::{trader_register::Trade, trend::trend_provider::TrendProvider, trend_enum::Trend};
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 
 pub struct Trader {
-    trade_context_provider: TradeContextProvider,
     trend_provider: Box<dyn TrendProvider + Send + Sync>,
     previous_trend: Option<Trend>,
     trades: Vec<Trade>,
 }
 
 impl<'a> Trader {
-    pub fn new(trade_context_provider: TradeContextProvider, trend_provider: Box<dyn TrendProvider + Send + Sync>) -> Self {
+    pub fn new(trend_provider: Box<dyn TrendProvider + Send + Sync>) -> Self {
         Self {
-            trade_context_provider,
             trend_provider,
             previous_trend: None,
             trades: Vec::new(),
@@ -20,12 +18,12 @@ impl<'a> Trader {
     }
 
     pub fn check(&'a mut self, now: DateTime<Utc>, price: Decimal) -> anyhow::Result<()> {
-        let trade_context_provider = &mut self.trade_context_provider;
+        let trend_provider = &mut self.trend_provider;
+
+        let trade_context_provider = trend_provider.trade_context_provider();
         trade_context_provider.set_now(now);
 
-        let trend_provider = &self.trend_provider;
-
-        let trend = trend_provider.trend(trade_context_provider)?;
+        let trend = trend_provider.trend()?;
 
         let previous_trend = self.previous_trend.get_or_insert_with(|| trend.clone());
 

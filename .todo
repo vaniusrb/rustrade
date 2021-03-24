@@ -20,18 +20,34 @@
 ✔ min x max from top inds @done(20-12-24 17:24)
 ✔ Heikin Aishi @done(20-12-25 19:01)
 ✔ EmaPlotter should be LinePlotter(indicator, color) @done(20-12-26 15:52)
-☐ When populates candle into empty database occurs Duplicate Key Error
-☐ Indicator should have a CandleProvider instead Candles parameter, and CandleSelection
-☐ Create migration for sqlx
+✔ When populates candle into empty database occurs Duplicate Key Error @done(21-03-14 21:33)
+✔ Indicator should have a CandleProvider instead Candles parameter, and CandleSelection @done(21-03-14 21:33)
+✔ Create migration for sqlx @done(21-03-14 21:33)
+✔ Remove annotations and url, move to google doc @done(21-03-14 21:33)
+✔ Remove .env and docker pass using bfg @done(21-03-14 21:33)
+✔ Became public project @done(21-03-14 21:33)
+✔ TopBottom is not a indicator, what is TopBottom? Maybe rename Indicator to IndicatorSerie and Indicator be a Trait @done(21-03-14 21:33)
+✔ Indicator provider, from hash map x enum @done(21-03-14 21:33)
+✔ Delete last candle from repo before reinsert @done(21-03-14 21:34)
+
+☐ Split ContextProvider (this returns a Contex with a update 'now') and Context (this has indicator)
+
+☐ trend_prov_factory::TrendProviderFactory::from<T:TrendProvider>(TradeContextProvider) -> T
+☐ TrendProvider.trade_context_provider(&self) -> TradeContextProvider
+
+☐ TradeContextFactory to mock set_now and avoid mut on TrendProvider.trend()
+    Try to do a TradeContextFactory with call, to caller function has a trend_provider mutable scope
+    let mut local_trend_provider = TrendProvider::new
+    TradeContextFactory::new( ||
+        let local_trend_provider = local_trend_provider.clone();
+        local_trend_provider.set_now()
+        local_trend_provider
+    )
+
 ☐ Indicator process only last period candles, but on plotting need process all
-☐ Remove annotations and url, move to google doc
-☐ Remove .env and docker pass using bfg 
-☐ Create docker compose
-☐ Became public project
 ☐ Add new candle to indicators (or replace last)
-☐ TopBottom is not a indicator, what is TopBottom? Maybe rename Indicator to IndicatorSerie and Indicator be a Trait
-☐ Indicator provider, from hash map x enum
 ☐ Strategy (trade, position, rule, etc)
+☐ Create docker compose
 ☐ Migrate TradeBase and TradeMacd
 ☐ Use close time or open time ? ema / mcad must use same
 ☐ See video Heikin Aishi
@@ -44,7 +60,6 @@
 ☐ Live download tickets/trade
 ☐ Resolve confusion checker x synchronizer
 ☐ Apply candles selection in all commands
-☐ Delete last candle from repo before reinsert
 ☐ Gui interface
 ☐ Create load command (load from database without read from expo) ?
 ☐ Not working minutes 60 from Exchange, fn for h, m, d

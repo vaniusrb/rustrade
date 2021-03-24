@@ -59,6 +59,7 @@ impl IndicatorProvider {
         slow_period: usize,
         signal_period: usize,
     ) -> anyhow::Result<&Indicator> {
+        // Try to reuse the same tiple mcad/signal/divergence
         self.mcads_opt = self
             .mcads_opt
             .take()

@@ -1,9 +1,10 @@
-use super::trend::{Operation, Trend};
 use chrono::{DateTime, Utc};
 use colored::Colorize;
 use log::debug;
 use rust_decimal::{Decimal, RoundingStrategy};
 use rust_decimal_macros::dec;
+
+use super::trend_enum::{Operation, Trend};
 
 pub static STATE_BOUGHT: &str = "bought";
 pub static STATE_SOLD: &str = "sold";

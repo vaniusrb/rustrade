@@ -1,11 +1,10 @@
 pub mod back_test_runner;
-pub mod macd_trend;
 pub mod model;
 pub mod order_executor;
 pub mod topbottom_triangle;
 pub mod trade_context_provider;
+pub mod trade_context_provider_factory;
 pub mod trader;
 pub mod trader_register;
 pub mod trend;
-pub mod trend_prov_factory;
-pub mod trend_provider;
+pub mod trend_enum;
