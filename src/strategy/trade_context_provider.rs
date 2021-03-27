@@ -1,22 +1,27 @@
-use std::{cell::RefCell, sync::Arc};
-
+use super::trade_context::TradeContext;
 use crate::{
     application::candles_provider::CandlesProviderBuffer,
     technicals::{ind_provider::IndicatorProvider, ind_type::IndicatorType, indicator::Indicator},
 };
 use chrono::{DateTime, Utc};
+use std::{cell::Cell, sync::Mutex};
 
-use super::trade_context::TradeContext;
-
-#[derive(Clone)]
 pub struct TradeContextProvider {
-    trade_context: Arc<RefCell<TradeContext>>,
+    trade_context: Mutex<Cell<TradeContext>>,
+}
+
+impl Clone for TradeContextProvider {
+    fn clone(&self) -> Self {
+        Self {
+            trade_context: Mutex::new(Cell::new(self.trade_context.lock().unwrap().get_mut().clone())),
+        }
+    }
 }
 
 impl TradeContextProvider {
     pub fn new(symbol: &str, indicator_provider: IndicatorProvider, candles_provider: CandlesProviderBuffer) -> Self {
         Self {
-            trade_context: Arc::new(RefCell::new(TradeContext::new(
+            trade_context: Mutex::new(Cell::new(TradeContext::new(
                 symbol,
                 indicator_provider,
                 candles_provider,
@@ -25,14 +30,19 @@ impl TradeContextProvider {
     }
 
     pub fn set_now(&self, now: DateTime<Utc>) {
-        self.trade_context.borrow_mut().set_now(now);
+        self.trade_context.lock().unwrap().get_mut().set_now(now);
     }
 
     pub fn now(&self) -> DateTime<Utc> {
-        self.trade_context.borrow_mut().now()
+        self.trade_context.lock().unwrap().get_mut().now()
     }
 
-    pub fn indicator(&self, minutes: u32, i_type: &IndicatorType) -> anyhow::Result<&Indicator> {
-        self.trade_context.borrow_mut().indicator(minutes, i_type)
+    pub fn indicator(&self, minutes: u32, i_type: &IndicatorType) -> anyhow::Result<Indicator> {
+        self.trade_context
+            .lock()
+            .unwrap()
+            .get_mut()
+            .indicator(minutes, i_type)
+            .map(|i| i.clone())
     }
 }

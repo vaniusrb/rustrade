@@ -31,18 +31,27 @@ impl IndicatorProvider {
             tac_indicators: HashMap::new(),
         }
     }
-    fn tac_indicator(&mut self, candles_provider: Box<dyn CandlesProvider>, ind_name: &str, period: usize) -> anyhow::Result<&Indicator> {
+    fn tac_indicator(
+        &mut self,
+        candles_provider: Box<dyn CandlesProvider>,
+        ind_name: &str,
+        period: usize,
+    ) -> anyhow::Result<&Indicator> {
         self.tac_indicators.clear();
         // TODO I shouldn't store Indicator cache, or use "now" like a key
         let result: &mut anyhow::Result<Box<dyn TechnicalIndicators + Send + Sync>> =
-            self.tac_indicators.entry((ind_name.to_string(), period)).or_insert_with(|| {
-                let result: anyhow::Result<Box<dyn TechnicalIndicators + Send + Sync>> = match ind_name {
-                    EMA_IND => Ok(Box::new(EmaTac::new(candles_provider, period)) as Box<dyn TechnicalIndicators + Send + Sync>), // <= cast box<struct> as box<trait>
-                    SMA_IND => Ok(Box::new(SmaTac::new(candles_provider, period)) as Box<dyn TechnicalIndicators + Send + Sync>),
-                    other => Err(anyhow!("Not found indicator {}!", other)),
-                };
-                result
-            });
+            self.tac_indicators
+                .entry((ind_name.to_string(), period))
+                .or_insert_with(|| {
+                    let result: anyhow::Result<Box<dyn TechnicalIndicators + Send + Sync>> = match ind_name {
+                        EMA_IND => Ok(Box::new(EmaTac::new(candles_provider, period))
+                            as Box<dyn TechnicalIndicators + Send + Sync>), // <= cast box<struct> as box<trait>
+                        SMA_IND => Ok(Box::new(SmaTac::new(candles_provider, period))
+                            as Box<dyn TechnicalIndicators + Send + Sync>),
+                        other => Err(anyhow!("Not found indicator {}!", other)),
+                    };
+                    result
+                });
         let tac = match result {
             Ok(tac) => tac,
             Err(e) => return Err(anyhow!("{}", e)),
@@ -81,17 +90,37 @@ impl IndicatorProvider {
         result
     }
 
-    pub fn indicator(&mut self, now: DateTime<Utc>, candles_provider: Box<dyn CandlesProvider>, i_type: &IndicatorType) -> anyhow::Result<&Indicator> {
+    pub fn indicator(
+        &mut self,
+        now: DateTime<Utc>,
+        candles_provider: Box<dyn CandlesProvider>,
+        i_type: &IndicatorType,
+    ) -> anyhow::Result<&Indicator> {
         let ind = match i_type {
-            IndicatorType::Macd(fast_period, slow_period, signal_period) => {
-                self.macd(now, candles_provider, MACD_IND, *fast_period, *slow_period, *signal_period)?
-            }
-            IndicatorType::MacdSignal(fast_period, slow_period, signal_period) => {
-                self.macd(now, candles_provider, MACD_SIG_IND, *fast_period, *slow_period, *signal_period)?
-            }
-            IndicatorType::MacdDivergence(fast_period, slow_period, signal_period) => {
-                self.macd(now, candles_provider, MACD_DIV_IND, *fast_period, *slow_period, *signal_period)?
-            }
+            IndicatorType::Macd(fast_period, slow_period, signal_period) => self.macd(
+                now,
+                candles_provider,
+                MACD_IND,
+                *fast_period,
+                *slow_period,
+                *signal_period,
+            )?,
+            IndicatorType::MacdSignal(fast_period, slow_period, signal_period) => self.macd(
+                now,
+                candles_provider,
+                MACD_SIG_IND,
+                *fast_period,
+                *slow_period,
+                *signal_period,
+            )?,
+            IndicatorType::MacdDivergence(fast_period, slow_period, signal_period) => self.macd(
+                now,
+                candles_provider,
+                MACD_DIV_IND,
+                *fast_period,
+                *slow_period,
+                *signal_period,
+            )?,
             IndicatorType::Ema(period) => self.tac_indicator(candles_provider, EMA_IND, *period)?,
             IndicatorType::Sma(period) => self.tac_indicator(candles_provider, SMA_IND, *period)?,
             IndicatorType::TopBottom(period) => self.tac_indicator(candles_provider, "topbottom", *period)?,

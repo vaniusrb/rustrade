@@ -1,31 +1,31 @@
-use rhai::Engine;
-
 use super::trend_provider::TrendProvider;
-use crate::strategy::{trade_context_provider::TradeContextProvider, trend_enum::Trend};
-
-type CallBackTrend = dyn Fn(&TradeContextProvider) -> anyhow::Result<Trend>;
+use crate::{
+    strategy::{trade_context_provider::TradeContextProvider, trend_enum::Trend},
+    technicals::ind_type::IndicatorType,
+};
+use rhai::{Engine, RegisterFn};
 
 pub struct ScriptTrendProvider {
     //vm: RootedThread,
     engine: Engine,
     // trade_context_provider: RefCell<TradeContextProvider>,
-    trade_context_provider: TradeContextProvider,
+    // trade_context_provider: TradeContextProvider,
 }
 
 impl ScriptTrendProvider {
-    pub fn from(trade_context_provider: TradeContextProvider) -> Self {
+    pub fn from() -> Self {
+        // trade_context_provider: TradeContextProvider
         Self {
             engine: Engine::new(),
             //vm: new_vm(),
             // trade_context_provider: RefCell::new(trade_context_provider),
-            trade_context_provider,
+            //trade_context_provider,
         }
     }
 
-    // pub fn get_mcad(&self, a: usize, b: usize, c: usize) -> f64 {
+    // pub fn get_mcad(&self, min: usize, a: usize, b: usize, c: usize) -> f64 {
     //     self.trade_context_provider
-    //         .borrow_mut()
-    //         .indicator(15, &IndicatorType::Macd(a, b, c))
+    //         .indicator(min as u32, &IndicatorType::Macd(a, b, c))
     //         .unwrap()
     //         .value()
     //         .unwrap()
@@ -46,17 +46,22 @@ impl ScriptTrendProvider {
     //     }
 }
 
-fn teste(a: u32, b: u32, c: u32) {}
-
 // https://github.com/gluon-lang/gluon/issues/873
 
 impl<'a> TrendProvider for ScriptTrendProvider {
-    fn trend(&self, trend_context_provider: &TradeContextProvider) -> anyhow::Result<Trend> {
+    fn trend(&mut self, trade_context_provider: &TradeContextProvider) -> anyhow::Result<Trend> {
         // add_extern_module(&self.vm, "context", context_module);
 
-        //self.engine.register_fn("mcad", |a, b, c| self.get_mcad(a, b, c));
+        // self.engine
+        //     .register_fn("mcad", |min: usize, a: usize, b: usize, c: usize| {
+        //         self.get_mcad(min, a, b, c)
+        //     });
 
         //let trend = if mcad > mcad_signal { Trend::Bought } else { Trend::Sold };
         Ok(Trend::Bought)
     }
+}
+
+fn run_script() {
+    // ScriptTrendProvider::from( |trade_context_provider: &TradeContextProvider| anyhow::Result<Trend> )
 }

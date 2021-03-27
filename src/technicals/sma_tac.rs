@@ -1,4 +1,7 @@
-use super::technical::{TechnicalDefinition, TechnicalIndicators};
+use super::{
+    serie::Serie,
+    technical::{TechnicalDefinition, TechnicalIndicators},
+};
 use crate::application::candles_provider::CandlesProvider;
 use crate::{config::definition::TacDefinition, technicals::indicator::Indicator};
 use rust_decimal::prelude::ToPrimitive;
@@ -33,16 +36,19 @@ impl<'a> SmaTac {
     pub fn new(mut candles_provider: Box<dyn CandlesProvider>, period: usize) -> Self {
         let candles = candles_provider.candles().unwrap();
 
-        let mut sma = Indicator::new(SMA_IND, candles.len());
+        let mut sma_series = Vec::with_capacity(candles.len());
+
         let mut indicators = HashMap::new();
 
         let mut sma_ta = Sma::new(period as usize).unwrap();
         for candle in candles.iter() {
             let close = candle.close.to_f64().unwrap();
             let sma_result = sma_ta.next(close);
-            sma.push_serie(candle.close_time, sma_result);
+
+            sma_series.push(Serie::new(candle.close_time, sma_result));
         }
 
+        let mut sma = Indicator::from(SMA_IND, sma_series);
         indicators.insert(sma.name.clone(), sma);
 
         Self { indicators }

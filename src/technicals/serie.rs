@@ -1,6 +1,6 @@
 use chrono::{DateTime, Utc};
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct Serie {
     pub date_time: DateTime<Utc>,
     pub value: f64,

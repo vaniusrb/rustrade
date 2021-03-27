@@ -1,6 +1,5 @@
 use super::serie::Serie;
 use anyhow::anyhow;
-use chrono::{DateTime, Utc};
 
 #[derive(Clone)]
 pub struct Indicator {
@@ -9,19 +8,11 @@ pub struct Indicator {
 }
 
 impl Indicator {
-    pub fn new(name: &str, capacity: usize) -> Self {
+    pub fn from(name: &str, series: Vec<Serie>) -> Self {
         Indicator {
             name: name.into(),
-            series: Vec::with_capacity(capacity),
+            series,
         }
-    }
-
-    fn _push(&mut self, serie: Serie) {
-        self.series.push(serie);
-    }
-
-    pub fn push_serie(&mut self, date_time: DateTime<Utc>, value: f64) {
-        self.series.push(Serie::new(date_time, value));
     }
 
     pub fn min_max(&self) -> (f64, f64) {

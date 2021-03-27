@@ -19,7 +19,7 @@ impl MacdTrendProvider {
 }
 
 impl TrendProvider for MacdTrendProvider {
-    fn trend(&self, trade_context_provider: &TradeContextProvider) -> anyhow::Result<Trend> {
+    fn trend(&mut self, trade_context_provider: &TradeContextProvider) -> anyhow::Result<Trend> {
         let mcad = trade_context_provider
             .indicator(15, &IndicatorType::Macd(34, 72, 17))?
             .value()?;
