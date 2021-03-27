@@ -1,10 +1,7 @@
-use std::cell::RefCell;
-
-use rhai::{Engine, RegisterFn};
+use rhai::Engine;
 
 use super::trend_provider::TrendProvider;
 use crate::strategy::{trade_context_provider::TradeContextProvider, trend_enum::Trend};
-use crate::technicals::ind_type::IndicatorType;
 
 type CallBackTrend = dyn Fn(&TradeContextProvider) -> anyhow::Result<Trend>;
 
@@ -54,16 +51,12 @@ fn teste(a: u32, b: u32, c: u32) {}
 // https://github.com/gluon-lang/gluon/issues/873
 
 impl<'a> TrendProvider for ScriptTrendProvider {
-    fn trend(&mut self) -> anyhow::Result<Trend> {
+    fn trend(&self, trend_context_provider: &TradeContextProvider) -> anyhow::Result<Trend> {
         // add_extern_module(&self.vm, "context", context_module);
 
         //self.engine.register_fn("mcad", |a, b, c| self.get_mcad(a, b, c));
 
         //let trend = if mcad > mcad_signal { Trend::Bought } else { Trend::Sold };
         Ok(Trend::Bought)
-    }
-
-    fn trade_context_provider(&mut self) -> &mut TradeContextProvider {
-        &mut self.trade_context_provider
     }
 }

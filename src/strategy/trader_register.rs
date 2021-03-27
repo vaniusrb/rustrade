@@ -37,13 +37,13 @@ impl Position {
 }
 
 #[derive(Clone)]
-pub struct Trade {
+pub struct TradeOperation {
     pub operation: Operation,
     pub now: DateTime<Utc>,
     pub price: Decimal,
 }
 
-impl Trade {
+impl TradeOperation {
     pub fn new(operation: Operation, now: DateTime<Utc>, price: Decimal) -> Self {
         Self { operation, now, price }
     }
@@ -51,18 +51,18 @@ impl Trade {
 
 pub struct TraderRegister {
     position: Position,
-    trades: Vec<Trade>,
+    trades: Vec<TradeOperation>,
 }
 
 impl TraderRegister {
-    pub fn new(postion: Position) -> Self {
+    pub fn new(position: Position) -> Self {
         Self {
-            position: postion,
+            position,
             trades: Vec::new(),
         }
     }
 
-    pub fn register(&mut self, trade: Trade) {
+    pub fn register(&mut self, trade: TradeOperation) {
         match trade.operation {
             // I have USB and must buy coin
             Operation::Buy => {
@@ -82,14 +82,28 @@ impl TraderRegister {
             }
         };
 
-        self.position.balance_coin = self.position.balance_coin.round_dp_with_strategy(8, RoundingStrategy::RoundDown);
-        self.position.balance_usd = self.position.balance_usd.round_dp_with_strategy(8, RoundingStrategy::RoundDown);
+        self.position.balance_coin = self
+            .position
+            .balance_coin
+            .round_dp_with_strategy(8, RoundingStrategy::RoundDown);
+        self.position.balance_usd = self
+            .position
+            .balance_usd
+            .round_dp_with_strategy(8, RoundingStrategy::RoundDown);
 
         self.position.state = trade.operation.to_trend();
 
         let message = match self.position.state {
-            Trend::Bought => format!("{} Bought price {} Balance USD {}", trade.now, trade.price, self.position.balance_usd).green(),
-            Trend::Sold => format!("{} Sold price {} Balance USD {}", trade.now, trade.price, self.position.balance_usd).red(),
+            Trend::Bought => format!(
+                "{} Bought price {} Balance USD {}",
+                trade.now, trade.price, self.position.balance_usd
+            )
+            .green(),
+            Trend::Sold => format!(
+                "{} Sold price {} Balance USD {}",
+                trade.now, trade.price, self.position.balance_usd
+            )
+            .red(),
         };
         debug!("{}", message);
 
@@ -100,7 +114,7 @@ impl TraderRegister {
         &self.position
     }
 
-    pub fn trades(&self) -> Vec<Trade> {
+    pub fn trades(&self) -> Vec<TradeOperation> {
         self.trades.clone()
     }
 }
