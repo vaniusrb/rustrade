@@ -1,4 +1,7 @@
-use super::technical::{TechnicalDefinition, TechnicalIndicators};
+use super::{
+    serie::Serie,
+    technical::{TechnicalDefinition, TechnicalIndicators},
+};
 use crate::application::candles_provider::CandlesProvider;
 use crate::{config::definition::TacDefinition, technicals::indicator::Indicator};
 use rust_decimal::prelude::ToPrimitive;
@@ -34,7 +37,8 @@ impl<'a> EmaTac {
     pub fn new(mut candles_provider: Box<dyn CandlesProvider>, period: usize) -> Self {
         let candles = candles_provider.candles().unwrap();
 
-        let mut ema = Indicator::new(EMA_IND, candles.len());
+        let mut ema_series = Vec::with_capacity(candles.len());
+
         let mut indicators = HashMap::new();
 
         let mut ema_ta = Ema::new(period as usize).unwrap();
@@ -42,9 +46,11 @@ impl<'a> EmaTac {
             let close = candle.close.to_f64().unwrap();
 
             let ema_result = ema_ta.next(close);
-            ema.push_serie(candle.close_time, ema_result);
+
+            ema_series.push(Serie::new(candle.close_time, ema_result));
         }
 
+        let ema = Indicator::from(EMA_IND, ema_series);
         indicators.insert(ema.name.clone(), ema);
 
         EmaTac { indicators }

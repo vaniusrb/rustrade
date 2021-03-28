@@ -20,19 +20,31 @@
 ✔ min x max from top inds @done(20-12-24 17:24)
 ✔ Heikin Aishi @done(20-12-25 19:01)
 ✔ EmaPlotter should be LinePlotter(indicator, color) @done(20-12-26 15:52)
-☐ When populates candle into empty database occurs Duplicate Key Error
-☐ Indicator should have a CandleProvider instead Candles parameter, and CandleSelection
-☐ Create migration for sqlx
+✔ When populates candle into empty database occurs Duplicate Key Error @done(21-03-14 21:33)
+✔ Indicator should have a CandleProvider instead Candles parameter, and CandleSelection @done(21-03-14 21:33)
+✔ Create migration for sqlx @done(21-03-14 21:33)
+✔ Remove annotations and url, move to google doc @done(21-03-14 21:33)
+✔ Remove .env and docker pass using bfg @done(21-03-14 21:33)
+✔ Became public project @done(21-03-14 21:33)
+✔ TopBottom is not a indicator, what is TopBottom? Maybe rename Indicator to IndicatorSerie and Indicator be a Trait @done(21-03-14 21:33)
+✔ Indicator provider, from hash map x enum @done(21-03-14 21:33)
+✔ Delete last candle from repo before reinsert @done(21-03-14 21:34)
+✔ TradeContext struct from TradeContextProvider @done(21-03-27 20:20)
+✔ Scripting with raih @done(21-03-27 20:22)
+✔ Move out script source from trend provider folder @done(21-03-27 20:29)
+✔ Load scripting from command line @done(21-03-27 21:27)
+✔ Create scripting file example @done(21-03-27 21:27)
+✔ Move sample chart to example instead "out" folder @done(21-03-27 21:26)
+✔ Create example folder and move script to this folder @done(21-03-27 21:27)
+☐ Fix tons of warnings
+☐ Parametrize output filename plot image
+☐ Create configuration file for backtest (period, symbol, script file, initial position, etc)
+☐ Create unity test for scripting (mock candles buffer and check out trades result)
+☐ Register positions
 ☐ Indicator process only last period candles, but on plotting need process all
-☐ Remove annotations and url, move to google doc
-☐ Remove .env and docker pass using bfg 
-☐ Create docker compose
-☐ Became public project
 ☐ Add new candle to indicators (or replace last)
-☐ TopBottom is not a indicator, what is TopBottom? Maybe rename Indicator to IndicatorSerie and Indicator be a Trait
-☐ Indicator provider, from hash map x enum
 ☐ Strategy (trade, position, rule, etc)
-☐ Migrate TradeBase and TradeMacd
+☐ Create docker compose
 ☐ Use close time or open time ? ema / mcad must use same
 ☐ See video Heikin Aishi
 ☐ More days to split column
@@ -44,7 +56,6 @@
 ☐ Live download tickets/trade
 ☐ Resolve confusion checker x synchronizer
 ☐ Apply candles selection in all commands
-☐ Delete last candle from repo before reinsert
 ☐ Gui interface
 ☐ Create load command (load from database without read from expo) ?
 ☐ Not working minutes 60 from Exchange, fn for h, m, d

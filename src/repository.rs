@@ -39,7 +39,10 @@ impl Repository {
         result.close_time
     }
 
-    pub fn ranges_symbol_minutes(&self, symbol_minutes: &SymbolMinutes) -> (Option<DateTime<Utc>>, Option<DateTime<Utc>>) {
+    pub fn ranges_symbol_minutes(
+        &self,
+        symbol_minutes: &SymbolMinutes,
+    ) -> (Option<DateTime<Utc>>, Option<DateTime<Utc>>) {
         let future = sqlx::query!(
             "SELECT MIN(close_time) as min_close_time, MAX(close_time) as max_close_time FROM candle WHERE symbol = $1 AND minutes = $2",
             &symbol_minutes.symbol,
@@ -59,7 +62,9 @@ impl Repository {
         let start = Instant::now();
         let end_time = Utc::now();
         let start_time = end_time - Duration::days(14);
-        let result = self.candles_by_time(symbol_minutes, &start_time, &end_time).unwrap_or_default();
+        let result = self
+            .candles_by_time(symbol_minutes, &start_time, &end_time)
+            .unwrap_or_default();
         info!("{}", iformat!("Read repository: {start.elapsed():?}"));
         result
     }
@@ -69,7 +74,7 @@ impl Repository {
 
         let future = sqlx::query_as(
             r#"
-                SELECT symbol, minutes, count(*) as qtd FROM candle                 
+                SELECT symbol, minutes, count(*) as qtd FROM candle
                 GROUP BY symbol, minutes
                 "#,
         )
@@ -83,14 +88,19 @@ impl Repository {
         result
     }
 
-    pub fn candles_by_time(&self, symbol_minutes: &SymbolMinutes, start_time: &DateTime<Utc>, end_time: &DateTime<Utc>) -> Option<Vec<Candle>> {
+    pub fn candles_by_time(
+        &self,
+        symbol_minutes: &SymbolMinutes,
+        start_time: &DateTime<Utc>,
+        end_time: &DateTime<Utc>,
+    ) -> Option<Vec<Candle>> {
         let minutes = Decimal::from(symbol_minutes.minutes);
 
         #[allow(clippy::suspicious_else_formatting)]
         let future = sqlx::query_as!(
             Candle,
             r#"
-                SELECT * FROM candle 
+                SELECT * FROM candle
                 WHERE symbol = $1 AND minutes = $2 AND (open_time BETWEEN $3 AND $4 OR close_time BETWEEN $3 AND $4)
                 ORDER BY open_time
             "#,
@@ -110,7 +120,7 @@ impl Repository {
         let future = sqlx::query_as!(
             Candle,
             r#"
-                SELECT * FROM candle 
+                SELECT * FROM candle
                 WHERE symbol = $1 AND minutes = $2
                 ORDER BY open_time DESC
                 FETCH FIRST $3 ROWS ONLY
@@ -151,7 +161,7 @@ impl Repository {
     pub fn insert_candle(&self, candle: &Candle) -> anyhow::Result<Decimal> {
         let future = sqlx::query!(
             r#"
-                INSERT INTO candle ( 
+                INSERT INTO candle (
                     id,
                     symbol,
                     minutes,
@@ -183,6 +193,7 @@ impl Repository {
     }
 
     pub fn delete_all_candles(&self) -> anyhow::Result<()> {
+        info!("Deleting all candles...");
         let future = sqlx::query!("DELETE FROM candle").execute(&self.pool);
         async_std::task::block_on(future)?;
         Ok(())
@@ -195,8 +206,8 @@ impl Repository {
 
     pub fn delete_last_candle(&self, symbol_minutes: &SymbolMinutes) {
         let future = sqlx::query!(
-            r#"DELETE FROM candle WHERE id = 
-            (SELECT id FROM candle WHERE symbol = $1 AND minutes = $2 
+            r#"DELETE FROM candle WHERE id =
+            (SELECT id FROM candle WHERE symbol = $1 AND minutes = $2
                 ORDER BY close_time DESC FETCH FIRST 1 ROWS ONLY
             )"#,
             symbol_minutes.symbol,
@@ -229,7 +240,9 @@ pub mod tests {
         let start_time = end_time - Duration::days(30);
         let repo = Repository::new().unwrap();
         let symbol_minutes = SymbolMinutes::new("BTCUSDT", &15);
-        let candles = repo.candles_by_time(&symbol_minutes, &start_time, &end_time).unwrap_or_default();
+        let candles = repo
+            .candles_by_time(&symbol_minutes, &start_time, &end_time)
+            .unwrap_or_default();
 
         println!("Found candles:");
         for candle in candles.iter() {

@@ -308,9 +308,9 @@ checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
 
 [[package]]
 name = "binance"
-version = "0.11.1"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c81fcd0305cd3fc420bde3a1614edea1c85310422f92fb1281bf9bb7f17489ac"
+checksum = "9a7757e1538b6035b74bd606aa6b193203a32f4bd90a739d79dd024871d30bfd"
 dependencies = [
  "error-chain",
  "hex",
@@ -2328,6 +2328,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "rhai"
+version = "0.19.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "309d2e139896eccb9487d8ddc4147dc98062a54d52916d0d638b100de8b1fcac"
+dependencies = [
+ "ahash 0.6.2",
+ "instant",
+ "num-traits",
+ "rhai_codegen",
+ "smallvec",
+]
+
+[[package]]
+name = "rhai_codegen"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16f2da2116fb882e3977223ab21acb2176bdc995a794aff3c727e6491476c0ef"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "rust-argon2"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2396,6 +2420,7 @@ dependencies = [
  "plotters-bitmap",
  "postgres",
  "rayon",
+ "rhai",
  "rust_decimal",
  "rust_decimal_macros",
  "serde",
@@ -2625,9 +2650,9 @@ checksum = "c111b5bd5695e56cffe5129854aa230b39c93a305372fdbb2668ca2394eea9f8"
 
 [[package]]
 name = "smallvec"
-version = "1.5.0"
+version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7acad6f34eb9e8a259d3283d1e8c1d34d7415943d4895f65cc73813c7396fc85"
+checksum = "fe0f37c9e8f3c5a4a66ad655a93c74daac4ad00c441533bf5c6e7990bb42604e"
 
 [[package]]
 name = "socket2"

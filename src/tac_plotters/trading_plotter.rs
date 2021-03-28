@@ -1,7 +1,7 @@
 use super::indicator_plotter::PlotterIndicatorContext;
 use crate::{
     config::selection::Selection,
-    strategy::{trader_register::Trade, trend::Operation},
+    strategy::{trader_register::TradeOperation, trend_enum::Operation},
 };
 use chrono::{DateTime, Utc};
 use plotters::{
@@ -15,11 +15,11 @@ use rust_decimal::prelude::ToPrimitive;
 use rust_decimal_macros::dec;
 
 pub struct TradingPlotter<'a> {
-    trades: &'a [Trade],
+    trades: &'a [TradeOperation],
 }
 
 impl<'a> TradingPlotter<'a> {
-    pub fn new(trades: &'a [Trade]) -> Self {
+    pub fn new(trades: &'a [TradeOperation]) -> Self {
         TradingPlotter { trades }
     }
 }
@@ -28,7 +28,10 @@ impl<'a> PlotterIndicatorContext for TradingPlotter<'a> {
     fn plot(
         &self,
         _selection: &Selection,
-        chart_context: &mut ChartContext<BitMapBackend<RGBPixel>, Cartesian2d<RangedDateTime<DateTime<Utc>>, RangedCoordf32>>,
+        chart_context: &mut ChartContext<
+            BitMapBackend<RGBPixel>,
+            Cartesian2d<RangedDateTime<DateTime<Utc>>, RangedCoordf32>,
+        >,
     ) -> anyhow::Result<()> {
         let red = RGBColor(164, 16, 64);
         let green = RGBColor(16, 196, 64);

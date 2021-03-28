@@ -10,20 +10,21 @@ fold_firstq = 'yes'
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-atty = "0.2"
-lazy_static = "1.4"
-termcolor = "1.1"
 anyhow = "1.0"
 async-std = {version = "1.9", features = ["attributes"]}
-binance = "0.11"
+atty = "0.2"
+binance = "0.12"
 chrono = "0.4"
 colored = "2.0"
 dotenv = "0.15"
 futures = "0.3"
 ifmt = "0.3"
+lazy_static = "1.4"
 log = "0.4"
 plotters = {version = "0.3"}
+rhai = "0.19.14"
 structopt = "0.3"
+termcolor = "1.1"
 # plotters = {Version = "0.3.0", default_features = false, features = ["datetime", "candlestick", "point_series", "line_series", "ttf", "bitmap_encoder"]}
 # plotters-bitmap = {version = "0.3.0", default-features = true, features = ["image_encoder"]}
 lockfree-object-pool = "0.1"
@@ -35,5 +36,5 @@ rust_decimal = {version = "1.10"}
 rust_decimal_macros = "1.10"
 serde = {version = "1.0", features = ["derive"]}
 serde_json = "1.0"
-sqlx = {version = "0.5.1", features = ["runtime-async-std-native-tls", "postgres", "macros", "decimal", "chrono"]}
+sqlx = {version = "0.5", features = ["runtime-async-std-native-tls", "postgres", "macros", "decimal", "chrono"]}
 ta = "0.4"

@@ -13,6 +13,7 @@ use crate::{
     repository::Repository,
 };
 
+#[derive(Clone)]
 pub struct Checker<'a> {
     repo: &'a Repository,
     exchange: &'a Exchange,
@@ -41,11 +42,9 @@ impl<'a> Checker<'a> {
 
             let d1 = dec!(1);
 
-            let mut candles = self.exchange.candles(
-                &self.symbol_minutes,
-                &Some(*last_close_time),
-                &None, //  + Duration::minutes(*self.minutes as i64)
-            )?;
+            let mut candles = self
+                .exchange
+                .candles(&self.symbol_minutes, &Some(*last_close_time), &None)?;
 
             let mut last_id = self.repo.last_id();
 
@@ -81,15 +80,23 @@ impl<'a> Checker<'a> {
         let start = Instant::now();
         let start_time = selection.start_time;
         let end_time = selection.end_time;
-        info!("{}", iformat!("Check consistent: {self.symbol_minutes:?} {start_time:?} {end_time:?}"));
+        info!(
+            "{}",
+            iformat!("Check consistent: {self.symbol_minutes:?} {start_time:?} {end_time:?}")
+        );
 
-        let candles = repo.candles_by_time(&self.symbol_minutes, &start_time, &end_time).unwrap_or_default();
+        let candles = repo
+            .candles_by_time(&self.symbol_minutes, &start_time, &end_time)
+            .unwrap_or_default();
 
         info!("{}", iformat!("Found candles: {candles.len()}"));
 
         let candles_ref: Vec<_> = candles.iter().collect();
 
-        let inconsist = inconsistent_candles(candles_ref.as_slice(), &Duration::minutes(self.symbol_minutes.minutes as i64));
+        let inconsist = inconsistent_candles(
+            candles_ref.as_slice(),
+            &Duration::minutes(self.symbol_minutes.minutes as i64),
+        );
         info!("{}", iformat!("Inconsist candles: {inconsist.len()}"));
         for candle in inconsist.iter() {
             info!("{}", iformat!("{candle}"));
@@ -102,14 +109,19 @@ impl<'a> Checker<'a> {
         let start_time = end_time - Duration::days(180);
         let repo = Repository::new().unwrap();
 
-        let candles = repo.candles_by_time(&self.symbol_minutes, &start_time, &end_time).unwrap_or_default();
+        let candles = repo
+            .candles_by_time(&self.symbol_minutes, &start_time, &end_time)
+            .unwrap_or_default();
 
         info!("{}", iformat!("Found candles: {candles.len()}"));
 
         let candles_ref: Vec<_> = candles.iter().collect();
 
         info!("Inconsist candles:");
-        let inconsist = inconsistent_candles(candles_ref.as_slice(), &Duration::minutes(self.symbol_minutes.minutes as i64));
+        let inconsist = inconsistent_candles(
+            candles_ref.as_slice(),
+            &Duration::minutes(self.symbol_minutes.minutes as i64),
+        );
         for candle in inconsist.iter() {
             info!("{}", iformat!("{candle}"));
             self.repo.delete_candle(&candle.id);
