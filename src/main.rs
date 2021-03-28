@@ -34,7 +34,7 @@ enum Command {
     Sync {},
     /// Fix records
     Fix {},
-    /// Delete all candles
+    /// Delete all candles'
     DeleteAll,
     /// List
     List {},
@@ -48,6 +48,12 @@ enum Command {
     Stream {},
     /// Run trader bot back test
     BackTest {},
+    /// Run script trader bot back test
+    ScriptBackTest {
+        /// Rhai script file
+        #[structopt(short, long)]
+        file: String,
+    },
 }
 
 #[derive(Debug, StructOpt)]
@@ -88,7 +94,11 @@ pub fn selection_factory(candles_selection: CandlesSelection) -> Selection {
 async fn main() -> anyhow::Result<()> {
     let opt = Opt::from_args();
 
-    let level = if opt.debug { LevelFilter::Debug } else { LevelFilter::Info };
+    let level = if opt.debug {
+        LevelFilter::Debug
+    } else {
+        LevelFilter::Info
+    };
 
     utils::log_utils::setup_log(level, module_path!());
 
@@ -96,13 +106,18 @@ async fn main() -> anyhow::Result<()> {
     let exchange: Exchange = Exchange::new()?;
     let repo: Repository = Repository::new()?;
 
-    let candles_selection = CandlesSelection::new(&opt.symbol, &opt.minutes, str_to_datetime(&opt.start_time), str_to_datetime(&opt.end_time));
+    let candles_selection = CandlesSelection::new(
+        &opt.symbol,
+        &opt.minutes,
+        str_to_datetime(&opt.start_time),
+        str_to_datetime(&opt.end_time),
+    );
     let selection = selection_factory(candles_selection.clone());
 
     let symbol_minutes = SymbolMinutes::new(&opt.symbol, &opt.minutes);
     let checker = Checker::new(&symbol_minutes, &repo, &exchange);
 
-    let mut app = Application::new(Repository::new()?, Exchange::new()?, &checker, selection);
+    let mut app = Application::new(Repository::new()?, Exchange::new()?, selection);
 
     match opt.command {
         Command::Check {} => {
@@ -115,7 +130,6 @@ async fn main() -> anyhow::Result<()> {
             checker.delete_inconsist();
         }
         Command::DeleteAll {} => {
-            info!("Deleting all candles...");
             repo.delete_all_candles()?;
         }
         Command::List {} => {
@@ -131,6 +145,7 @@ async fn main() -> anyhow::Result<()> {
             app.plot_triangles()?;
         }
         Command::BackTest {} => app.run_back_test()?,
+        Command::ScriptBackTest { file } => app.run_script_test(&file)?,
     };
     info!("Exiting program");
     Ok(())

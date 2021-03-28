@@ -55,7 +55,7 @@ impl<'a> MacdTac {
 
         let mut indicators = HashMap::new();
 
-        // 34, 72, 17
+        // Default values are 34, 72, 17
         let mut macd_ta = Macd::new(fast_period, slow_period, signal_period).unwrap();
         for candle in candles.iter() {
             let close = candle.close.to_f64().unwrap();

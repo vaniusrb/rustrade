@@ -36,7 +36,7 @@ impl Position {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct TradeOperation {
     pub operation: Operation,
     pub now: DateTime<Utc>,

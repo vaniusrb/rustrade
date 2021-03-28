@@ -32,7 +32,7 @@ impl TechnicalIndicators for SmaTac {
 }
 
 impl<'a> SmaTac {
-    // default period is 34
+    // Default period is 34
     pub fn new(mut candles_provider: Box<dyn CandlesProvider>, period: usize) -> Self {
         let candles = candles_provider.candles().unwrap();
 
@@ -48,7 +48,7 @@ impl<'a> SmaTac {
             sma_series.push(Serie::new(candle.close_time, sma_result));
         }
 
-        let mut sma = Indicator::from(SMA_IND, sma_series);
+        let sma = Indicator::from(SMA_IND, sma_series);
         indicators.insert(sma.name.clone(), sma);
 
         Self { indicators }

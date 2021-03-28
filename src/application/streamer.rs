@@ -5,11 +5,11 @@ use log::info;
 use std::thread;
 
 pub struct Streamer<'a> {
-    app: &'a mut Application<'a>,
+    app: &'a mut Application,
 }
 
 impl<'a> Streamer<'a> {
-    pub fn new(app: &'a mut Application<'a>) -> Self {
+    pub fn new(app: &'a mut Application) -> Self {
         Self { app }
     }
 
@@ -81,7 +81,9 @@ impl<'a> Streamer<'a> {
 
                 if line == IMPORT {
                     info!("Getting candles...");
-                    self.app.candles_provider.set_candles_selection(self.app.selection.candles_selection.clone());
+                    self.app
+                        .candles_provider
+                        .set_candles_selection(self.app.selection.candles_selection.clone());
                     let _candles = self.app.candles_provider.candles()?;
                     info!("Candles got");
                     continue;

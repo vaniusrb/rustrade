@@ -5,6 +5,8 @@ use super::{
     trend::trend_provider::TrendProvider, trend_enum::Trend,
 };
 use chrono::{DateTime, Utc};
+use ifmt::iformat;
+use log::info;
 use rust_decimal::Decimal;
 
 pub struct Trader {
@@ -33,12 +35,13 @@ impl<'a> Trader {
 
     pub fn check(&'a mut self, now: DateTime<Utc>, price: Decimal) -> anyhow::Result<()> {
         self.trade_context_provider.set_now(now);
-        let trend = self.trend_provider.trend(&mut self.trade_context_provider)?;
+        let trend = self.trend_provider.trend(&self.trade_context_provider)?;
 
         let previous_trend = self.previous_trend.get_or_insert_with(|| trend.clone());
 
         if &trend != previous_trend {
             let trade_operation = TradeOperation::new(trend.to_operation(), now, price);
+            info!("{}", iformat!("Trade operation: {trade_operation:?}"));
             self.trade_operations.push(trade_operation);
         }
         self.previous_trend = Some(trend);

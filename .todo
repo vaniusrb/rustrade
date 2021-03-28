@@ -29,24 +29,22 @@
 ✔ TopBottom is not a indicator, what is TopBottom? Maybe rename Indicator to IndicatorSerie and Indicator be a Trait @done(21-03-14 21:33)
 ✔ Indicator provider, from hash map x enum @done(21-03-14 21:33)
 ✔ Delete last candle from repo before reinsert @done(21-03-14 21:34)
-
-☐ TradeContext ???
-☐ Split ContextProvider (this returns a Contex with a update 'now') and Context (this has indicator)
-☐ trend_prov_factory::TrendProviderFactory::from<T:TrendProvider>(TradeContextProvider) -> T
-☐ TrendProvider.trade_context_provider(&self) -> TradeContextProvider
-☐ TradeContextFactory to mock set_now and avoid mut on TrendProvider.trend()
-    Try to do a TradeContextFactory with call, to caller function has a trend_provider mutable scope
-    let mut local_trend_provider = TrendProvider::new
-    TradeContextFactory::new( ||
-        let local_trend_provider = local_trend_provider.clone();
-        local_trend_provider.set_now()
-        local_trend_provider
-    )
+✔ TradeContext struct from TradeContextProvider @done(21-03-27 20:20)
+✔ Scripting with raih @done(21-03-27 20:22)
+✔ Move out script source from trend provider folder @done(21-03-27 20:29)
+✔ Load scripting from command line @done(21-03-27 21:27)
+✔ Create scripting file example @done(21-03-27 21:27)
+✔ Move sample chart to example instead "out" folder @done(21-03-27 21:26)
+✔ Create example folder and move script to this folder @done(21-03-27 21:27)
+☐ Fix tons of warnings
+☐ Parametrize output filename plot image
+☐ Create configuration file for backtest (period, symbol, script file, initial position, etc)
+☐ Create unity test for scripting (mock candles buffer and check out trades result)
+☐ Register positions
 ☐ Indicator process only last period candles, but on plotting need process all
 ☐ Add new candle to indicators (or replace last)
 ☐ Strategy (trade, position, rule, etc)
 ☐ Create docker compose
-☐ Migrate TradeBase and TradeMacd
 ☐ Use close time or open time ? ema / mcad must use same
 ☐ See video Heikin Aishi
 ☐ More days to split column

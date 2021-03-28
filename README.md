@@ -1,7 +1,10 @@
 ## WIP: Experimental bot trader for crypto currency written in Rust
+It's a personal project and it's not finished.
 
 ### Objectives
-* Synchronize candles from exchange into local database to provide fast back test with custom trade rules
+* Synchronize candles from exchange into local database
+* Provide fast back test with custom trade rules
+* Allow custom trade from script file
 * Automatize live trade operations
 * Tooling to verify operations from plotted chart images
 
@@ -12,28 +15,31 @@
 - [x] Plot image with candles and indicators
 - [x] Detect top/bottom candles
 - [x] Allow run with input/output stream to interop with other process
-- [ ] Plot sma indicator
-- [ ] Bot trade runner
+- [x] MVP scripting custom rules (📢 NEW! 😎)
+- [ ] Add more functions to technical analysis scripting
 - [ ] Register position, operation, profits and others
+- [ ] Visual tools for checking operations
+- [ ] Bot trade runner
 - [ ] GUI
 
 ### Generated sample chart
-![plotted image](out/stock.png)
+![plotted image](examples/out/stock.png)
 
 ### Main libs used
-* [Binance API](https://docs.rs/binance/0.11.3/binance/)
-* [TA (Technical Analysis)](https://docs.rs/ta/0.4.0/ta/)
-* [SQLx](https://docs.rs/sqlx/0.5.1/sqlx/)
-* [Plotters](https://docs.rs/plotters/0.3.0/plotters/)
+* [Binance API](https://crates.io/crates/binance)
+* [TA (Technical Analysis)](https://crates.io/crates/ta)
+* [SQLx](https://crates.io/crates/sqlx)
+* [Plotters](https://crates.io/crates/plotters)
+* [rhai (Scripting Language)](https://crates.io/crates/rhai)
 
 ### Prerequisites
 
 1) Rust 1.51 or greater
 
-2) Environment variables (or .env file in current directory):  
-`API_KEY` Binance API key  
-`SECRET_KEY` Binance API secret  
-`DATABASE_URL` Postgres database URL  
+2) Environment variables (or .env file in current directory):
+`API_KEY` Binance API key
+`SECRET_KEY` Binance API secret
+`DATABASE_URL` Postgres database URL
 
 3) Dependencies (due plot library)
 ```
@@ -63,10 +69,25 @@ Example plot command, that generates image in `out/` directory:
 ```
 cargo run --release -- --debug -y BTCUSDT -m 15 -s "2020-12-21 00:00:00" -e "2020-12-25 23:00:00" plot
 ```
-Parameters:  
--y symbol  
--m minutes candle time  
--s start date time  
--e end date time  
+Parameters:
+-y symbol
+-m minutes candle time
+-s start date time
+-e end date time
 
-Other commands samples in `command/` directory.
+Example run backtest script:
+```
+cargo run --release -- -y BTCUSDT -m 15 -s "2020-11-01 00:00:00" -e "2020-12-31 23:45:00" script-back-test --file examples/mcad.rhai
+```
+Script content:
+```rhai
+fn buy() {
+    if macd(15, 34, 72, 17) > macd_signal(15, 34, 72, 17) {
+        true
+    } else {
+        false
+    }
+}
+```
+
+Other commands samples in `examples/command/` directory.
