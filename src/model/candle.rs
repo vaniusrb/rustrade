@@ -54,6 +54,9 @@ impl Candle {
 impl Display for Candle {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let close_time_fmt = time_to_str(&self.close_time);
-        iwrite!(f, "{self.symbol} [{self.minutes} {self.open_time} {close_time_fmt}] {self.close}")
+        iwrite!(
+            f,
+            "{self.symbol} [{self.minutes} {self.open_time} {close_time_fmt}] {self.close}"
+        )
     }
 }

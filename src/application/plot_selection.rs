@@ -2,8 +2,9 @@ use super::candles_provider::CandlesProvider;
 use crate::{
     config::selection::Selection,
     tac_plotters::{
-        candles_plotter::CandlePlotter, indicator_plotter::PlotterIndicatorContext, line_ind_plotter::LineIndicatorPlotter, macd_plotter::MacdPlotter,
-        plotter::Plotter, topbottom_plotter::TopBottomPlotter,
+        candles_plotter::CandlePlotter, indicator_plotter::PlotterIndicatorContext,
+        line_ind_plotter::LineIndicatorPlotter, macd_plotter::MacdPlotter, plotter::Plotter,
+        topbottom_plotter::TopBottomPlotter,
     },
     technicals::technical::TechnicalIndicators,
     technicals::{ema_tac::EmaTac, macd::macd_tac::MacdTac, topbottom::TopBottomTac},
@@ -44,8 +45,8 @@ pub fn plot_selection<'a>(
     let macd_tac = MacdTac::new(candles_provider_clone.clone_provider(), 34, 72, 17);
     let ema_short_tac = EmaTac::new(candles_provider_clone.clone_provider(), 17);
     let ema_long_tac = EmaTac::new(candles_provider_clone.clone_provider(), 72);
-    let mut topbottom_tac = TopBottomTac::new(candles_provider_clone, 7);
-    let topbottoms = topbottom_tac.topbottoms()?;
+    let mut top_bottom_tac = TopBottomTac::new(candles_provider_clone, 7);
+    let top_bottoms = top_bottom_tac.top_bottoms()?;
     let mut plotter = Plotter::new(selection.clone());
 
     // ema 17 = purple
@@ -55,7 +56,7 @@ pub fn plot_selection<'a>(
     let long_orange = RGBColor(255, 165, 0);
     // Upper indicators
     let candle_plotter = CandlePlotter::new(&candles);
-    let topbottom_plotter = TopBottomPlotter::new(&topbottoms);
+    let topbottom_plotter = TopBottomPlotter::new(&top_bottoms);
     let ema_short_plotter = LineIndicatorPlotter::new(ema_short_tac.main_indicator(), short_purple);
     let ema_long_plotter = LineIndicatorPlotter::new(ema_long_tac.main_indicator(), long_orange);
 

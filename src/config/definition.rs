@@ -16,7 +16,7 @@ impl TacDefinition {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ConfigDefinition {
     tacs: Vec<TacDefinition>, //[{name: mcad, indicators: [ "signal", "diff" ] }]
     minutes: Vec<u32>,        //[1,5,15],

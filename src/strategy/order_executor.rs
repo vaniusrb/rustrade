@@ -1,4 +1,4 @@
-use super::trend::Trend;
+use super::trend_enum::Trend;
 
 pub struct OrderExecutor {
     previous_trend: Option<Trend>,
