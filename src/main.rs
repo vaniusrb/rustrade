@@ -1,7 +1,6 @@
 #![feature(nll)]
 #![feature(associated_type_bounds)]
 
-pub mod analyzers;
 pub mod application;
 pub mod candles_range;
 mod candles_utils;

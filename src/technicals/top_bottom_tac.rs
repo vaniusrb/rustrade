@@ -3,6 +3,9 @@ use crate::{application::candles_provider::CandlesProvider, config::definition::
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use std::{cmp::Ordering, collections::HashSet};
+
+pub const TOP_BOTTOM_IND: &str = "topbottom";
+
 #[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Clone, Hash)]
 pub enum TopBottomType {
     Top,

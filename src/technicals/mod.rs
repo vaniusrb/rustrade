@@ -5,7 +5,7 @@ pub mod ind_provider;
 pub mod ind_type;
 pub mod indicator;
 pub mod macd;
-pub mod topbottom;
 pub mod serie;
 pub mod sma_tac;
 pub mod technical;
+pub mod top_bottom_tac;

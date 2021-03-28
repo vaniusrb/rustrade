@@ -7,13 +7,13 @@ use super::{
 };
 use crate::strategy::back_test_runner::run_trader_back_test;
 use crate::strategy::script_back_test::run_script;
+use crate::technicals::top_bottom_tac::TopBottomTac;
 use crate::{
     candles_utils::datetime_to_filename,
     config::{definition::ConfigDefinition, selection::Selection},
     exchange::Exchange,
     repository::Repository,
-    strategy::topbottom_triangle::topbottom_triangle,
-    technicals::topbottom::TopBottomTac,
+    strategy::top_bottom_triangle::top_bottom_triangle,
 };
 use chrono::Duration;
 use log::info;
@@ -90,7 +90,7 @@ pub fn plot_triangles(selection: Selection, candles_provider: Box<dyn CandlesPro
 
     let minutes = selection.candles_selection.symbol_minutes.minutes;
 
-    let triangles = topbottom_triangle(top_bottoms_ref, &minutes);
+    let triangles = top_bottom_triangle(top_bottoms_ref, &minutes);
     triangles.iter().for_each(|triangle| {
         let mut selection_par = selection.clone();
         let open_time = triangle.open(&minutes);

@@ -1,7 +1,7 @@
 use super::indicator_plotter::PlotterIndicatorContext;
 use crate::{
     config::selection::Selection,
-    technicals::topbottom::{TopBottom, TopBottomType},
+    technicals::top_bottom_tac::{TopBottom, TopBottomType},
 };
 use chrono::{DateTime, Utc};
 use plotters::{
@@ -15,12 +15,12 @@ use rust_decimal::prelude::ToPrimitive;
 use rust_decimal_macros::dec;
 
 pub struct TopBottomPlotter<'a> {
-    topbottoms: &'a [TopBottom],
+    top_bottoms: &'a [TopBottom],
 }
 
 impl<'a> TopBottomPlotter<'a> {
-    pub fn new(topbottoms: &'a [TopBottom]) -> Self {
-        TopBottomPlotter { topbottoms }
+    pub fn new(top_bottoms: &'a [TopBottom]) -> Self {
+        TopBottomPlotter { top_bottoms }
     }
 }
 
@@ -28,15 +28,18 @@ impl<'a> PlotterIndicatorContext for TopBottomPlotter<'a> {
     fn plot(
         &self,
         _selection: &Selection,
-        chart_context: &mut ChartContext<BitMapBackend<RGBPixel>, Cartesian2d<RangedDateTime<DateTime<Utc>>, RangedCoordf32>>,
+        chart_context: &mut ChartContext<
+            BitMapBackend<RGBPixel>,
+            Cartesian2d<RangedDateTime<DateTime<Utc>>, RangedCoordf32>,
+        >,
     ) -> anyhow::Result<()> {
         let red = RGBColor(164, 16, 64);
         let green = RGBColor(16, 196, 64);
 
-        let topbottoms = self.topbottoms;
+        let top_bottoms = self.top_bottoms;
 
         let lows = PointSeries::of_element(
-            topbottoms
+            top_bottoms
                 .iter()
                 .filter(|p| p.type_p == TopBottomType::Top)
                 .map(|c| (c.close_time, c.price.to_f32().unwrap())),
@@ -50,7 +53,7 @@ impl<'a> PlotterIndicatorContext for TopBottomPlotter<'a> {
         chart_context.draw_series(lows)?;
 
         let tops = PointSeries::of_element(
-            topbottoms
+            top_bottoms
                 .iter()
                 .filter(|p| p.type_p == TopBottomType::Bottom)
                 .map(|c| (c.close_time, c.price.to_f32().unwrap())),
@@ -67,8 +70,8 @@ impl<'a> PlotterIndicatorContext for TopBottomPlotter<'a> {
     }
 
     fn min_max(&self) -> (f64, f64) {
-        let max = self.topbottoms.iter().fold(dec!(0), |acc, t| acc.max(t.price));
-        let min = self.topbottoms.iter().fold(max, |acc, t| acc.min(t.price));
+        let max = self.top_bottoms.iter().fold(dec!(0), |acc, t| acc.max(t.price));
+        let min = self.top_bottoms.iter().fold(max, |acc, t| acc.min(t.price));
         (min.to_f64().unwrap(), max.to_f64().unwrap())
     }
 }

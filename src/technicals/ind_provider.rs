@@ -4,6 +4,7 @@ use super::{
     macd::macd_tac::{MacdTac, MACD_DIV_IND, MACD_IND, MACD_SIG_IND},
     sma_tac::{SmaTac, SMA_IND},
     technical::TechnicalIndicators,
+    top_bottom_tac::TOP_BOTTOM_IND,
 };
 use crate::{application::candles_provider::CandlesProvider, technicals::indicator::Indicator};
 use anyhow::anyhow;
@@ -123,7 +124,7 @@ impl IndicatorProvider {
             )?,
             IndicatorType::Ema(period) => self.tac_indicator(candles_provider, EMA_IND, *period)?,
             IndicatorType::Sma(period) => self.tac_indicator(candles_provider, SMA_IND, *period)?,
-            IndicatorType::TopBottom(period) => self.tac_indicator(candles_provider, "topbottom", *period)?,
+            IndicatorType::TopBottom(period) => self.tac_indicator(candles_provider, TOP_BOTTOM_IND, *period)?,
         };
         Ok(ind)
     }

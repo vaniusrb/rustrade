@@ -1,8 +1,10 @@
 use crate::{application::candles_provider::CandlesProviderBuffer, technicals::ind_provider::IndicatorProvider};
 
 use super::{
-    trade_context_provider::TradeContextProvider, trader_register::TradeOperation,
-    trend::trend_provider::TrendProvider, trend_enum::Trend,
+    trade_context_provider::TradeContextProvider,
+    trader_register::{TradeOperation, TraderRegister},
+    trend::trend_provider::TrendProvider,
+    trend_enum::Trend,
 };
 use chrono::{DateTime, Utc};
 use ifmt::iformat;
@@ -14,6 +16,7 @@ pub struct Trader {
     previous_trend: Option<Trend>,
     trade_operations: Vec<TradeOperation>,
     trade_context_provider: TradeContextProvider,
+    trader_register: TraderRegister,
 }
 
 impl<'a> Trader {
@@ -22,6 +25,7 @@ impl<'a> Trader {
         symbol: &str,
         indicator_provider: IndicatorProvider,
         candles_provider: CandlesProviderBuffer,
+        trader_register: TraderRegister,
     ) -> Self {
         let trade_context_provider = TradeContextProvider::new(symbol, indicator_provider, candles_provider);
 
@@ -30,6 +34,7 @@ impl<'a> Trader {
             previous_trend: None,
             trade_operations: Vec::new(),
             trade_context_provider,
+            trader_register,
         }
     }
 
@@ -42,6 +47,9 @@ impl<'a> Trader {
         if &trend != previous_trend {
             let trade_operation = TradeOperation::new(trend.to_operation(), now, price);
             info!("{}", iformat!("Trade operation: {trade_operation:?}"));
+
+            self.trader_register.register(trade_operation.clone());
+
             self.trade_operations.push(trade_operation);
         }
         self.previous_trend = Some(trend);

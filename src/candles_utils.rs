@@ -79,18 +79,21 @@ pub fn str_d(string: &str) -> DateTime<Utc> {
 
 /// If candles are sorted ok
 pub fn _candles_sorted_ok(candles: &[&Candle]) -> bool {
-    let sort_ok = candles.iter().map(Some).fold((true, None::<&&Candle>), |previous, current| {
-        let result = if let Some(previous_c) = previous.1 {
-            if let Some(current_c) = current {
-                previous.0 && (current_c.open_time > previous_c.open_time)
+    let sort_ok = candles
+        .iter()
+        .map(Some)
+        .fold((true, None::<&&Candle>), |previous, current| {
+            let result = if let Some(previous_c) = previous.1 {
+                if let Some(current_c) = current {
+                    previous.0 && (current_c.open_time > previous_c.open_time)
+                } else {
+                    previous.0
+                }
             } else {
                 previous.0
-            }
-        } else {
-            previous.0
-        };
-        (result, current)
-    });
+            };
+            (result, current)
+        });
     sort_ok.0
 }
 
@@ -120,8 +123,14 @@ pub fn min_max_close_time_from_candles(candles: &[&Candle]) -> Option<(OpenClose
         return None;
     }
     let mut min_date = OpenClose::Open(str_to_datetime("2000-01-01 00:00:00"));
-    let max_date = candles.iter().map(|c| c.open_close()).fold(min_date, |acc, x| acc.max(x));
-    min_date = candles.iter().map(|c| c.open_close()).fold(max_date, |acc, x| acc.min(x));
+    let max_date = candles
+        .iter()
+        .map(|c| c.open_close())
+        .fold(min_date, |acc, x| acc.max(x));
+    min_date = candles
+        .iter()
+        .map(|c| c.open_close())
+        .fold(max_date, |acc, x| acc.min(x));
     Some((min_date, max_date))
 }
 

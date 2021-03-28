@@ -7,6 +7,7 @@ use crate::{
     candles_range::minutes_open_trunc,
     candles_utils::{str_d, str_to_datetime},
 };
+
 #[derive(Debug, Eq, Copy, Clone)]
 pub enum OpenClose {
     Open(DateTime<Utc>),
@@ -25,7 +26,9 @@ impl PartialEq for OpenClose {
             (OpenClose::Close(self_close), OpenClose::OpenClose(_other_open, other_close)) => self_close == other_close,
             (OpenClose::OpenClose(self_open, _self_close), OpenClose::Open(other_open)) => self_open == other_open,
             (OpenClose::OpenClose(_self_open, self_close), OpenClose::Close(other_close)) => self_close == other_close,
-            (OpenClose::OpenClose(self_open, _sc), OpenClose::OpenClose(other_open, _other_close)) => self_open == other_open,
+            (OpenClose::OpenClose(self_open, _sc), OpenClose::OpenClose(other_open, _other_close)) => {
+                self_open == other_open
+            }
         }
     }
 }
@@ -37,10 +40,16 @@ impl Ord for OpenClose {
             (OpenClose::Open(self_open), OpenClose::OpenClose(other_open, _other_close)) => self_open.cmp(other_open),
             (OpenClose::Close(_self_close), OpenClose::Open(_other_open)) => Ordering::Equal,
             (OpenClose::Close(self_close), OpenClose::Close(other_close)) => self_close.cmp(other_close),
-            (OpenClose::Close(self_close), OpenClose::OpenClose(_other_open, other_close)) => self_close.cmp(other_close),
+            (OpenClose::Close(self_close), OpenClose::OpenClose(_other_open, other_close)) => {
+                self_close.cmp(other_close)
+            }
             (OpenClose::OpenClose(self_open, _self_close), OpenClose::Open(other_open)) => self_open.cmp(other_open),
-            (OpenClose::OpenClose(_self_open, self_close), OpenClose::Close(other_close)) => self_close.cmp(other_close),
-            (OpenClose::OpenClose(self_open, _sc), OpenClose::OpenClose(other_open, _other_close)) => self_open.cmp(other_open),
+            (OpenClose::OpenClose(_self_open, self_close), OpenClose::Close(other_close)) => {
+                self_close.cmp(other_close)
+            }
+            (OpenClose::OpenClose(self_open, _sc), OpenClose::OpenClose(other_open, _other_close)) => {
+                self_open.cmp(other_open)
+            }
         }
     }
 }
@@ -50,13 +59,23 @@ impl PartialOrd for OpenClose {
         match (self, other) {
             (OpenClose::Open(self_open), OpenClose::Open(other_open)) => Some(self_open.cmp(other_open)),
             (OpenClose::Open(_self_open), OpenClose::Close(_other_close)) => None,
-            (OpenClose::Open(self_open), OpenClose::OpenClose(other_open, _other_close)) => Some(self_open.cmp(other_open)),
+            (OpenClose::Open(self_open), OpenClose::OpenClose(other_open, _other_close)) => {
+                Some(self_open.cmp(other_open))
+            }
             (OpenClose::Close(_self_close), OpenClose::Open(_other_open)) => None,
             (OpenClose::Close(self_close), OpenClose::Close(other_close)) => Some(self_close.cmp(other_close)),
-            (OpenClose::Close(self_close), OpenClose::OpenClose(_other_open, other_close)) => Some(self_close.cmp(other_close)),
-            (OpenClose::OpenClose(self_open, _self_close), OpenClose::Open(other_open)) => Some(self_open.cmp(other_open)),
-            (OpenClose::OpenClose(_self_open, self_close), OpenClose::Close(other_close)) => Some(self_close.cmp(other_close)),
-            (OpenClose::OpenClose(self_open, _sc), OpenClose::OpenClose(other_open, _other_close)) => Some(self_open.cmp(other_open)),
+            (OpenClose::Close(self_close), OpenClose::OpenClose(_other_open, other_close)) => {
+                Some(self_close.cmp(other_close))
+            }
+            (OpenClose::OpenClose(self_open, _self_close), OpenClose::Open(other_open)) => {
+                Some(self_open.cmp(other_open))
+            }
+            (OpenClose::OpenClose(_self_open, self_close), OpenClose::Close(other_close)) => {
+                Some(self_close.cmp(other_close))
+            }
+            (OpenClose::OpenClose(self_open, _sc), OpenClose::OpenClose(other_open, _other_close)) => {
+                Some(self_open.cmp(other_open))
+            }
         }
     }
 }
@@ -79,7 +98,11 @@ impl TryFrom<&str> for OpenClose {
             bail!("GreaterThanZero only accepts value superior than zero!")
         } else {
             let date = str_d(value);
-            Ok(if date.second() == 59 { OpenClose::Close(date) } else { OpenClose::Open(date) })
+            Ok(if date.second() == 59 {
+                OpenClose::Close(date)
+            } else {
+                OpenClose::Open(date)
+            })
         }
     }
 }
