@@ -2,7 +2,7 @@ use super::{
     serie::Serie,
     technical::{TechnicalDefinition, TechnicalIndicators},
 };
-use crate::application::candles_provider::CandlesProvider;
+use crate::{application::candles_provider::CandlesProvider, model::candle::Candle};
 use crate::{config::definition::TacDefinition, technicals::indicator::Indicator};
 use rust_decimal::prelude::ToPrimitive;
 use std::collections::HashMap;
@@ -34,8 +34,8 @@ impl TechnicalIndicators for EmaTac {
 
 impl<'a> EmaTac {
     // default period is 34
-    pub fn new(mut candles_provider: Box<dyn CandlesProvider>, period: usize) -> Self {
-        let candles = candles_provider.candles().unwrap();
+    pub fn new(candles: &[Candle], period: usize) -> Self {
+        // let candles = candles.candles().unwrap();
 
         let mut ema_series = Vec::with_capacity(candles.len());
 

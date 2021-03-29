@@ -2,7 +2,7 @@ use super::{
     trader_register::TradeOperation,
     trend::{callback_trend_provider::CallBackTrendProvider, trend_provider::TrendProvider},
 };
-use crate::application::plot_selection::plot_selection;
+use crate::application::plot_selection::PlotterSelection;
 use crate::strategy::trader_register::Position;
 use crate::strategy::trader_register::TraderRegister;
 use crate::tac_plotters::indicator_plotter::PlotterIndicatorContext;
@@ -191,15 +191,23 @@ pub fn run_script<P: AsRef<Path>>(app: &mut Application, file: P) -> anyhow::Res
         trader.check(c.close_time, c.close).unwrap();
     });
 
+    // Get made trades
     let trades = trader.trades();
 
-    let trading_plotter = TradingPlotter::new(&trades);
+    {
+        // Create default plotter selection
+        app.selection.image_name = "out/back_test.png".into();
+        let mut plotter_selection =
+            PlotterSelection::from(app.selection.clone(), app.candles_provider.clone_provider());
 
-    let plotters = vec![Box::new(trading_plotter) as Box<dyn PlotterIndicatorContext>];
+        // Add plotter for trading marks
+        let trading_plotter = TradingPlotter::new(&trades);
+        let plotters = vec![Box::new(trading_plotter) as Box<dyn PlotterIndicatorContext>];
+        plotters.into_iter().for_each(|p| plotter_selection.push_plotter_ind(p));
 
-    app.selection.image_name = "out/back_test.png".into();
-
-    plot_selection(app.selection.clone(), app.candles_provider.clone_provider(), plotters)?;
+        // Plot image
+        plotter_selection.plot()?;
+    }
 
     info!("{}", iformat!("Finished back test, elapsed: {start.elapsed():?}"));
 

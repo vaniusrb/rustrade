@@ -52,9 +52,9 @@ impl TradeContext {
             (now, minutes, candles)
         });
 
-        let candles_provider_vec = CandlesProviderVec::new(now_candles.2.as_slice(), 200);
-        let candles_provider = Box::new(candles_provider_vec) as Box<dyn CandlesProvider>;
+        // let candles_provider_vec = CandlesProviderVec::new(now_candles.2.as_slice(), 200);
+        // let candles_provider = Box::new(candles_provider_vec) as Box<dyn CandlesProvider>;
 
-        self.indicator_provider.indicator(now, candles_provider, i_type)
+        self.indicator_provider.indicator(now, &now_candles.2, i_type)
     }
 }
