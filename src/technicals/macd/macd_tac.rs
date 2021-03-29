@@ -1,5 +1,5 @@
+use crate::model::candle::Candle;
 use crate::technicals::serie::Serie;
-use crate::{application::candles_provider::CandlesProvider, model::candle::Candle};
 use crate::{
     config::definition::TacDefinition,
     technicals::{

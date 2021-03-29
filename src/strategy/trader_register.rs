@@ -1,7 +1,7 @@
 use super::trend_enum::{Operation, Trend};
 use chrono::{DateTime, Utc};
 use colored::Colorize;
-use log::debug;
+use log::{debug, info};
 use rust_decimal::{Decimal, RoundingStrategy};
 use rust_decimal_macros::dec;
 
@@ -13,21 +13,27 @@ pub struct Position {
     state: Trend,
     balance_coin: Decimal,
     balance_usd: Decimal,
+    price: Decimal,
+    real_balance_usd: Decimal,
 }
 
 impl Position {
-    pub fn from_coin(balance_coin: Decimal) -> Self {
+    pub fn from_coin(balance_coin: Decimal, price: Decimal) -> Self {
         Self {
             state: Trend::Bought,
             balance_coin,
             balance_usd: dec!(0),
+            price,
+            real_balance_usd: balance_coin * price,
         }
     }
-    pub fn from_usd(balance_usd: Decimal) -> Self {
+    pub fn from_usd(balance_usd: Decimal, price: Decimal) -> Self {
         Self {
             state: Trend::Sold,
             balance_coin: dec!(0),
             balance_usd,
+            price,
+            real_balance_usd: balance_usd,
         }
     }
 
@@ -63,6 +69,7 @@ impl TraderRegister {
         }
     }
 
+    /// Update profit from new operation
     pub fn register(&mut self, trade_operation: TradeOperation) {
         match trade_operation.operation {
             // I have USD and must buy coin
@@ -73,7 +80,7 @@ impl TraderRegister {
                 self.position.balance_coin += quantity_coin;
                 self.position.balance_usd -= quantity_usd;
             }
-            // I have USD and must buy coin
+            // I have coin and must sell to gain USD
             Operation::Sell => {
                 let quantity_coin = self.position.balance_coin;
                 let quantity_usd = quantity_coin * trade_operation.price;
@@ -83,6 +90,10 @@ impl TraderRegister {
             }
         };
 
+        // TODO register flow
+        //          when, how much sell or bough, real usd
+
+        // Update balances
         self.position.balance_coin = self
             .position
             .balance_coin
@@ -93,20 +104,18 @@ impl TraderRegister {
             .round_dp_with_strategy(8, RoundingStrategy::RoundDown);
 
         self.position.state = trade_operation.operation.to_trend();
+        self.position.price = trade_operation.price;
+        self.position.real_balance_usd = self.position.balance_coin * self.position.price + self.position.balance_usd;
 
-        let message = match self.position.state {
-            Trend::Bought => format!(
-                "{} Bought price {} Balance USD {}",
-                trade_operation.now, trade_operation.price, self.position.balance_usd
-            )
-            .green(),
-            Trend::Sold => format!(
-                "{} Sold price {} Balance USD {}",
-                trade_operation.now, trade_operation.price, self.position.balance_usd
-            )
-            .red(),
-        };
-        debug!("{}", message);
+        let message = format!(
+            "{} {:?} price {} Balance USD {} Position USD {}",
+            trade_operation.now,
+            self.position.state,
+            trade_operation.price,
+            self.position.balance_usd,
+            self.position.real_balance_usd
+        );
+        info!("{}", message);
 
         self.trades.push(trade_operation);
     }

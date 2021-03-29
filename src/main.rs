@@ -105,7 +105,7 @@ async fn main() -> anyhow::Result<()> {
     let exchange: Exchange = Exchange::new()?;
     let repo: Repository = Repository::new()?;
 
-    let candles_selection = CandlesSelection::new(
+    let candles_selection = CandlesSelection::from(
         &opt.symbol,
         &opt.minutes,
         str_to_datetime(&opt.start_time),

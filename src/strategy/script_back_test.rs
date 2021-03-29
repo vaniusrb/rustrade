@@ -12,6 +12,7 @@ use crate::{
     strategy::{back_test_runner::TraderFactory, trade_context_provider::TradeContextProvider, trend_enum::Trend},
     technicals::ind_type::IndicatorType,
 };
+use anyhow::anyhow;
 use ifmt::iformat;
 use log::info;
 use rhai::{Engine, RegisterFn, Scope, AST};
@@ -158,12 +159,9 @@ pub fn run_script<P: AsRef<Path>>(app: &mut Application, file: P) -> anyhow::Res
     // Define script engine singleton
     EngineSingleton::set_current((engine, Scope::new(), ast));
 
-    // Create trader factory
-    let trader_factory = TraderFactory::from(app.selection.candles_selection.clone(), app.candles_provider.clone());
+    // Load candles from selection
     app.candles_provider
         .set_candles_selection(app.selection.candles_selection.clone());
-
-    // Load candles from selection
     let candles = app.candles_provider.candles()?;
 
     // Create trend provider with call back
@@ -178,15 +176,17 @@ pub fn run_script<P: AsRef<Path>>(app: &mut Application, file: P) -> anyhow::Res
         Ok(if result { Trend::Bought } else { Trend::Sold })
     });
 
-    let position = Position::from_usd(dec!(1000));
+    let price = candles.first().ok_or_else(|| anyhow!("First candle not found!"))?.open;
+    let position = Position::from_usd(dec!(1000), price);
 
     let trader_register = TraderRegister::from(position);
 
     // Create trader from trend provider
+    let trader_factory = TraderFactory::from(app.selection.candles_selection.clone(), app.candles_provider.clone());
     let trend_provider: Box<dyn TrendProvider + Send + Sync> = Box::new(callback_trend_provider);
     let mut trader = trader_factory.create_trader(trend_provider, trader_register);
 
-    // Run trader from candles
+    // Run trader from candles, this invoke callback_trend_provider for each candle (run script)
     candles.iter().for_each(|c| {
         trader.check(c.close_time, c.close).unwrap();
     });

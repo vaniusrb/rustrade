@@ -1,13 +1,10 @@
-use chrono::{DateTime, Utc};
-
 use crate::{
-    application::candles_provider::{
-        CandlesProvider, CandlesProviderBuffer, CandlesProviderSelection, CandlesProviderVec,
-    },
+    application::candles_provider::{CandlesProvider, CandlesProviderBuffer, CandlesProviderSelection},
     config::candles_selection::CandlesSelection,
     model::candle::Candle,
     technicals::{ind_provider::IndicatorProvider, ind_type::IndicatorType, indicator::Indicator},
 };
+use chrono::{DateTime, Utc};
 
 #[derive(Clone)]
 pub struct TradeContext {
@@ -51,10 +48,6 @@ impl TradeContext {
             let candles = candles_provider_selection.candles().unwrap();
             (now, minutes, candles)
         });
-
-        // let candles_provider_vec = CandlesProviderVec::new(now_candles.2.as_slice(), 200);
-        // let candles_provider = Box::new(candles_provider_vec) as Box<dyn CandlesProvider>;
-
         self.indicator_provider.indicator(now, &now_candles.2, i_type)
     }
 }

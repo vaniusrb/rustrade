@@ -46,7 +46,6 @@ impl<'a> Trader {
 
         if &trend != previous_trend {
             let trade_operation = TradeOperation::new(trend.to_operation(), now, price);
-            info!("{}", iformat!("Trade operation: {trade_operation:?}"));
 
             self.trader_register.register(trade_operation.clone());
 

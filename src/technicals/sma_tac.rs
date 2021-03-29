@@ -2,7 +2,7 @@ use super::{
     serie::Serie,
     technical::{TechnicalDefinition, TechnicalIndicators},
 };
-use crate::{application::candles_provider::CandlesProvider, model::candle::Candle};
+use crate::model::candle::Candle;
 use crate::{config::definition::TacDefinition, technicals::indicator::Indicator};
 use rust_decimal::prelude::ToPrimitive;
 use std::collections::HashMap;

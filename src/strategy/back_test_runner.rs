@@ -14,6 +14,7 @@ use crate::{
     tac_plotters::{indicator_plotter::PlotterIndicatorContext, trading_plotter::TradingPlotter},
     technicals::ind_provider::IndicatorProvider,
 };
+use anyhow::anyhow;
 use ifmt::iformat;
 use lockfree_object_pool::LinearObjectPool;
 use log::info;
@@ -66,7 +67,9 @@ pub fn run_trader_back_test(app: &mut Application) -> anyhow::Result<()> {
     let msg = format!("Running back test... candles.len {}", candles.len());
     info!("{}", msg);
 
-    let position = Position::from_usd(dec!(1000));
+    let price = candles.first().ok_or(anyhow!("First candle not found!"))?.open;
+
+    let position = Position::from_usd(dec!(1000), price);
 
     let trader_register = TraderRegister::from(position);
 

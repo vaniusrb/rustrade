@@ -6,14 +6,14 @@ use super::{
     technical::TechnicalIndicators,
     top_bottom_tac::TOP_BOTTOM_IND,
 };
-use crate::{application::candles_provider::CandlesProvider, model::candle::Candle, technicals::indicator::Indicator};
+use crate::{model::candle::Candle, technicals::indicator::Indicator};
 use anyhow::anyhow;
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 
 pub struct IndicatorProvider {
     mcads_opt: Option<(DateTime<Utc>, usize, usize, usize, MacdTac)>,
-    tac_indicators: HashMap<(String, usize), anyhow::Result<Box<dyn TechnicalIndicators + Send + Sync>>>, // <= to allow trait with different timelife
+    tac_indicators: HashMap<(String, usize), anyhow::Result<Box<dyn TechnicalIndicators + Send + Sync>>>, // <= to allow trait with different lifetime
 }
 
 impl Clone for IndicatorProvider {

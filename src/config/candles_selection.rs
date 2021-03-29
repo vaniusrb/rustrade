@@ -24,7 +24,7 @@ impl CandlesSelection {
         }
     }
 
-    pub fn new(symbol: &str, minutes: &u32, start_time: DateTime<Utc>, end_time: DateTime<Utc>) -> Self {
+    pub fn from(symbol: &str, minutes: &u32, start_time: DateTime<Utc>, end_time: DateTime<Utc>) -> Self {
         Self {
             symbol_minutes: SymbolMinutes::new(symbol, minutes),
             start_time,
