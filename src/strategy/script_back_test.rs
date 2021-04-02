@@ -3,6 +3,7 @@ use super::{
     trend::{callback_trend_provider::CallBackTrendProvider, trend_provider::TrendProvider},
 };
 use crate::application::plot_selection::PlotterSelection;
+use crate::model::price::Price;
 use crate::strategy::trader_register::Position;
 use crate::strategy::trader_register::TraderRegister;
 use crate::tac_plotters::indicator_plotter::PlotterIndicatorContext;
@@ -130,17 +131,45 @@ fn sma(min: i64, a: i64) -> f64 {
         .unwrap()
 }
 
-// TODO current ticket price
-// TODO current ticket bought/sold
-// TODO current date/time
-// TODO current position bought/sold
-// TODO last price bought/sold
-// TODO last percent bought/sold
-// TODO current state (coins_bought) 100 = bought coins 0 usd; 0 = sold coins, 0 coins
-// TODO gain_perc() ?
-// TODO loss_perc() ?
-// TODO => draw exemples with gradual buy and stop gain/loss
+/* TODO
+    current ticket price
 
+    // Position
+    current ticket bought/sold
+    current date/time
+    current position bought/sold
+    last price bought/sold
+    last percent bought/sold
+
+    gain_perc() ?
+    loss_perc() ?
+
+    // Balances:
+    balance_fiat()
+    balance_crypto()
+
+    balance_fiat_percent()
+    balance_crypto_percent()
+
+    // Orders:
+    sell(quantity of crypto)
+    sell_percent(percent of crypto)
+
+    buy(quantity of fiat)
+    buy_percent(percent of fiat)
+
+example:
+    // // Stop gain
+    // // If I'm have cryptos
+    // if balance_fiat_percent() == 0 {
+    //     if gain_perc() > 5 {
+    //         sell_percent(100)
+    //     }
+    // }
+    //
+
+
+*/
 const FN_BUY: &str = "buy";
 
 /// Run script back test
@@ -179,7 +208,7 @@ pub fn run_script<P: AsRef<Path>>(app: &mut Application, file: P) -> eyre::Resul
         Ok(if result { Trend::Bought } else { Trend::Sold })
     });
 
-    let price = candles.first().ok_or_else(|| eyre!("First candle not found!"))?.open;
+    let price = Price(candles.first().ok_or_else(|| eyre!("First candle not found!"))?.open);
     let position = Position::from_usd(dec!(1000), price);
 
     let trader_register = TraderRegister::from(position);
@@ -191,7 +220,7 @@ pub fn run_script<P: AsRef<Path>>(app: &mut Application, file: P) -> eyre::Resul
 
     // Run trader from candles, this invoke callback_trend_provider for each candle (run script)
     candles.iter().for_each(|c| {
-        trader.check(c.close_time, c.close).unwrap();
+        trader.check(c.close_time, Price(c.close)).unwrap();
     });
 
     // Get made trades

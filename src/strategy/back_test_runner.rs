@@ -3,6 +3,7 @@ use super::{
     trader_register::TraderRegister,
     trend::{macd_trend_provider::MacdTrendProvider, trend_provider::TrendProvider},
 };
+use crate::model::price::Price;
 use crate::strategy::trader_register::Position;
 use crate::{
     application::{
@@ -67,9 +68,9 @@ pub fn run_trader_back_test(app: &mut Application) -> eyre::Result<()> {
     let msg = format!("Running back test... candles.len {}", candles.len());
     info!("{}", msg);
 
-    let price = candles.first().ok_or(eyre!("First candle not found!"))?.open;
+    let price = candles.first().ok_or_else(|| eyre!("First candle not found!"))?.open;
 
-    let position = Position::from_usd(dec!(1000), price);
+    let position = Position::from_usd(dec!(1000), Price(price));
 
     let trader_register = TraderRegister::from(position);
 
@@ -88,7 +89,7 @@ pub fn run_trader_back_test(app: &mut Application) -> eyre::Result<()> {
             .par_iter()
             .map(|c| {
                 let mut trader = pool.pull();
-                trader.check(/*candles_ref,*/ c.close_time, c.close).unwrap();
+                trader.check(/*candles_ref,*/ c.close_time, Price(c.close)).unwrap();
                 trader.trades()
             })
             .flatten()

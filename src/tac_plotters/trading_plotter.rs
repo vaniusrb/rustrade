@@ -40,13 +40,13 @@ impl<'a> PlotterIndicatorContext for TradingPlotter<'a> {
         let sell_iter = trades
             .iter()
             .filter(|p| p.operation == Operation::Sell)
-            .map(|c| (c.now, c.price.to_f32().unwrap()))
+            .map(|c| (c.now, c.price.0.to_f32().unwrap()))
             .collect::<Vec<_>>();
 
         let buy_iter = trades
             .iter()
             .filter(|p| p.operation == Operation::Buy)
-            .map(|c| (c.now, c.price.to_f32().unwrap()))
+            .map(|c| (c.now, c.price.0.to_f32().unwrap()))
             .collect::<Vec<_>>();
 
         chart_context.draw_series(sell_iter.iter().map(|point| TriangleMarker::new(*point, 10, &green)))?;
@@ -81,8 +81,8 @@ impl<'a> PlotterIndicatorContext for TradingPlotter<'a> {
     }
 
     fn min_max(&self) -> (f64, f64) {
-        let max = self.trades.iter().fold(dec!(0), |acc, t| acc.max(t.price));
-        let min = self.trades.iter().fold(max, |acc, t| acc.min(t.price));
+        let max = self.trades.iter().fold(dec!(0), |acc, t| acc.max(t.price.0));
+        let min = self.trades.iter().fold(max, |acc, t| acc.min(t.price.0));
         (min.to_f64().unwrap(), max.to_f64().unwrap())
     }
 }
