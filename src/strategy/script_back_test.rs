@@ -136,7 +136,10 @@ fn sma(min: i64, a: i64) -> f64 {
 // TODO current position bought/sold
 // TODO last price bought/sold
 // TODO last percent bought/sold
-//
+// TODO current state (coins_bought) 100 = bought coins 0 usd; 0 = sold coins, 0 coins
+// TODO gain_perc() ?
+// TODO loss_perc() ?
+// TODO => draw exemples with gradual buy and stop gain/loss
 
 const FN_BUY: &str = "buy";
 

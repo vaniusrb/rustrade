@@ -38,6 +38,7 @@
 ✔ Create example folder and move script to this folder @done(21-03-27 21:27)
 ✔ Create PlotterSelecion, to customize additional plotters, to be used in back test tooling @done(21-03-28 22:05)
 ✔ Technicals ie MacdTac, must be receive &Candles instead CandlesProvider @done(21-03-28 22:05)
+☐ testins is falling
 ☐ Is RefCell clone_provider effective? Check if is creating heavy structs. Add log
 ☐ Is indicators caching working? Add log
 ☐ Fix tons of warnings

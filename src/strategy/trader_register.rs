@@ -1,12 +1,9 @@
 use super::trend_enum::{Operation, Trend};
 use chrono::{DateTime, Utc};
 use colored::Colorize;
-use log::{debug, info};
+use log::info;
 use rust_decimal::{Decimal, RoundingStrategy};
 use rust_decimal_macros::dec;
-
-pub static STATE_BOUGHT: &str = "bought";
-pub static STATE_SOLD: &str = "sold";
 
 #[derive(Clone)]
 pub struct Position {
@@ -71,6 +68,8 @@ impl TraderRegister {
 
     /// Update profit from new operation
     pub fn register(&mut self, trade_operation: TradeOperation) {
+        let old_real_balance_usd = self.position.real_balance_usd;
+
         match trade_operation.operation {
             // I have USD and must buy coin
             Operation::Buy => {
@@ -107,14 +106,25 @@ impl TraderRegister {
         self.position.price = trade_operation.price;
         self.position.real_balance_usd = self.position.balance_coin * self.position.price + self.position.balance_usd;
 
+        let gain_usd = self.position.real_balance_usd - old_real_balance_usd;
+        let gain_usd_perc = old_real_balance_usd / self.position.real_balance_usd;
+
+        let gain_usd_str = if gain_usd < dec!(0) {
+            gain_usd.to_string().red()
+        } else {
+            gain_usd.to_string().green()
+        };
+
         let message = format!(
-            "{} {:?} price {} Balance USD {} Position USD {}",
+            "{} {:?} price {} Balance USD {} Position USD {} Gain USD {}",
             trade_operation.now,
             self.position.state,
             trade_operation.price,
             self.position.balance_usd,
-            self.position.real_balance_usd
+            self.position.real_balance_usd,
+            gain_usd_str
         );
+
         info!("{}", message);
 
         self.trades.push(trade_operation);
