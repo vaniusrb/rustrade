@@ -2,7 +2,7 @@ use super::{
     trade_context_provider::TradeContextProvider,
     trader_register::{TradeOperation, TraderRegister},
     trend::trend_provider::TrendProvider,
-    trend_enum::Trend,
+    trend_enum::Side,
 };
 use crate::model::quantity::Quantity;
 use crate::{
@@ -14,7 +14,7 @@ use rust_decimal_macros::dec;
 
 pub struct Trader {
     trend_provider: Box<dyn TrendProvider + Send + Sync>,
-    previous_trend: Option<Trend>,
+    previous_side: Option<Side>,
     trade_operations: Vec<TradeOperation>,
     trade_context_provider: TradeContextProvider,
     trader_register: TraderRegister,
@@ -32,7 +32,7 @@ impl<'a> Trader {
 
         Self {
             trend_provider,
-            previous_trend: None,
+            previous_side: None,
             trade_operations: Vec::new(),
             trade_context_provider,
             trader_register,
@@ -41,20 +41,24 @@ impl<'a> Trader {
 
     pub fn check(&'a mut self, now: DateTime<Utc>, price: Price) -> eyre::Result<()> {
         self.trade_context_provider.set_now(now);
+
         let trend = self.trend_provider.trend(&self.trade_context_provider)?;
+        let trend = match trend {
+            Some(trend) => trend,
+            None => return Ok(()),
+        };
 
-        // TODO Trend should by like Order
-        let quantity = Quantity(dec!(1));
-        let previous_trend = self.previous_trend.get_or_insert_with(|| trend.clone());
+        // TODO remove this behavior with "previous trend", simplify here
+        let previous_trend = self.previous_side.get_or_insert_with(|| trend.to_side());
 
-        if &trend != previous_trend {
-            let trade_operation = TradeOperation::new(trend.to_operation(), now, quantity, price);
+        if &trend.to_side() != previous_trend {
+            self.previous_side = Some(trend.to_side());
+            let trade_operation = TradeOperation::new(trend, now, price);
 
             self.trader_register.register(trade_operation.clone());
 
             self.trade_operations.push(trade_operation);
         }
-        self.previous_trend = Some(trend);
         Ok(())
     }
 

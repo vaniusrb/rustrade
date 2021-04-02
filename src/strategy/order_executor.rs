@@ -1,7 +1,7 @@
-use super::trend_enum::Trend;
+use super::trend_enum::Side;
 
 pub struct OrderExecutor {
-    previous_trend: Option<Trend>,
+    previous_trend: Option<Side>,
 }
 
 impl OrderExecutor {

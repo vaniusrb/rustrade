@@ -1,6 +1,6 @@
 use crate::model::{price::Price, quantity::Quantity};
 
-use super::trend_enum::{Operation, Trend};
+use super::trend_enum::{Operation, Side};
 use chrono::{DateTime, Utc};
 use colored::Colorize;
 use ifmt::iformat;
@@ -11,9 +11,9 @@ use rust_decimal_macros::dec;
 
 #[derive(Clone)]
 pub struct Position {
-    state: Trend,
-    balance_coin: Decimal,
-    balance_usd: Decimal,
+    state: Side,
+    balance_asset: Decimal,
+    balance_fiat: Decimal,
     price: Price,
     real_balance_usd: Decimal,
 }
@@ -21,29 +21,30 @@ pub struct Position {
 impl Position {
     pub fn from_coin(balance_coin: Decimal, price: Price) -> Self {
         Self {
-            state: Trend::Bought,
-            balance_coin,
-            balance_usd: dec!(0),
+            state: Side::Bought,
+            balance_asset: balance_coin,
+            balance_fiat: dec!(0),
             price,
             real_balance_usd: balance_coin * price.0,
         }
     }
     pub fn from_usd(balance_usd: Decimal, price: Price) -> Self {
         Self {
-            state: Trend::Sold,
-            balance_coin: dec!(0),
-            balance_usd,
+            state: Side::Sold,
+            balance_asset: dec!(0),
+            balance_fiat: balance_usd,
             price,
             real_balance_usd: balance_usd,
         }
     }
 
     pub fn balance_coin_r(&self) -> Decimal {
-        self.balance_coin.round_dp_with_strategy(8, RoundingStrategy::RoundDown)
+        self.balance_asset
+            .round_dp_with_strategy(8, RoundingStrategy::RoundDown)
     }
 
     pub fn balance_usd_r(&self) -> Decimal {
-        self.balance_usd.round_dp_with_strategy(8, RoundingStrategy::RoundDown)
+        self.balance_fiat.round_dp_with_strategy(8, RoundingStrategy::RoundDown)
     }
 
     pub fn real_balance_usd_r(&self) -> Decimal {
@@ -51,7 +52,7 @@ impl Position {
             .round_dp_with_strategy(8, RoundingStrategy::RoundDown)
     }
 
-    pub fn state(&self) -> &Trend {
+    pub fn state(&self) -> &Side {
         &self.state
     }
 
@@ -62,29 +63,26 @@ impl Position {
 
         match trade_operation.operation {
             // I have USD and must buy coin
-            Operation::Buy => {
-                let quantity_usd = self.balance_usd;
-                let quantity_coin = quantity_usd / trade_operation.price.0;
-
-                self.balance_coin += quantity_coin;
-                self.balance_usd -= quantity_usd;
+            Operation::Buy(quantity_asset) => {
+                let buy_total = quantity_asset.0 * trade_operation.price.0;
+                self.balance_asset += quantity_asset.0;
+                self.balance_fiat -= buy_total;
             }
-            // I have coin and must sell to gain USD
-            Operation::Sell => {
-                let quantity_coin = self.balance_coin;
-                let quantity_usd = quantity_coin * trade_operation.price.0;
 
-                self.balance_coin -= quantity_coin;
-                self.balance_usd += quantity_usd;
+            // I have coin and must sell to gain USD
+            Operation::Sell(quantity_asset) => {
+                let sell_total = quantity_asset.0 * trade_operation.price.0;
+                self.balance_asset -= quantity_asset.0;
+                self.balance_fiat += sell_total;
             }
         };
 
         // TODO register flow
         //          when, how much sell or bough, real usd
 
-        self.state = trade_operation.operation.to_trend();
+        self.state = trade_operation.operation.to_side();
         self.price = trade_operation.price;
-        self.real_balance_usd = self.balance_coin * self.price.0 + self.balance_usd;
+        self.real_balance_usd = self.balance_asset * self.price.0 + self.balance_fiat;
 
         let gain_usd = self.real_balance_usd - old_real_balance_usd;
         let gain_usd_perc = old_real_balance_usd / self.real_balance_usd;
@@ -99,8 +97,8 @@ impl Position {
 
         let state_str = self.state.to_string().pad_to_width(6);
         let state_str = match self.state {
-            Trend::Bought => state_str.green(),
-            Trend::Sold => state_str.red(),
+            Side::Bought => state_str.green(),
+            Side::Sold => state_str.red(),
         };
 
         let message = iformat!(
@@ -114,22 +112,17 @@ impl Position {
     }
 }
 
+/// TradeOperation is a Operation with current context (date_time and price)
 #[derive(Clone, Debug)]
 pub struct TradeOperation {
     pub operation: Operation,
     pub now: DateTime<Utc>,
-    pub quantity: Quantity,
     pub price: Price,
 }
 
 impl TradeOperation {
-    pub fn new(operation: Operation, now: DateTime<Utc>, quantity: Quantity, price: Price) -> Self {
-        Self {
-            operation,
-            now,
-            price,
-            quantity,
-        }
+    pub fn new(operation: Operation, now: DateTime<Utc>, price: Price) -> Self {
+        Self { operation, now, price }
     }
 }
 

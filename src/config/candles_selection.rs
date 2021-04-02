@@ -1,6 +1,7 @@
 use super::symbol_minutes::SymbolMinutes;
 use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
+
 #[derive(Serialize, Deserialize, Hash, Eq, PartialEq, PartialOrd, Debug, Clone)]
 pub struct CandlesSelection {
     pub symbol_minutes: SymbolMinutes,

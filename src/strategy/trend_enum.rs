@@ -1,30 +1,31 @@
 use std::fmt::Display;
+
+use crate::model::quantity::Quantity;
 #[derive(Debug, Clone, PartialEq, Display)]
-pub enum Trend {
+pub enum Side {
     Bought,
     Sold,
 }
 
-impl Trend {
-    pub fn to_operation(&self) -> Operation {
+impl Side {}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum Operation {
+    Buy(Quantity),
+    Sell(Quantity),
+}
+
+impl Operation {
+    pub fn to_side(&self) -> Side {
         match self {
-            Trend::Bought => Operation::Buy,
-            Trend::Sold => Operation::Sell,
+            Operation::Buy(_) => Side::Bought,
+            Operation::Sell(_) => Side::Sold,
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum Operation {
-    Buy,
-    Sell,
-}
-
-impl Operation {
-    pub fn to_trend(&self) -> Trend {
-        match self {
-            Operation::Buy => Trend::Bought,
-            Operation::Sell => Trend::Sold,
-        }
-    }
+pub enum Operation_2 {
+    Buy(Quantity),
+    Sell(Quantity),
 }

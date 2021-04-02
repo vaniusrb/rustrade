@@ -10,7 +10,7 @@ use crate::tac_plotters::indicator_plotter::PlotterIndicatorContext;
 use crate::tac_plotters::trading_plotter::TradingPlotter;
 use crate::{
     application::{app::Application, candles_provider::CandlesProvider},
-    strategy::{back_test_runner::TraderFactory, trade_context_provider::TradeContextProvider, trend_enum::Trend},
+    strategy::{back_test_runner::TraderFactory, trade_context_provider::TradeContextProvider, trend_enum::Side},
     technicals::ind_type::IndicatorType,
 };
 use eyre::eyre;
@@ -203,9 +203,14 @@ pub fn run_script<P: AsRef<Path>>(app: &mut Application, file: P) -> eyre::Resul
         // Get engine and run script
         let engine_arc = EngineSingleton::current();
         let (engine, scope, ast) = &engine_arc.engine_scope.as_ref().unwrap();
+
         let result: bool = engine.call_fn(&mut scope.clone(), &ast, FN_BUY, ()).unwrap();
+
+        // TODO here should receive call back from script, allowing none operation
+
         // Return trend
-        Ok(if result { Trend::Bought } else { Trend::Sold })
+        // Ok(if result { Operation::Bought } else { Side::Sold })
+        Ok(None)
     });
 
     let price = Price(candles.first().ok_or_else(|| eyre!("First candle not found!"))?.open);

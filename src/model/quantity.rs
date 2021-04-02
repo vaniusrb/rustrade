@@ -2,7 +2,7 @@ use ifmt::iwrite;
 use rust_decimal::Decimal;
 use std::fmt::Display;
 
-#[derive(Clone, Debug, Copy)]
+#[derive(Clone, Debug, Copy, PartialEq)]
 pub struct Quantity(pub Decimal);
 
 impl Display for Quantity {

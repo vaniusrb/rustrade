@@ -1,7 +1,10 @@
 use super::indicator_plotter::PlotterIndicatorContext;
 use crate::{
     config::selection::Selection,
-    strategy::{trader_register::TradeOperation, trend_enum::Operation},
+    strategy::{
+        trader_register::TradeOperation,
+        trend_enum::{Operation, Side},
+    },
 };
 use chrono::{DateTime, Utc};
 use plotters::{
@@ -39,13 +42,13 @@ impl<'a> PlotterIndicatorContext for TradingPlotter<'a> {
 
         let sell_iter = trades
             .iter()
-            .filter(|p| p.operation == Operation::Sell)
+            .filter(|p| p.operation.to_side() == Side::Sold)
             .map(|c| (c.now, c.price.0.to_f32().unwrap()))
             .collect::<Vec<_>>();
 
         let buy_iter = trades
             .iter()
-            .filter(|p| p.operation == Operation::Buy)
+            .filter(|p| p.operation.to_side() == Side::Bought)
             .map(|c| (c.now, c.price.0.to_f32().unwrap()))
             .collect::<Vec<_>>();
 
