@@ -10,7 +10,8 @@ fold_firstq = 'yes'
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0"
+eyre = "0.6.5"
+color-eyre = "0.5.10"
 async-std = {version = "1.9", features = ["attributes"]}
 atty = "0.2"
 binance = "0.12"

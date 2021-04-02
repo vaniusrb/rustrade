@@ -6,7 +6,7 @@ use crate::{
     repository::Repository,
     technicals::heikin_ashi,
 };
-use anyhow::anyhow;
+use eyre::eyre;
 use ifmt::iformat;
 use log::debug;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
@@ -17,7 +17,7 @@ use std::{
 };
 
 pub trait CandlesProvider {
-    fn candles(&mut self) -> anyhow::Result<Vec<Candle>>;
+    fn candles(&mut self) -> eyre::Result<Vec<Candle>>;
     fn clone_provider(&self) -> Box<dyn CandlesProvider>;
 }
 
@@ -36,7 +36,7 @@ impl CandlesProviderBufferSingleton {
         }
     }
 
-    fn candles(&mut self, candles_selection: CandlesSelection) -> anyhow::Result<Vec<Candle>> {
+    fn candles(&mut self, candles_selection: CandlesSelection) -> eyre::Result<Vec<Candle>> {
         let start = Instant::now();
         debug!("Initializing import...");
 
@@ -167,12 +167,12 @@ impl CandlesProviderBuffer {
 }
 
 impl CandlesProvider for CandlesProviderBuffer {
-    fn candles(&mut self) -> anyhow::Result<Vec<Candle>> {
+    fn candles(&mut self) -> eyre::Result<Vec<Candle>> {
         let candles_selection = self
             .candles_selection_opt
             .as_ref()
             .cloned()
-            .ok_or_else(|| -> anyhow::Error { anyhow!("candles_selection not defined!") })?;
+            .ok_or_else(|| -> eyre::Error { eyre!("candles_selection not defined!") })?;
 
         let m = &*self.candles_provider_singleton;
 
@@ -209,7 +209,7 @@ impl<'a> CandlesProviderSelection {
 }
 
 impl<'a> CandlesProvider for CandlesProviderSelection {
-    fn candles(&mut self) -> anyhow::Result<Vec<Candle>> {
+    fn candles(&mut self) -> eyre::Result<Vec<Candle>> {
         // TODO HERE SHOULD FILTER
         self.candles_provider
             .set_candles_selection(self.candles_selection.clone());
@@ -235,7 +235,7 @@ impl<'a> CandlesProviderVec {
 }
 
 impl CandlesProvider for CandlesProviderVec {
-    fn candles(&mut self) -> anyhow::Result<Vec<Candle>> {
+    fn candles(&mut self) -> eyre::Result<Vec<Candle>> {
         Ok(self.candles.to_vec())
     }
 
@@ -246,18 +246,18 @@ impl CandlesProvider for CandlesProviderVec {
 
 pub struct CandlesProviderClosure<F>
 where
-    F: FnMut() -> anyhow::Result<Vec<Candle>>,
+    F: FnMut() -> eyre::Result<Vec<Candle>>,
 {
     call_back: F,
 }
 
 impl<'a, F> CandlesProviderClosure<F>
 where
-    F: FnMut() -> anyhow::Result<Vec<Candle>>,
+    F: FnMut() -> eyre::Result<Vec<Candle>>,
 {
     pub fn new(call_back: F) -> Self
     where
-        F: FnMut() -> anyhow::Result<Vec<Candle>>,
+        F: FnMut() -> eyre::Result<Vec<Candle>>,
     {
         Self { call_back }
     }
@@ -265,9 +265,9 @@ where
 
 impl<'a, F> CandlesProvider for CandlesProviderClosure<F>
 where
-    F: FnMut() -> anyhow::Result<Vec<Candle>>,
+    F: FnMut() -> eyre::Result<Vec<Candle>>,
 {
-    fn candles(&mut self) -> anyhow::Result<Vec<Candle>> {
+    fn candles(&mut self) -> eyre::Result<Vec<Candle>> {
         (self.call_back)()
     }
 
@@ -281,7 +281,7 @@ pub mod tests {
     use super::*;
     use crate::candles_utils::str_to_datetime;
     use crate::utils;
-    use anyhow::Result;
+    use eyre::Result;
     use log::LevelFilter;
 
     #[test]

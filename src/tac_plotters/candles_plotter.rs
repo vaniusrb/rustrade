@@ -24,7 +24,7 @@ impl<'a> PlotterIndicatorContext for CandlePlotter<'a> {
             BitMapBackend<RGBPixel>,
             Cartesian2d<RangedDateTime<DateTime<Utc>>, RangedCoordf32>,
         >,
-    ) -> anyhow::Result<()> {
+    ) -> eyre::Result<()> {
         chart_context
             .configure_mesh()
             .x_labels(12)

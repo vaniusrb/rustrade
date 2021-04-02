@@ -13,7 +13,7 @@ impl<'a> Streamer<'a> {
         Self { app }
     }
 
-    fn read_lines() -> anyhow::Result<Vec<String>> {
+    fn read_lines() -> eyre::Result<Vec<String>> {
         loop {
             let mut line = String::new();
             std::io::stdin().read_line(&mut line)?;
@@ -25,7 +25,7 @@ impl<'a> Streamer<'a> {
         }
     }
 
-    pub fn run(&mut self) -> anyhow::Result<()> {
+    pub fn run(&mut self) -> eyre::Result<()> {
         const GET_DEFINITION: &str = "GetDefinition";
         const GET_SELECTION: &str = "GetSelection";
         const SET_SELECTION: &str = "SetSelection";

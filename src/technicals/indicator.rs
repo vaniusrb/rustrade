@@ -1,5 +1,5 @@
 use super::serie::Serie;
-use anyhow::anyhow;
+use eyre::eyre;
 
 #[derive(Clone)]
 pub struct Indicator {
@@ -21,7 +21,7 @@ impl Indicator {
         (min, max)
     }
 
-    pub fn value(&self) -> anyhow::Result<f64> {
-        Ok(self.series.last().ok_or_else(|| anyhow!("No last candle!"))?.value)
+    pub fn value(&self) -> eyre::Result<f64> {
+        Ok(self.series.last().ok_or_else(|| eyre!("No last candle!"))?.value)
     }
 }

@@ -12,7 +12,7 @@ use crate::{
     strategy::{back_test_runner::TraderFactory, trade_context_provider::TradeContextProvider, trend_enum::Trend},
     technicals::ind_type::IndicatorType,
 };
-use anyhow::anyhow;
+use eyre::eyre;
 use ifmt::iformat;
 use log::info;
 use rhai::{Engine, RegisterFn, Scope, AST};
@@ -141,7 +141,7 @@ fn sma(min: i64, a: i64) -> f64 {
 const FN_BUY: &str = "buy";
 
 /// Run script back test
-pub fn run_script<P: AsRef<Path>>(app: &mut Application, file: P) -> anyhow::Result<Vec<TradeOperation>> {
+pub fn run_script<P: AsRef<Path>>(app: &mut Application, file: P) -> eyre::Result<Vec<TradeOperation>> {
     let start = Instant::now();
     info!("Initializing back test...");
 
@@ -176,7 +176,7 @@ pub fn run_script<P: AsRef<Path>>(app: &mut Application, file: P) -> anyhow::Res
         Ok(if result { Trend::Bought } else { Trend::Sold })
     });
 
-    let price = candles.first().ok_or_else(|| anyhow!("First candle not found!"))?.open;
+    let price = candles.first().ok_or_else(|| eyre!("First candle not found!"))?.open;
     let position = Position::from_usd(dec!(1000), price);
 
     let trader_register = TraderRegister::from(position);

@@ -2,7 +2,7 @@ use crate::{
     candles_utils::min_max_close_time_from_candles,
     model::{candle::Candle, open_close::OpenClose},
 };
-use anyhow::*;
+use eyre::*;
 use chrono::prelude::*;
 use chrono::{DateTime, Duration, Utc};
 use log::error;
@@ -29,7 +29,7 @@ impl<'a> CandlesRange<'a> {
         self.candles.is_empty()
     }
 
-    pub fn min_max_close(&self) -> anyhow::Result<(OpenClose, OpenClose)> {
+    pub fn min_max_close(&self) -> eyre::Result<(OpenClose, OpenClose)> {
         min_max_close_time_from_candles(self.candles.as_slice()).context("CandlesRange.min_max: Candles is empty!")
     }
 }
@@ -59,7 +59,7 @@ impl<'a> CandlesRanges<'a> {
         self.ranges.push(CandlesRange::new());
     }
 
-    pub fn push(&mut self, candle: &'a Candle) -> anyhow::Result<()> {
+    pub fn push(&mut self, candle: &'a Candle) -> eyre::Result<()> {
         if let Some(last_time) = self.last_time {
             if last_time > candle.open_time {
                 bail!("Attempt to add unsorted candle {} > {}", last_time, candle.open_time);
@@ -77,9 +77,9 @@ impl<'a> Default for CandlesRanges<'a> {
     }
 }
 
-pub fn candles_ranges<'a>(candles: &[&'a Candle], minutes: &u32) -> anyhow::Result<CandlesRanges<'a>> {
+pub fn candles_ranges<'a>(candles: &[&'a Candle], minutes: &u32) -> eyre::Result<CandlesRanges<'a>> {
     if candles.is_empty() {
-        return Err(anyhow!("candles_ranges: Candles is empty!"));
+        return Err(eyre!("candles_ranges: Candles is empty!"));
     }
     let duration = &Duration::minutes(*minutes as i64);
     let mut error = String::from("");
@@ -122,8 +122,8 @@ pub fn candles_ranges<'a>(candles: &[&'a Candle], minutes: &u32) -> anyhow::Resu
     Ok(result)
 }
 
-pub fn invert_ranges_close(start_time: &OpenClose, end_time: &OpenClose, ranges: &CandlesRanges, minutes: &u32) -> anyhow::Result<Vec<(OpenClose, OpenClose)>> {
-    fn add_range(ranges: &CandlesRanges, inverted_ranges: &mut Vec<(OpenClose, OpenClose)>, start: OpenClose, end: OpenClose) -> anyhow::Result<()> {
+pub fn invert_ranges_close(start_time: &OpenClose, end_time: &OpenClose, ranges: &CandlesRanges, minutes: &u32) -> eyre::Result<Vec<(OpenClose, OpenClose)>> {
+    fn add_range(ranges: &CandlesRanges, inverted_ranges: &mut Vec<(OpenClose, OpenClose)>, start: OpenClose, end: OpenClose) -> eyre::Result<()> {
         if start > end {
             let message = format!("Attempt to add range start {} > end {}", start, end);
             error!("{}, inverted_ranges.len({}):", message, inverted_ranges.len());
@@ -177,16 +177,16 @@ pub fn candles_to_ranges_missing(
     end_time: &OpenClose,
     minutes: &u32,
     candles: &[&Candle],
-) -> anyhow::Result<Vec<(OpenClose, OpenClose)>> {
+) -> eyre::Result<Vec<(OpenClose, OpenClose)>> {
     if candles.is_empty() {
         return Ok(vec![(*start_time, *end_time)]);
     }
     // const limit_date: OpenClose = str_open("2010-01-01 00:00:00");
     // if start_time < &limit_date {
-    //     return Err(anyhow!("Start time {:?} is less than allowed!", start_time));
+    //     return Err(eyre!("Start time {:?} is less than allowed!", start_time));
     // }
     // if end_time < &limit_date {
-    //     return Err(anyhow!("End time {:?} is less than allowed!", end_time));
+    //     return Err(eyre!("End time {:?} is less than allowed!", end_time));
     // }
 
     let candles_ranges = match candles_ranges(candles, minutes) {
@@ -204,7 +204,7 @@ pub fn candles_to_ranges_missing(
                 candles_ranges.ranges.len(),
             );
             candles_ranges.ranges.iter().for_each(|c| error!("{:?}", c.min_max_close().unwrap()));
-            Err(anyhow!("candles_to_ranges_missing: {} {} {}", start_time, end_time, e))
+            Err(eyre!("candles_to_ranges_missing: {} {} {}", start_time, end_time, e))
         }
     }
 }

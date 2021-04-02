@@ -85,7 +85,7 @@ impl TopBottomTac {
         }
     }
 
-    pub fn top_bottoms(&mut self) -> anyhow::Result<Vec<TopBottom>> {
+    pub fn top_bottoms(&mut self) -> eyre::Result<Vec<TopBottom>> {
         let mut result = Vec::new();
         let candles = self.candles_provider.candles()?;
         for i in 0..candles.len() - (self.neighbors * 2 + 1) {

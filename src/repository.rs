@@ -1,6 +1,6 @@
 use crate::{config::symbol_minutes::SymbolMinutes, model::candle::Candle};
-use anyhow::{bail, Result};
 use chrono::{DateTime, Duration, Utc};
+use eyre::{bail, Result};
 use ifmt::iformat;
 use log::{error, info};
 use rust_decimal::{
@@ -133,7 +133,7 @@ impl Repository {
         async_std::task::block_on(future).ok()
     }
 
-    pub fn insert_candles(&self, candles: &mut [Candle]) -> anyhow::Result<()> {
+    pub fn insert_candles(&self, candles: &mut [Candle]) -> eyre::Result<()> {
         let mut candle_id = self.last_id();
         let one = dec!(1);
         candles.iter_mut().for_each(|c| {
@@ -158,7 +158,7 @@ impl Repository {
         Ok(())
     }
 
-    pub fn insert_candle(&self, candle: &Candle) -> anyhow::Result<Decimal> {
+    pub fn insert_candle(&self, candle: &Candle) -> eyre::Result<Decimal> {
         let future = sqlx::query!(
             r#"
                 INSERT INTO candle (
@@ -192,7 +192,7 @@ impl Repository {
         Ok(rec.id)
     }
 
-    pub fn delete_all_candles(&self) -> anyhow::Result<()> {
+    pub fn delete_all_candles(&self) -> eyre::Result<()> {
         info!("Deleting all candles...");
         let future = sqlx::query!("DELETE FROM candle").execute(&self.pool);
         async_std::task::block_on(future)?;

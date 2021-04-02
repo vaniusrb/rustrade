@@ -90,7 +90,9 @@ pub fn selection_factory(candles_selection: CandlesSelection) -> Selection {
 }
 
 #[async_std::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> color_eyre::eyre::Result<()> {
+    color_eyre::install()?;
+
     let opt = Opt::from_args();
 
     let level = if opt.debug {
@@ -98,7 +100,6 @@ async fn main() -> anyhow::Result<()> {
     } else {
         LevelFilter::Info
     };
-
     utils::log_utils::setup_log(level, module_path!());
 
     dotenv::dotenv()?;

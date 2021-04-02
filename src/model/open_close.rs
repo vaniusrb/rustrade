@@ -1,6 +1,6 @@
 use std::{cmp::Ordering, convert::TryFrom, fmt, ops::Add, ops::Sub};
 
-use anyhow::bail;
+use eyre::bail;
 use chrono::{DateTime, Duration, Timelike, Utc};
 
 use crate::{
@@ -91,9 +91,9 @@ impl fmt::Display for OpenClose {
 }
 
 impl TryFrom<&str> for OpenClose {
-    type Error = anyhow::Error;
+    type Error = eyre::Error;
 
-    fn try_from(value: &str) -> anyhow::Result<Self> {
+    fn try_from(value: &str) -> eyre::Result<Self> {
         if value.is_empty() {
             bail!("GreaterThanZero only accepts value superior than zero!")
         } else {

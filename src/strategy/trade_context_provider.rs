@@ -37,7 +37,7 @@ impl TradeContextProvider {
         self.trade_context.lock().unwrap().get_mut().now()
     }
 
-    pub fn indicator(&self, minutes: u32, i_type: &IndicatorType) -> anyhow::Result<Indicator> {
+    pub fn indicator(&self, minutes: u32, i_type: &IndicatorType) -> eyre::Result<Indicator> {
         self.trade_context
             .lock()
             .unwrap()
