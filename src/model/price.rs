@@ -1,5 +1,4 @@
 use ifmt::iwrite;
-use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use std::fmt::Display;
 

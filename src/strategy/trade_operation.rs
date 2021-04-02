@@ -4,13 +4,11 @@ use super::{
     trend::trend_provider::TrendProvider,
     trend_enum::Side,
 };
-use crate::model::quantity::Quantity;
 use crate::{
     application::candles_provider::CandlesProviderBuffer, model::price::Price,
     technicals::ind_provider::IndicatorProvider,
 };
 use chrono::{DateTime, Utc};
-use rust_decimal_macros::dec;
 
 pub struct Trader {
     trend_provider: Box<dyn TrendProvider + Send + Sync>,
@@ -41,6 +39,7 @@ impl<'a> Trader {
 
     pub fn check(&'a mut self, now: DateTime<Utc>, price: Price) -> eyre::Result<()> {
         self.trade_context_provider.set_now(now);
+        self.trade_context_provider.set_price(price);
 
         let trend = self.trend_provider.trend(&self.trade_context_provider)?;
         let trend = match trend {

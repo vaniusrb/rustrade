@@ -4,132 +4,23 @@ use super::{
 };
 use crate::application::plot_selection::PlotterSelection;
 use crate::model::price::Price;
+use crate::strategy::script_fns::*;
+use crate::strategy::singleton_context::ContextSingleton;
+use crate::strategy::singleton_engine::EngineSingleton;
 use crate::strategy::trader_register::Position;
 use crate::strategy::trader_register::TraderRegister;
 use crate::tac_plotters::indicator_plotter::PlotterIndicatorContext;
 use crate::tac_plotters::trading_plotter::TradingPlotter;
 use crate::{
     application::{app::Application, candles_provider::CandlesProvider},
-    strategy::{back_test_runner::TraderFactory, trade_context_provider::TradeContextProvider, trend_enum::Side},
-    technicals::ind_type::IndicatorType,
+    strategy::back_test_runner::TraderFactory,
 };
 use eyre::eyre;
 use ifmt::iformat;
 use log::info;
-use rhai::{Engine, RegisterFn, Scope, AST};
+use rhai::{Engine, RegisterFn, Scope};
 use rust_decimal_macros::dec;
-use std::{
-    fs,
-    path::Path,
-    sync::{Arc, RwLock},
-    time::Instant,
-};
-
-/// Singleton for trade context
-#[derive(Default)]
-struct ContextSingleton {
-    pub trade_context_provider: Option<TradeContextProvider>,
-}
-
-impl ContextSingleton {
-    pub fn current() -> Arc<ContextSingleton> {
-        CURRENT_CONTEXT.with(|c| c.read().unwrap().clone())
-    }
-    pub fn make_current(self) {
-        CURRENT_CONTEXT.with(|c| *c.write().unwrap() = Arc::new(self))
-    }
-    pub fn set_current(trade_context_provider: TradeContextProvider) {
-        Self {
-            trade_context_provider: Some(trade_context_provider),
-        }
-        .make_current();
-    }
-}
-
-thread_local! {
-    static CURRENT_CONTEXT: RwLock<Arc<ContextSingleton>> = RwLock::new(Default::default());
-}
-
-/// Singleton for engine script
-#[derive(Default)]
-struct EngineSingleton {
-    pub engine_scope: Option<(Engine, Scope<'static>, AST)>,
-}
-
-impl EngineSingleton {
-    pub fn current() -> Arc<EngineSingleton> {
-        CURRENT_ENGINE.with(|c| c.read().unwrap().clone())
-    }
-    pub fn make_current(self) {
-        CURRENT_ENGINE.with(|c| *c.write().unwrap() = Arc::new(self))
-    }
-    pub fn set_current(engine_scope: (Engine, Scope<'static>, AST)) {
-        Self {
-            engine_scope: Some(engine_scope),
-        }
-        .make_current();
-    }
-}
-
-thread_local! {
-    static CURRENT_ENGINE: RwLock<Arc<EngineSingleton>> = RwLock::new(Default::default());
-}
-
-fn macd(min: i64, a: i64, b: i64, c: i64) -> f64 {
-    let singleton = ContextSingleton::current();
-    let trade_context_provider = singleton.trade_context_provider.as_ref().unwrap();
-    trade_context_provider
-        .indicator(min as u32, &IndicatorType::Macd(a as usize, b as usize, c as usize))
-        .unwrap()
-        .value()
-        .unwrap()
-}
-
-fn macd_signal(min: i64, a: i64, b: i64, c: i64) -> f64 {
-    let singleton = ContextSingleton::current();
-    let trade_context_provider = singleton.trade_context_provider.as_ref().unwrap();
-    trade_context_provider
-        .indicator(
-            min as u32,
-            &IndicatorType::MacdSignal(a as usize, b as usize, c as usize),
-        )
-        .unwrap()
-        .value()
-        .unwrap()
-}
-
-fn macd_divergence(min: i64, a: i64, b: i64, c: i64) -> f64 {
-    let singleton = ContextSingleton::current();
-    let trade_context_provider = singleton.trade_context_provider.as_ref().unwrap();
-    trade_context_provider
-        .indicator(
-            min as u32,
-            &IndicatorType::MacdDivergence(a as usize, b as usize, c as usize),
-        )
-        .unwrap()
-        .value()
-        .unwrap()
-}
-
-fn ema(min: i64, a: i64) -> f64 {
-    let singleton = ContextSingleton::current();
-    let trade_context_provider = singleton.trade_context_provider.as_ref().unwrap();
-    trade_context_provider
-        .indicator(min as u32, &IndicatorType::Ema(a as usize))
-        .unwrap()
-        .value()
-        .unwrap()
-}
-
-fn sma(min: i64, a: i64) -> f64 {
-    let singleton = ContextSingleton::current();
-    let trade_context_provider = singleton.trade_context_provider.as_ref().unwrap();
-    trade_context_provider
-        .indicator(min as u32, &IndicatorType::Sma(a as usize))
-        .unwrap()
-        .value()
-        .unwrap()
-}
+use std::{fs, path::Path, time::Instant};
 
 /* TODO
     current ticket price
@@ -146,24 +37,25 @@ fn sma(min: i64, a: i64) -> f64 {
 
     // Balances:
     balance_fiat()
-    balance_crypto()
+    balance_asset()
 
     balance_fiat_percent()
-    balance_crypto_percent()
+    balance_asset_percent()
 
     // Orders:
-    sell(quantity of crypto)
-    sell_percent(percent of crypto)
+    sell(quantity of asset)
+    sell_percent(percent of asset)
 
     buy(quantity of fiat)
     buy_percent(percent of fiat)
 
 example:
-    // // Stop gain
-    // // If I'm have cryptos
+    // let result = 0
+    // // Stop gainContextSingleton
+    // // If I'm have assets
     // if balance_fiat_percent() == 0 {
     //     if gain_perc() > 5 {
-    //         sell_percent(100)
+    //          result = balance_asset() *-1
     //     }
     // }
     //
@@ -184,6 +76,12 @@ pub fn run_script<P: AsRef<Path>>(app: &mut Application, file: P) -> eyre::Resul
     engine.register_fn("macd", macd);
     engine.register_fn("macd_signal", macd_signal);
     engine.register_fn("macd_divergence", macd_divergence);
+    engine.register_fn("balance_asset", balance_asset);
+    engine.register_fn("price", price);
+    engine.register_fn("balance_fiat", balance_fiat);
+    engine.register_fn("balance_asset", balance_asset);
+    engine.register_fn("fiat_to_asset", fiat_to_asset);
+    engine.register_fn("asset_to_fiat", asset_to_fiat);
 
     // Load script file and compile AST
     let script_content = fs::read_to_string(file)?;
@@ -204,7 +102,7 @@ pub fn run_script<P: AsRef<Path>>(app: &mut Application, file: P) -> eyre::Resul
         let engine_arc = EngineSingleton::current();
         let (engine, scope, ast) = &engine_arc.engine_scope.as_ref().unwrap();
 
-        let result: bool = engine.call_fn(&mut scope.clone(), &ast, FN_BUY, ()).unwrap();
+        let _result: bool = engine.call_fn(&mut scope.clone(), &ast, FN_BUY, ()).unwrap();
 
         // TODO here should receive call back from script, allowing none operation
 
@@ -214,7 +112,7 @@ pub fn run_script<P: AsRef<Path>>(app: &mut Application, file: P) -> eyre::Resul
     });
 
     let price = Price(candles.first().ok_or_else(|| eyre!("First candle not found!"))?.open);
-    let position = Position::from_usd(dec!(1000), price);
+    let position = Position::from_fiat(dec!(1000), price);
 
     let trader_register = TraderRegister::from(position);
 

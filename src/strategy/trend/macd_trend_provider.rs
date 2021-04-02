@@ -32,7 +32,7 @@ impl TrendProvider for MacdTrendProvider {
             .value()?;
 
         //let _mcad_divergence = trend_context_provider.indicator(15, &IndicatorType::MacdDivergence(34, 72, 17))?.value()?;
-        let trend = if mcad > mcad_signal { Side::Bought } else { Side::Sold };
+        let _trend = if mcad > mcad_signal { Side::Bought } else { Side::Sold };
 
         // TODO
         debug!("trend: {:?} {} > {}", trade_context_provider.now(), mcad, mcad_signal);

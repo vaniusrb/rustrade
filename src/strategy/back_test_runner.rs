@@ -70,7 +70,7 @@ pub fn run_trader_back_test(app: &mut Application) -> eyre::Result<()> {
 
     let price = candles.first().ok_or_else(|| eyre!("First candle not found!"))?.open;
 
-    let position = Position::from_usd(dec!(1000), Price(price));
+    let position = Position::from_fiat(dec!(1000), Price(price));
 
     let trader_register = TraderRegister::from(position);
 

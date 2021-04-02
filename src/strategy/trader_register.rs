@@ -1,4 +1,4 @@
-use crate::model::{price::Price, quantity::Quantity};
+use crate::model::price::Price;
 
 use super::trend_enum::{Operation, Side};
 use chrono::{DateTime, Utc};
@@ -15,40 +15,40 @@ pub struct Position {
     balance_asset: Decimal,
     balance_fiat: Decimal,
     price: Price,
-    real_balance_usd: Decimal,
+    real_balance_fiat: Decimal,
 }
 
 impl Position {
-    pub fn from_coin(balance_coin: Decimal, price: Price) -> Self {
+    pub fn from_asset(balance_asset: Decimal, price: Price) -> Self {
         Self {
             state: Side::Bought,
-            balance_asset: balance_coin,
+            balance_asset,
             balance_fiat: dec!(0),
             price,
-            real_balance_usd: balance_coin * price.0,
+            real_balance_fiat: balance_asset * price.0,
         }
     }
-    pub fn from_usd(balance_usd: Decimal, price: Price) -> Self {
+    pub fn from_fiat(balance_fiat: Decimal, price: Price) -> Self {
         Self {
             state: Side::Sold,
             balance_asset: dec!(0),
-            balance_fiat: balance_usd,
+            balance_fiat,
             price,
-            real_balance_usd: balance_usd,
+            real_balance_fiat: balance_fiat,
         }
     }
 
-    pub fn balance_coin_r(&self) -> Decimal {
+    pub fn balance_asset_r(&self) -> Decimal {
         self.balance_asset
             .round_dp_with_strategy(8, RoundingStrategy::RoundDown)
     }
 
-    pub fn balance_usd_r(&self) -> Decimal {
+    pub fn balance_fiat_r(&self) -> Decimal {
         self.balance_fiat.round_dp_with_strategy(8, RoundingStrategy::RoundDown)
     }
 
-    pub fn real_balance_usd_r(&self) -> Decimal {
-        self.real_balance_usd
+    pub fn real_balance_fiat_r(&self) -> Decimal {
+        self.real_balance_fiat
             .round_dp_with_strategy(8, RoundingStrategy::RoundDown)
     }
 
@@ -57,7 +57,7 @@ impl Position {
     }
 
     pub fn register(&mut self, trade_operation: &TradeOperation) {
-        let old_real_balance_usd = self.real_balance_usd;
+        let old_real_balance_usd = self.real_balance_fiat;
 
         // TODO
 
@@ -82,10 +82,10 @@ impl Position {
 
         self.state = trade_operation.operation.to_side();
         self.price = trade_operation.price;
-        self.real_balance_usd = self.balance_asset * self.price.0 + self.balance_fiat;
+        self.real_balance_fiat = self.balance_asset * self.price.0 + self.balance_fiat;
 
-        let gain_usd = self.real_balance_usd - old_real_balance_usd;
-        let gain_usd_perc = old_real_balance_usd / self.real_balance_usd;
+        let gain_usd = self.real_balance_fiat - old_real_balance_usd;
+        let _gain_usd_perc = old_real_balance_usd / self.real_balance_fiat;
 
         let gain_usd_str = gain_usd.to_string().pad_to_width_with_alignment(17, Alignment::Right);
 
@@ -103,8 +103,8 @@ impl Position {
 
         let message = iformat!(
             "{trade_operation.now} {state_str} \
-            price {trade_operation.price} Balance USD {self.balance_coin_r()} \
-            Position USD {self.real_balance_usd_r()} \
+            price {trade_operation.price} Balance USD {self.balance_asset_r()} \
+            Position USD {self.real_balance_fiat_r()} \
             Gain USD {gain_usd_str}"
         );
 

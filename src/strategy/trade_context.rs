@@ -1,3 +1,4 @@
+use crate::model::price::Price;
 use crate::{
     application::candles_provider::{CandlesProvider, CandlesProviderBuffer, CandlesProviderSelection},
     config::candles_selection::CandlesSelection,
@@ -13,6 +14,7 @@ pub struct TradeContext {
     candles_provider: CandlesProviderBuffer,
     candles_opt: Option<(DateTime<Utc>, u32, Vec<Candle>)>,
     now: Option<DateTime<Utc>>,
+    price: Option<Price>,
 }
 
 impl TradeContext {
@@ -23,6 +25,7 @@ impl TradeContext {
             candles_provider,
             candles_opt: None,
             now: None,
+            price: None,
         }
     }
 
@@ -30,8 +33,16 @@ impl TradeContext {
         self.now = Some(now);
     }
 
+    pub fn set_price(&mut self, price: Price) {
+        self.price = Some(price);
+    }
+
     pub fn now(&self) -> DateTime<Utc> {
         self.now.unwrap()
+    }
+
+    pub fn price(&self) -> Price {
+        self.price.unwrap()
     }
 
     pub fn indicator(&mut self, minutes: u32, i_type: &IndicatorType) -> eyre::Result<&Indicator> {

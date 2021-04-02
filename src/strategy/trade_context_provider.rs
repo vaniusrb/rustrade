@@ -1,6 +1,7 @@
 use super::trade_context::TradeContext;
 use crate::{
     application::candles_provider::CandlesProviderBuffer,
+    model::price::Price,
     technicals::{ind_provider::IndicatorProvider, ind_type::IndicatorType, indicator::Indicator},
 };
 use chrono::{DateTime, Utc};
@@ -33,8 +34,16 @@ impl TradeContextProvider {
         self.trade_context.lock().unwrap().get_mut().set_now(now);
     }
 
+    pub fn set_price(&self, price: Price) {
+        self.trade_context.lock().unwrap().get_mut().set_price(price);
+    }
+
     pub fn now(&self) -> DateTime<Utc> {
         self.trade_context.lock().unwrap().get_mut().now()
+    }
+
+    pub fn price(&self) -> Price {
+        self.trade_context.lock().unwrap().get_mut().price()
     }
 
     pub fn indicator(&self, minutes: u32, i_type: &IndicatorType) -> eyre::Result<Indicator> {
