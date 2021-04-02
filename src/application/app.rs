@@ -48,17 +48,17 @@ impl Application {
         self.selection = selection;
     }
 
-    pub fn run_back_test(&mut self) -> anyhow::Result<()> {
+    pub fn run_back_test(&mut self) -> eyre::Result<()> {
         run_trader_back_test(self)?;
         Ok(())
     }
 
-    pub fn run_script_test(&mut self, file: &str) -> anyhow::Result<()> {
+    pub fn run_script_test(&mut self, file: &str) -> eyre::Result<()> {
         run_script(self, file)?;
         Ok(())
     }
 
-    pub fn plot_triangles(&mut self) -> anyhow::Result<()> {
+    pub fn plot_triangles(&mut self) -> eyre::Result<()> {
         let selection = self.selection.clone();
         let candles_selection = selection.candles_selection.clone();
         let candles_provider_selection =
@@ -67,12 +67,12 @@ impl Application {
         plot_triangles(selection, candles_provider)
     }
 
-    pub fn run_stream(&mut self) -> anyhow::Result<()> {
+    pub fn run_stream(&mut self) -> eyre::Result<()> {
         let mut streamer = Streamer::new(self);
         streamer.run()
     }
 
-    pub fn plot_selection(&mut self) -> anyhow::Result<()> {
+    pub fn plot_selection(&mut self) -> eyre::Result<()> {
         let selection = self.selection.clone();
         let candles_provider_selection =
             CandlesProviderSelection::new(self.candles_provider.clone(), selection.candles_selection.clone());
@@ -81,7 +81,7 @@ impl Application {
     }
 }
 
-pub fn plot_triangles(selection: Selection, candles_provider: Box<dyn CandlesProvider>) -> anyhow::Result<()> {
+pub fn plot_triangles(selection: Selection, candles_provider: Box<dyn CandlesProvider>) -> eyre::Result<()> {
     let mut topbottom_tac = TopBottomTac::new(candles_provider.clone_provider(), 7);
     let top_bottoms = topbottom_tac.top_bottoms()?;
 

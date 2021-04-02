@@ -31,7 +31,7 @@ impl<'a> PlotterIndicatorContext for TradingPlotter<'a> {
             BitMapBackend<RGBPixel>,
             Cartesian2d<RangedDateTime<DateTime<Utc>>, RangedCoordf32>,
         >,
-    ) -> anyhow::Result<()> {
+    ) -> eyre::Result<()> {
         let red = RGBColor(164, 0, 16);
         let green = RGBColor(16, 128, 32);
 

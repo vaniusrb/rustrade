@@ -37,9 +37,9 @@ It's a personal project and it's not finished.
 1) Rust 1.51 or greater
 
 2) Environment variables (or .env file in current directory):
-`API_KEY` Binance API key
-`SECRET_KEY` Binance API secret
-`DATABASE_URL` Postgres database URL
+  `API_KEY` Binance API key
+  `SECRET_KEY` Binance API secret
+  `DATABASE_URL` Postgres database URL
 
 3) Dependencies (due plot library)
 ```

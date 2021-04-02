@@ -3,7 +3,7 @@ use crate::{
     model::candle::Candle,
     candles_utils::{datetime_to_timestamp, kline_to_candle},
 };
-use anyhow::{bail, Result};
+use eyre::{bail, Result};
 use binance::{api::Binance, futures::market::FuturesMarket};
 use chrono::{DateTime, Duration, Utc};
 use ifmt::iformat;
@@ -27,7 +27,7 @@ impl Exchange {
         Binance::new(Some(self.api_key.clone()), Some(self.secret_key.clone()))
     }
 
-    pub fn candles(&self, symbol_minutes: &SymbolMinutes, start_time: &Option<DateTime<Utc>>, end_time: &Option<DateTime<Utc>>) -> anyhow::Result<Vec<Candle>> {
+    pub fn candles(&self, symbol_minutes: &SymbolMinutes, start_time: &Option<DateTime<Utc>>, end_time: &Option<DateTime<Utc>>) -> eyre::Result<Vec<Candle>> {
         let start_time = *start_time;
         let mut end_time = *end_time;
 

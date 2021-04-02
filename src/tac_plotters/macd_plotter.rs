@@ -3,7 +3,7 @@ use crate::{
     config::selection::Selection,
     technicals::{indicator::Indicator, macd::macd_tac::MacdTac},
 };
-use anyhow::{anyhow, bail};
+use eyre::{eyre, bail};
 use log::info;
 use plotters::prelude::*;
 use plotters::{
@@ -29,8 +29,8 @@ impl<'a> IndicatorPlotter for MacdPlotter<'a> {
         selection: &Selection,
         upper: &DrawingArea<BitMapBackend<RGBPixel>, Shift>,
         lower: &DrawingArea<BitMapBackend<RGBPixel>, Shift>,
-    ) -> anyhow::Result<()> {
-        let selected_tac = selection.tacs.get("macd").ok_or_else(|| anyhow!("Tac macd not selected!"))?;
+    ) -> eyre::Result<()> {
+        let selected_tac = selection.tacs.get("macd").ok_or_else(|| eyre!("Tac macd not selected!"))?;
         let mut selected_inds = Vec::new();
 
         if self.macd_tac.indicators.is_empty() {
@@ -42,7 +42,7 @@ impl<'a> IndicatorPlotter for MacdPlotter<'a> {
                 .macd_tac
                 .indicators
                 .get(sel_ind_name)
-                .ok_or_else(|| anyhow!("Indicator {} not found!", sel_ind_name))?;
+                .ok_or_else(|| eyre!("Indicator {} not found!", sel_ind_name))?;
             selected_inds.push(tac_ind);
         }
         plot_indicators(&selected_inds, selection, upper, lower)
@@ -54,7 +54,7 @@ fn plot_indicators(
     selection: &Selection,
     _upper: &DrawingArea<BitMapBackend<RGBPixel>, Shift>,
     lower: &DrawingArea<BitMapBackend<RGBPixel>, Shift>,
-) -> anyhow::Result<()> {
+) -> eyre::Result<()> {
     let from_date = selection.candles_selection.start_time;
     let to_date = selection.candles_selection.end_time;
 
@@ -62,7 +62,7 @@ fn plot_indicators(
         .iter()
         .map(|i| i.min_max())
         .reduce(|p, c| (p.0.min(c.0), p.1.max(c.1)))
-        .ok_or_else(|| anyhow!("plot_indicators: have no min x max"))?;
+        .ok_or_else(|| eyre!("plot_indicators: have no min x max"))?;
 
     if min_macd == 0. && max_macd == 0. {
         bail!("plot_indicators: min x max values are zeros!");

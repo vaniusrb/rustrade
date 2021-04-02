@@ -37,7 +37,7 @@ impl<'a> PlotterSelection<'a> {
         self.additional_plotters.push(plotter_indicator);
     }
 
-    pub fn plot(&mut self) -> anyhow::Result<()> {
+    pub fn plot(&mut self) -> eyre::Result<()> {
         let total_start = Instant::now();
 
         let candles_provider_clone = self.candles_provider.clone_provider();
@@ -109,7 +109,7 @@ pub fn plot_selection<'a>(
     selection: Selection,
     candles_provider: Box<dyn CandlesProvider>,
     additional_plotters: Vec<Box<dyn PlotterIndicatorContext + 'a>>,
-) -> anyhow::Result<()> {
+) -> eyre::Result<()> {
     let mut plotter_selection = PlotterSelection::from(selection, candles_provider);
     additional_plotters
         .into_iter()

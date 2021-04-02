@@ -34,7 +34,7 @@ impl TradeContext {
         self.now.unwrap()
     }
 
-    pub fn indicator(&mut self, minutes: u32, i_type: &IndicatorType) -> anyhow::Result<&Indicator> {
+    pub fn indicator(&mut self, minutes: u32, i_type: &IndicatorType) -> eyre::Result<&Indicator> {
         let now = self.now();
         self.candles_opt = self.candles_opt.take().filter(|e| e.0 == now && e.1 == minutes);
 

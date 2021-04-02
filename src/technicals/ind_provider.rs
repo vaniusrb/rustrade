@@ -7,13 +7,13 @@ use super::{
     top_bottom_tac::TOP_BOTTOM_IND,
 };
 use crate::{model::candle::Candle, technicals::indicator::Indicator};
-use anyhow::anyhow;
+use eyre::eyre;
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
 
 pub struct IndicatorProvider {
     mcads_opt: Option<(DateTime<Utc>, usize, usize, usize, MacdTac)>,
-    tac_indicators: HashMap<(String, usize), anyhow::Result<Box<dyn TechnicalIndicators + Send + Sync>>>, // <= to allow trait with different lifetime
+    tac_indicators: HashMap<(String, usize), eyre::Result<Box<dyn TechnicalIndicators + Send + Sync>>>, // <= to allow trait with different lifetime
 }
 
 impl Clone for IndicatorProvider {
@@ -32,23 +32,23 @@ impl IndicatorProvider {
             tac_indicators: HashMap::new(),
         }
     }
-    fn tac_indicator(&mut self, candles: &[Candle], ind_name: &str, period: usize) -> anyhow::Result<&Indicator> {
+    fn tac_indicator(&mut self, candles: &[Candle], ind_name: &str, period: usize) -> eyre::Result<&Indicator> {
         self.tac_indicators.clear();
         // TODO I shouldn't store Indicator cache, or use "now" like a key
-        let result: &mut anyhow::Result<Box<dyn TechnicalIndicators + Send + Sync>> = self
+        let result: &mut eyre::Result<Box<dyn TechnicalIndicators + Send + Sync>> = self
             .tac_indicators
             .entry((ind_name.to_string(), period))
             .or_insert_with(|| {
-                let result: anyhow::Result<Box<dyn TechnicalIndicators + Send + Sync>> = match ind_name {
+                let result: eyre::Result<Box<dyn TechnicalIndicators + Send + Sync>> = match ind_name {
                     EMA_IND => Ok(Box::new(EmaTac::new(candles, period)) as Box<dyn TechnicalIndicators + Send + Sync>), // <= cast box<struct> as box<trait>
                     SMA_IND => Ok(Box::new(SmaTac::new(candles, period)) as Box<dyn TechnicalIndicators + Send + Sync>),
-                    other => Err(anyhow!("Not found indicator {}!", other)),
+                    other => Err(eyre!("Not found indicator {}!", other)),
                 };
                 result
             });
         let tac = match result {
             Ok(tac) => tac,
-            Err(e) => return Err(anyhow!("{}", e)),
+            Err(e) => return Err(eyre!("{}", e)),
         };
         Ok(tac.main_indicator())
     }
@@ -61,7 +61,7 @@ impl IndicatorProvider {
         fast_period: usize,
         slow_period: usize,
         signal_period: usize,
-    ) -> anyhow::Result<&Indicator> {
+    ) -> eyre::Result<&Indicator> {
         // Try to reuse the same tiple mcad/signal/divergence
         self.mcads_opt = self
             .mcads_opt
@@ -80,7 +80,7 @@ impl IndicatorProvider {
             .4
             .indicators
             .get(ind_name)
-            .ok_or_else(|| -> anyhow::Error { anyhow!("Not found indicator {}!", ind_name) });
+            .ok_or_else(|| -> eyre::Error { eyre!("Not found indicator {}!", ind_name) });
         result
     }
 
@@ -89,7 +89,7 @@ impl IndicatorProvider {
         now: DateTime<Utc>,
         candles: &[Candle],
         i_type: &IndicatorType,
-    ) -> anyhow::Result<&Indicator> {
+    ) -> eyre::Result<&Indicator> {
         let ind = match i_type {
             IndicatorType::Macd(fast_period, slow_period, signal_period) => {
                 self.macd(now, candles, MACD_IND, *fast_period, *slow_period, *signal_period)?

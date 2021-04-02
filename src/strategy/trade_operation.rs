@@ -36,7 +36,7 @@ impl<'a> Trader {
         }
     }
 
-    pub fn check(&'a mut self, now: DateTime<Utc>, price: Decimal) -> anyhow::Result<()> {
+    pub fn check(&'a mut self, now: DateTime<Utc>, price: Decimal) -> eyre::Result<()> {
         self.trade_context_provider.set_now(now);
         let trend = self.trend_provider.trend(&self.trade_context_provider)?;
 

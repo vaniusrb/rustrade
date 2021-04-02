@@ -1,6 +1,6 @@
 use std::time::Instant;
 
-use anyhow::bail;
+use eyre::bail;
 use chrono::{Duration, Utc};
 use ifmt::iformat;
 use log::{error, info};
@@ -29,7 +29,7 @@ impl<'a> Checker<'a> {
         }
     }
 
-    pub fn synchronize(&self) -> anyhow::Result<()> {
+    pub fn synchronize(&self) -> eyre::Result<()> {
         loop {
             self.repo.delete_last_candle(&self.symbol_minutes);
 
