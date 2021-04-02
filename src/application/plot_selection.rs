@@ -47,6 +47,7 @@ impl<'a> PlotterSelection<'a> {
         let end_time = self.selection.candles_selection.end_time;
 
         // TODO Is possible there is any candle out of range? Is this necessary?
+        // check with debug_assert!
         let candles = candles
             .into_par_iter()
             .filter(|c| c.open_time >= start_time && c.open_time <= end_time)

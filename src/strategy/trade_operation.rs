@@ -7,8 +7,6 @@ use super::{
     trend_enum::Trend,
 };
 use chrono::{DateTime, Utc};
-use ifmt::iformat;
-use log::info;
 use rust_decimal::Decimal;
 
 pub struct Trader {
