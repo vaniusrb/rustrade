@@ -1,4 +1,5 @@
-#[derive(Debug, Clone, PartialEq)]
+use std::fmt::Display;
+#[derive(Debug, Clone, PartialEq, Display)]
 pub enum Trend {
     Bought,
     Sold,

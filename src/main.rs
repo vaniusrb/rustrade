@@ -1,6 +1,7 @@
 #![feature(nll)]
 #![feature(associated_type_bounds)]
-
+#[macro_use]
+extern crate enum_display_derive;
 pub mod application;
 pub mod candles_range;
 mod candles_utils;

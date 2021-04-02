@@ -1,6 +1,7 @@
 use super::trend_enum::{Operation, Trend};
 use chrono::{DateTime, Utc};
 use colored::Colorize;
+use ifmt::iformat;
 use log::info;
 use rust_decimal::{Decimal, RoundingStrategy};
 use rust_decimal_macros::dec;
@@ -32,6 +33,19 @@ impl Position {
             price,
             real_balance_usd: balance_usd,
         }
+    }
+
+    pub fn balance_coin_r(&self) -> Decimal {
+        self.balance_coin.round_dp_with_strategy(8, RoundingStrategy::RoundDown)
+    }
+
+    pub fn balance_usd_r(&self) -> Decimal {
+        self.balance_usd.round_dp_with_strategy(8, RoundingStrategy::RoundDown)
+    }
+
+    pub fn real_balance_usd_r(&self) -> Decimal {
+        self.real_balance_usd
+            .round_dp_with_strategy(8, RoundingStrategy::RoundDown)
     }
 
     pub fn state(&self) -> &Trend {
@@ -115,14 +129,11 @@ impl TraderRegister {
             gain_usd.to_string().green()
         };
 
-        let message = format!(
-            "{} {:?} price {} Balance USD {} Position USD {} Gain USD {}",
-            trade_operation.now,
-            self.position.state,
-            trade_operation.price,
-            self.position.balance_usd,
-            self.position.real_balance_usd,
-            gain_usd_str
+        let message = iformat!(
+            "{trade_operation.now:32} {self.position.state} \
+            price {trade_operation.price} Balance USD {self.position.balance_coin_r()} \
+            Position USD {self.position.real_balance_usd_r()} \
+            Gain USD {gain_usd_str}"
         );
 
         info!("{}", message);
