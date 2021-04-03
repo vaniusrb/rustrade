@@ -1,4 +1,4 @@
-use super::trader_register::Position;
+use super::position::Position;
 use std::sync::{Arc, RwLock};
 
 /// Singleton for current position

@@ -4,7 +4,8 @@ use super::{
     trend::{macd_trend_provider::MacdTrendProvider, trend_provider::TrendProvider},
 };
 use crate::model::price::Price;
-use crate::strategy::trader_register::Position;
+use crate::strategy::flow_register::FlowRegister;
+use crate::strategy::position::Position;
 use crate::{
     application::{
         app::Application,
@@ -68,9 +69,10 @@ pub fn run_trader_back_test(app: &mut Application) -> eyre::Result<()> {
     let msg = format!("Running back test... candles.len {}", candles.len());
     info!("{}", msg);
 
+    let flow_register = FlowRegister::new();
     let price = candles.first().ok_or_else(|| eyre!("First candle not found!"))?.open;
 
-    let position = Position::from_fiat(dec!(1000), Price(price));
+    let position = Position::from_fiat(flow_register, dec!(1000), Price(price));
 
     let trader_register = TraderRegister::from(position);
 

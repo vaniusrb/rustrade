@@ -1,15 +1,8 @@
-use std::fmt::Display;
-
 use crate::model::quantity::Quantity;
-#[derive(Debug, Clone, PartialEq, Display)]
-pub enum Side {
-    Bought,
-    Sold,
-}
 
-impl Side {}
+use super::side::Side;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Copy)]
 pub enum Operation {
     Buy(Quantity),
     Sell(Quantity),

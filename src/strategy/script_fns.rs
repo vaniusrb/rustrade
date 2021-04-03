@@ -1,11 +1,9 @@
 use super::{singleton_context::ContextSingleton, singleton_position::PositionSingleton};
 use crate::technicals::ind_type::IndicatorType;
-use log::info;
 use rust_decimal::{
     prelude::{FromPrimitive, ToPrimitive},
     Decimal,
 };
-use rust_decimal_macros::dec;
 
 pub fn price_dec() -> Decimal {
     let singleton = ContextSingleton::current();

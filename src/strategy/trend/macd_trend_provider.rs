@@ -1,17 +1,10 @@
 use super::trend_provider::TrendProvider;
+use crate::strategy::operation::Operation;
 use crate::{
-    strategy::{
-        trade_context_provider::TradeContextProvider,
-        trader_register::Position,
-        trend_enum::{Operation, Side},
-    },
+    strategy::{position::Position, side::Side, trade_context_provider::TradeContextProvider},
     technicals::ind_type::IndicatorType,
 };
 use log::debug;
-
-/// setup
-/// transfer 1000 USD
-/// buy 500 USD
 
 #[derive(Clone)]
 pub struct MacdTrendProvider {}
@@ -25,7 +18,7 @@ impl MacdTrendProvider {
 impl TrendProvider for MacdTrendProvider {
     fn trend(
         &mut self,
-        position: &Position,
+        _position: &Position,
         trade_context_provider: &TradeContextProvider,
     ) -> eyre::Result<Option<Operation>> {
         let mcad = trade_context_provider

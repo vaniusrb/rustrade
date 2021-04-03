@@ -1,6 +1,6 @@
-use crate::strategy::{trade_context_provider::TradeContextProvider, trader_register::Position, trend_enum::Operation};
-
 use super::trend_provider::TrendProvider;
+use crate::strategy::position::Position;
+use crate::strategy::{operation::Operation, trade_context_provider::TradeContextProvider};
 
 pub struct CallBackTrendProvider {
     call_back: Box<dyn Fn(Position, TradeContextProvider) -> eyre::Result<Option<Operation>> + Sync + Send + 'static>,

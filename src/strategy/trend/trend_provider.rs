@@ -1,4 +1,4 @@
-use crate::strategy::{trade_context_provider::TradeContextProvider, trader_register::Position, trend_enum::Operation};
+use crate::strategy::{operation::Operation, position::Position, trade_context_provider::TradeContextProvider};
 
 pub trait TrendProvider {
     fn trend(

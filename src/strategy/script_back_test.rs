@@ -5,13 +5,14 @@ use super::{
 use crate::application::plot_selection::PlotterSelection;
 use crate::model::price::Price;
 use crate::model::quantity;
+use crate::strategy::flow_register::FlowRegister;
+use crate::strategy::operation::Operation;
+use crate::strategy::position::Position;
 use crate::strategy::script_fns::*;
 use crate::strategy::singleton_context::ContextSingleton;
 use crate::strategy::singleton_engine::EngineSingleton;
 use crate::strategy::singleton_position::PositionSingleton;
-use crate::strategy::trader_register::Position;
 use crate::strategy::trader_register::TraderRegister;
-use crate::strategy::trend_enum::Operation;
 use crate::tac_plotters::indicator_plotter::PlotterIndicatorContext;
 use crate::tac_plotters::trading_plotter::TradingPlotter;
 use crate::{
@@ -21,7 +22,6 @@ use crate::{
 use eyre::eyre;
 use ifmt::iformat;
 use log::info;
-use plotters::prelude::Quartiles;
 use quantity::Quantity;
 use rhai::{Engine, RegisterFn, Scope};
 use rust_decimal::{prelude::FromPrimitive, Decimal};
@@ -77,17 +77,19 @@ pub fn run_script<P: AsRef<Path>>(app: &mut Application, file: P) -> eyre::Resul
 
     // Create engine script and register functions
     let mut engine = Engine::new();
+    // Current context
+    engine.register_fn("price", price);
     engine.register_fn("ema", ema);
     engine.register_fn("sma", sma);
     engine.register_fn("macd", macd);
     engine.register_fn("macd_signal", macd_signal);
     engine.register_fn("macd_divergence", macd_divergence);
-    engine.register_fn("balance_asset", balance_asset);
-    engine.register_fn("price", price);
-    engine.register_fn("balance_fiat", balance_fiat);
-    engine.register_fn("balance_asset", balance_asset);
+    // Conversion functions
     engine.register_fn("fiat_to_asset", fiat_to_asset);
     engine.register_fn("asset_to_fiat", asset_to_fiat);
+    // Current position
+    engine.register_fn("balance_fiat", balance_fiat);
+    engine.register_fn("balance_asset", balance_asset);
     engine.register_fn("is_bought", is_bought);
     engine.register_fn("is_sold", is_sold);
 
@@ -107,6 +109,7 @@ pub fn run_script<P: AsRef<Path>>(app: &mut Application, file: P) -> eyre::Resul
         // Set current static trade_context_provider
         ContextSingleton::set_current(trade_context_provider);
         PositionSingleton::set_current(position);
+
         // Get engine and run script
         let engine_arc = EngineSingleton::current();
         let (engine, scope, ast) = &engine_arc.engine_scope.as_ref().unwrap();
@@ -122,10 +125,15 @@ pub fn run_script<P: AsRef<Path>>(app: &mut Application, file: P) -> eyre::Resul
         Ok(result)
     });
 
+    let flow_register = FlowRegister::new();
+
+    // Initial position
     let price = Price(candles.first().ok_or_else(|| eyre!("First candle not found!"))?.open);
-    let position = Position::from_fiat(dec!(1000), price);
+    let position = Position::from_fiat(flow_register, dec!(1000), price);
 
     let trader_register = TraderRegister::from(position);
+
+    // TODO Probably candles_provider can be within something like a ContextProvider, then can provides date_time and price
 
     // Create trader from trend provider
     let trader_factory = TraderFactory::from(app.selection.candles_selection.clone(), app.candles_provider.clone());
@@ -137,7 +145,7 @@ pub fn run_script<P: AsRef<Path>>(app: &mut Application, file: P) -> eyre::Resul
         trader.check(c.close_time, Price(c.close)).unwrap();
     });
 
-    // Get made trades
+    // Get realized trades
     let trades = trader.trades();
 
     {

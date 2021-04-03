@@ -1,8 +1,12 @@
 pub mod back_test_runner;
+pub mod flow_register;
 pub mod model;
+pub mod operation;
 pub mod order_executor;
+pub mod position;
 pub mod script_back_test;
 pub mod script_fns;
+pub mod side;
 pub mod singleton_context;
 pub mod singleton_engine;
 pub mod singleton_position;
@@ -13,4 +17,3 @@ pub mod trade_context_provider_factory;
 pub mod trade_operation;
 pub mod trader_register;
 pub mod trend;
-pub mod trend_enum;

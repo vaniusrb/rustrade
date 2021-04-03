@@ -1,4 +1,4 @@
-use super::trend_enum::Side;
+use super::side::Side;
 
 pub struct OrderExecutor {
     previous_trend: Option<Side>,

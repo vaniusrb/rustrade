@@ -2,7 +2,6 @@ use super::{
     trade_context_provider::TradeContextProvider,
     trader_register::{TradeOperation, TraderRegister},
     trend::trend_provider::TrendProvider,
-    trend_enum::Side,
 };
 use crate::{
     application::candles_provider::CandlesProviderBuffer, model::price::Price,
@@ -46,8 +45,6 @@ impl<'a> Trader {
             Some(trend) => trend,
             None => return Ok(()),
         };
-
-        // TODO remove this behavior with "previous trend", simplify here
 
         let trade_operation = TradeOperation::new(operation, now, price);
 

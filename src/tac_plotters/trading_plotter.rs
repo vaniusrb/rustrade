@@ -1,7 +1,7 @@
 use super::indicator_plotter::PlotterIndicatorContext;
 use crate::{
     config::selection::Selection,
-    strategy::{trader_register::TradeOperation, trend_enum::Side},
+    strategy::{side::Side, trader_register::TradeOperation},
 };
 use chrono::{DateTime, Utc};
 use plotters::{
