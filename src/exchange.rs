@@ -30,6 +30,16 @@ impl Exchange {
         Binance::new(Some(self.api_key.clone()), Some(self.secret_key.clone()))
     }
 
+    // TODO historical trades
+    pub fn trades(&self) {
+        let market = self.futures_market();
+
+        // market.get_historical_trades(symbol, from_id, limit);
+
+        // start_time: &Option<DateTime<Utc>>,
+        // end_time: &Option<DateTime<Utc>>,
+    }
+
     pub fn candles(
         &self,
         symbol_minutes: &SymbolMinutes,
@@ -39,8 +49,6 @@ impl Exchange {
         let start_time = *start_time;
         let mut end_time = *end_time;
 
-        let mut candles = Vec::new();
-
         if let Some(st) = start_time {
             if let Some(et) = end_time {
                 if st == et {
@@ -48,16 +56,31 @@ impl Exchange {
                 }
             }
         }
+        self.internal_candles(symbol_minutes, &start_time, &end_time, 1000)
+    }
 
+    pub fn last_candle(&self, symbol_minutes: &SymbolMinutes) -> eyre::Result<Option<Candle>> {
+        self.internal_candles(symbol_minutes, &None, &None, 1)
+            .map(|cs| cs.last().map(|c| c.clone()))
+    }
+
+    pub fn internal_candles(
+        &self,
+        symbol_minutes: &SymbolMinutes,
+        start_time: &Option<DateTime<Utc>>,
+        end_time: &Option<DateTime<Utc>>,
+        limit: u16,
+    ) -> eyre::Result<Vec<Candle>> {
         let start_time = start_time.map(|d| datetime_to_timestamp(&d));
         let end_time = end_time.map(|d| datetime_to_timestamp(&d));
+        let mut candles = Vec::new();
 
         let market = self.futures_market();
 
         match market.get_klines(
             symbol_minutes.symbol.to_string(),
             iformat! {"{symbol_minutes.minutes}m"},
-            1000,
+            limit,
             start_time,
             end_time,
         ) {
@@ -91,6 +114,8 @@ impl Exchange {
 
 #[cfg(test)]
 mod tests {
+    use std::thread;
+
     use chrono::Duration;
     use ifmt::iprintln;
 
@@ -105,6 +130,18 @@ mod tests {
         let candles = exchange.candles(&symbol_minutes, &Some(start), &None).unwrap();
         for candle in candles {
             iprintln!("{candle}");
+        }
+    }
+
+    #[test]
+    fn last_candle_test() {
+        dotenv::dotenv().unwrap();
+        let exchange = Exchange::new(Level::Info).unwrap();
+        let symbol_minutes = SymbolMinutes::new("BTCUSDT", &15);
+        for i in 0..10 {
+            let candle = exchange.last_candle(&symbol_minutes).unwrap();
+            iprintln!("{i}: {candle:?}");
+            thread::sleep(std::time::Duration::from_secs(1));
         }
     }
 }

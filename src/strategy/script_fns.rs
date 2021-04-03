@@ -15,6 +15,14 @@ pub fn price() -> f64 {
     price_dec().to_f64().unwrap()
 }
 
+fn gain_perc() -> u32 {
+    todo!()
+}
+
+fn loss_perc() -> u32 {
+    todo!()
+}
+
 pub fn macd(min: i64, a: i64, b: i64, c: i64) -> f64 {
     let singleton = ContextSingleton::current();
     let trade_context_provider = singleton.trade_context_provider_opt.as_ref().unwrap();

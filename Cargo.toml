@@ -7,10 +7,10 @@ version = "0.1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-std = {version = "1.9", features = ["attributes"]}
-atty = "0.2"
-binance = "0.12"
-chrono = "0.4"
+async-std = {version = "1.9.0", features = ["attributes"]}
+atty = "0.2.14"
+binance = "0.12.3"
+chrono = "0.4.19"
 color-eyre = "0.5.10"
 colored = "2.0"
 dotenv = "0.15"
@@ -18,8 +18,8 @@ enum-display-derive = "0.1.1"
 eyre = "0.6.5"
 ifmt = "0.3"
 lazy_static = "1.4"
-log = "0.4"
-pad = "0.1"
+log = "0.4.14"
+pad = "0.1.6"
 paw = "1.0.0"
 plotters = {version = "0.3"}
 rhai = "0.19.14"

@@ -22,7 +22,9 @@ use exchange::Exchange;
 use eyre::Result;
 use log::{info, Level, LevelFilter};
 use repository::Repository;
-use std::{collections::HashMap, env};
+use std::collections::HashMap;
+#[cfg(debug_assertions)]
+use std::env;
 use structopt::StructOpt;
 use technicals::{ema_tac::EmaTac, macd::macd_tac::MacdTac, technical::TechnicalDefinition};
 

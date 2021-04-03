@@ -2,8 +2,7 @@ fn buy() {
     if macd(15, 34, 72, 17) > macd_signal(15, 34, 72, 17) {
         // If I should buy
         if is_sold() {
-            let fiat = balance_fiat();
-            fiat_to_asset(fiat)
+            fiat_to_asset(balance_fiat())
         } else {
             0.0
         }
