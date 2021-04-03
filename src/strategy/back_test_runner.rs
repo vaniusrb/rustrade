@@ -77,7 +77,6 @@ pub fn run_trader_back_test(app: &mut Application) -> eyre::Result<()> {
     let pool = LinearObjectPool::<Trader>::new(
         move || {
             let trend_provider: Box<dyn TrendProvider + Send + Sync> = Box::new(MacdTrendProvider::from());
-
             trader_factory.create_trader(trend_provider, trader_register.clone())
         },
         |_| (),

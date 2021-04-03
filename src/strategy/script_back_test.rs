@@ -4,11 +4,14 @@ use super::{
 };
 use crate::application::plot_selection::PlotterSelection;
 use crate::model::price::Price;
+use crate::model::quantity;
 use crate::strategy::script_fns::*;
 use crate::strategy::singleton_context::ContextSingleton;
 use crate::strategy::singleton_engine::EngineSingleton;
+use crate::strategy::singleton_position::PositionSingleton;
 use crate::strategy::trader_register::Position;
 use crate::strategy::trader_register::TraderRegister;
+use crate::strategy::trend_enum::Operation;
 use crate::tac_plotters::indicator_plotter::PlotterIndicatorContext;
 use crate::tac_plotters::trading_plotter::TradingPlotter;
 use crate::{
@@ -18,7 +21,10 @@ use crate::{
 use eyre::eyre;
 use ifmt::iformat;
 use log::info;
+use plotters::prelude::Quartiles;
+use quantity::Quantity;
 use rhai::{Engine, RegisterFn, Scope};
+use rust_decimal::{prelude::FromPrimitive, Decimal};
 use rust_decimal_macros::dec;
 use std::{fs, path::Path, time::Instant};
 
@@ -82,6 +88,8 @@ pub fn run_script<P: AsRef<Path>>(app: &mut Application, file: P) -> eyre::Resul
     engine.register_fn("balance_asset", balance_asset);
     engine.register_fn("fiat_to_asset", fiat_to_asset);
     engine.register_fn("asset_to_fiat", asset_to_fiat);
+    engine.register_fn("is_bought", is_bought);
+    engine.register_fn("is_sold", is_sold);
 
     // Load script file and compile AST
     let script_content = fs::read_to_string(file)?;
@@ -95,20 +103,23 @@ pub fn run_script<P: AsRef<Path>>(app: &mut Application, file: P) -> eyre::Resul
     let candles = app.candles_provider.candles()?;
 
     // Create trend provider with call back
-    let callback_trend_provider = CallBackTrendProvider::from(|trade_context_provider| {
+    let callback_trend_provider = CallBackTrendProvider::from(|position, trade_context_provider| {
         // Set current static trade_context_provider
         ContextSingleton::set_current(trade_context_provider);
+        PositionSingleton::set_current(position);
         // Get engine and run script
         let engine_arc = EngineSingleton::current();
         let (engine, scope, ast) = &engine_arc.engine_scope.as_ref().unwrap();
 
-        let _result: bool = engine.call_fn(&mut scope.clone(), &ast, FN_BUY, ()).unwrap();
-
-        // TODO here should receive call back from script, allowing none operation
-
-        // Return trend
-        // Ok(if result { Operation::Bought } else { Side::Sold })
-        Ok(None)
+        let quantity: f64 = engine.call_fn(&mut scope.clone(), &ast, FN_BUY, ()).unwrap();
+        let result = if quantity > 0. {
+            Some(Operation::Buy(Quantity(Decimal::from_f64(quantity).unwrap())))
+        } else if quantity < 0. {
+            Some(Operation::Sell(Quantity(Decimal::from_f64(quantity * -1.).unwrap())))
+        } else {
+            None
+        };
+        Ok(result)
     });
 
     let price = Price(candles.first().ok_or_else(|| eyre!("First candle not found!"))?.open);

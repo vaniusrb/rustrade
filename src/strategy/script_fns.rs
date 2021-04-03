@@ -1,5 +1,6 @@
 use super::{singleton_context::ContextSingleton, singleton_position::PositionSingleton};
 use crate::technicals::ind_type::IndicatorType;
+use log::info;
 use rust_decimal::{
     prelude::{FromPrimitive, ToPrimitive},
     Decimal,
@@ -70,6 +71,17 @@ pub fn sma(min: i64, a: i64) -> f64 {
         .unwrap()
         .value()
         .unwrap()
+}
+
+pub fn is_bought() -> bool {
+    let singleton = PositionSingleton::current();
+    let position = singleton.position_opt.as_ref().unwrap();
+    // If I have more assets (equivalent value) than fiat
+    position.balance_asset_r() * position.price.0 > position.balance_fiat_r()
+}
+
+pub fn is_sold() -> bool {
+    !is_bought()
 }
 
 pub fn balance_fiat() -> f64 {

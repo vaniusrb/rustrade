@@ -23,9 +23,3 @@ impl Operation {
         }
     }
 }
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum Operation_2 {
-    Buy(Quantity),
-    Sell(Quantity),
-}

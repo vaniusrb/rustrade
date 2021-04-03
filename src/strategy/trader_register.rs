@@ -14,7 +14,7 @@ pub struct Position {
     state: Side,
     balance_asset: Decimal,
     balance_fiat: Decimal,
-    price: Price,
+    pub price: Price,
     real_balance_fiat: Decimal,
 }
 

@@ -2,6 +2,7 @@ use super::trend_provider::TrendProvider;
 use crate::{
     strategy::{
         trade_context_provider::TradeContextProvider,
+        trader_register::Position,
         trend_enum::{Operation, Side},
     },
     technicals::ind_type::IndicatorType,
@@ -22,7 +23,11 @@ impl MacdTrendProvider {
 }
 
 impl TrendProvider for MacdTrendProvider {
-    fn trend(&mut self, trade_context_provider: &TradeContextProvider) -> eyre::Result<Option<Operation>> {
+    fn trend(
+        &mut self,
+        position: &Position,
+        trade_context_provider: &TradeContextProvider,
+    ) -> eyre::Result<Option<Operation>> {
         let mcad = trade_context_provider
             .indicator(15, &IndicatorType::Macd(34, 72, 17))?
             .value()?;
