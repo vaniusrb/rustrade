@@ -282,14 +282,14 @@ pub mod tests {
     use crate::candles_utils::str_to_datetime;
     use crate::utils;
     use eyre::Result;
-    use log::LevelFilter;
+    use log::{Level, LevelFilter};
 
     #[test]
     fn candles_provider_buffer_singleton_test() -> Result<()> {
         utils::log_utils::setup_log(LevelFilter::Debug, module_path!());
 
         dotenv::dotenv()?;
-        let exchange: Exchange = Exchange::new()?;
+        let exchange: Exchange = Exchange::new(Level::Debug)?;
         let repository: Repository = Repository::new(LevelFilter::Debug)?;
 
         repository.delete_all_candles()?;

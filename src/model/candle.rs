@@ -66,7 +66,7 @@ pub struct Candle {
 pub fn symbol_from_string(st: &str) -> [char; 7] {
     let mut result = ['\x00'; 7];
     for (i, c) in st.chars().enumerate() {
-        if i == 6 {
+        if i == 7 {
             break;
         }
         result[i] = c;
@@ -118,5 +118,22 @@ impl Display for Candle {
             f,
             "{symbol_to_string(&self.symbol)} [{self.minutes} {self.open_time} {close_time_fmt}] {self.close}"
         )
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn symbol_from_string_test() {
+        let asset_char = symbol_from_string("BTCUSDT");
+        assert_eq!(&asset_char, &['B', 'T', 'C', 'U', 'S', 'D', 'T']);
+    }
+
+    #[test]
+    fn symbol_to_string_test() {
+        let asset_char = symbol_to_string(&['B', 'T', 'C', 'U', 'S', 'D', 'T']);
+        assert_eq!(&asset_char, "BTCUSDT");
     }
 }
