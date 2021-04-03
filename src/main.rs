@@ -17,11 +17,12 @@ pub mod utils;
 use application::{app::Application, streamer::Streamer};
 use candles_utils::str_to_datetime;
 use checker::Checker;
-use config::{candles_selection::CandlesSelection, selection::Selection, symbol_minutes::SymbolMinutes};
+use config::{candles_selection::CandlesSelection, selection::Selection};
 use exchange::Exchange;
-use log::{info, LevelFilter};
+use eyre::Result;
+use log::{info, Level, LevelFilter};
 use repository::Repository;
-use std::collections::HashMap;
+use std::{collections::HashMap, env};
 use structopt::StructOpt;
 use technicals::{ema_tac::EmaTac, macd::macd_tac::MacdTac, technical::TechnicalDefinition};
 
@@ -58,7 +59,7 @@ enum Command {
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "rustrade", about = "A Rust Bot Trade")]
-struct Opt {
+struct Args {
     /// Enabled debug level
     #[structopt(short, long)]
     debug: bool,
@@ -90,51 +91,79 @@ pub fn selection_factory(candles_selection: CandlesSelection) -> Selection {
     }
 }
 
+fn create_repo() -> Result<Repository> {
+    Repository::new(LevelFilter::Debug)
+}
+
+fn create_exchange() -> Result<Exchange> {
+    Exchange::new(Level::Debug)
+}
+
+fn candles_selection_from_arg(opt: &Args) -> CandlesSelection {
+    CandlesSelection::from(
+        &opt.symbol,
+        &opt.minutes,
+        str_to_datetime(&opt.start_time),
+        str_to_datetime(&opt.end_time),
+    )
+}
+
+fn create_app(candles_selection: CandlesSelection) -> Result<Application> {
+    let selection = selection_factory(candles_selection);
+    Ok(Application::new(create_repo()?, create_exchange()?, selection))
+}
+
+fn create_checker(candles_selection: CandlesSelection) -> Result<Checker> {
+    let exchange = create_exchange()?;
+    let repo = create_repo()?;
+    let checker = Checker::new(candles_selection, repo, exchange);
+    Ok(checker)
+}
+
 #[async_std::main]
-async fn main() -> color_eyre::eyre::Result<()> {
+#[paw::main]
+async fn main(args: Args) -> color_eyre::eyre::Result<()> {
     color_eyre::install()?;
 
-    let opt = Opt::from_args();
-
-    let level = if opt.debug {
+    let level = if args.debug {
         LevelFilter::Debug
     } else {
         LevelFilter::Info
     };
     utils::log_utils::setup_log(level, module_path!());
 
+    #[cfg(debug_assertions)]
+    {
+        info!("Ativando backtrace");
+        env::set_var("RUST_BACKTRACE", "1");
+    };
+
     dotenv::dotenv()?;
-    let exchange: Exchange = Exchange::new()?;
-    let repo: Repository = Repository::new()?;
 
-    let candles_selection = CandlesSelection::from(
-        &opt.symbol,
-        &opt.minutes,
-        str_to_datetime(&opt.start_time),
-        str_to_datetime(&opt.end_time),
-    );
-    let selection = selection_factory(candles_selection.clone());
+    let candles_selection = candles_selection_from_arg(&args);
 
-    let symbol_minutes = SymbolMinutes::new(&opt.symbol, &opt.minutes);
-    let checker = Checker::new(&symbol_minutes, &repo, &exchange);
+    let mut app = create_app(candles_selection.clone())?;
 
-    let mut app = Application::new(Repository::new()?, Exchange::new()?, selection);
-
-    match opt.command {
+    match args.command {
         Command::Check {} => {
-            checker.check_inconsist(&repo, &candles_selection);
+            let checker = create_checker(candles_selection)?;
+            checker.check_inconsist();
         }
         Command::Sync {} => {
+            let checker = create_checker(candles_selection)?;
             checker.synchronize()?;
         }
         Command::Fix {} => {
+            let checker = create_checker(candles_selection)?;
             checker.delete_inconsist();
         }
         Command::DeleteAll {} => {
+            let repo = create_repo()?;
             repo.delete_all_candles()?;
         }
         Command::List {} => {
-            repo.list_candles(&opt.symbol, &opt.minutes, &10);
+            let repo = create_repo()?;
+            repo.list_candles(&args.symbol, &args.minutes, &10);
         }
         Command::Plot {} => app.plot_selection()?,
         Command::Stream {} => {

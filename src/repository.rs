@@ -3,24 +3,31 @@ use crate::model::candle::symbol_to_string;
 use crate::model::candle::CandleDb;
 use crate::{config::symbol_minutes::SymbolMinutes, model::candle::Candle};
 use chrono::{DateTime, Duration, Utc};
+use colored::Colorize;
 use eyre::{bail, Result};
 use ifmt::iformat;
-use log::{error, info};
-use rust_decimal::{
-    prelude::{FromPrimitive, ToPrimitive},
-    Decimal,
-};
+use log::{error, info, LevelFilter};
+use rust_decimal::prelude::FromPrimitive;
+use rust_decimal::{prelude::ToPrimitive, Decimal};
 use rust_decimal_macros::dec;
-use sqlx::{postgres::PgPoolOptions, PgPool};
+use sqlx::{
+    postgres::{PgConnectOptions, PgPoolOptions},
+    ConnectOptions, PgPool,
+};
 use std::{env, time::Instant};
+
 pub struct Repository {
     pool: PgPool,
 }
 
 impl Repository {
-    pub fn new() -> Result<Repository> {
-        let e = env::var("DATABASE_URL")?;
-        let future = PgPoolOptions::new().max_connections(5).connect(&e);
+    pub fn new(level_filter: LevelFilter) -> Result<Repository> {
+        let mut options: PgConnectOptions = env::var("DATABASE_URL")?.parse().unwrap();
+        options = options.application_name("rustrade");
+        options.log_statements(level_filter);
+
+        //log_statements(&mut self, level);
+        let future = PgPoolOptions::new().max_connections(5).connect_with(options);
         let pool = async_std::task::block_on(future)?;
         Ok(Repository { pool })
     }
@@ -151,15 +158,22 @@ impl Repository {
         let candles_errors = candles
             .iter()
             .map(|c| (c, self.insert_candle(c)))
-            .filter(|cr| cr.1.is_err())
+            .filter_map(|cr| match cr.1 {
+                Ok(_) => None,
+                Err(e) => Some((cr.0, e)),
+            })
             .collect::<Vec<_>>();
 
         if !candles_errors.is_empty() {
             let c = candles_errors.get(0).unwrap().0;
             let e = &candles_errors.get(0).unwrap().1;
+            let context = e.root_cause().to_string().red();
+            let context_details = e.root_cause();
             error!("{}", iformat!("Candles add error: {candles_errors.len()}"));
             error!("{}", iformat!("First candle: {c}"));
-            error!("{}", iformat!("First error: {e:?}"));
+            error!("{}", iformat!("First error: {context}"));
+            error!("{}", iformat!("Details error: {context_details:?}"));
+
             bail!("Candles insert error");
         }
 
@@ -246,7 +260,7 @@ pub mod tests {
         dotenv::dotenv().unwrap();
         let end_time = Utc::now();
         let start_time = end_time - Duration::days(30);
-        let repo = Repository::new().unwrap();
+        let repo = Repository::new(log::LevelFilter::Debug).unwrap();
         let symbol_minutes = SymbolMinutes::new("BTCUSDT", &15);
         let candles = repo
             .candles_by_time(&symbol_minutes, &start_time, &end_time)
@@ -269,7 +283,7 @@ pub mod tests {
     #[test]
     fn symbols_minutes_test() {
         dotenv::dotenv().unwrap();
-        let repo = Repository::new().unwrap();
+        let repo = Repository::new(log::LevelFilter::Debug).unwrap();
         let symbols_minutes = repo.symbols_minutes();
 
         iprintln!("symbols_minutes.len: {symbols_minutes.len()}");

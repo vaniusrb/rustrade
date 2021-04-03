@@ -290,7 +290,7 @@ pub mod tests {
 
         dotenv::dotenv()?;
         let exchange: Exchange = Exchange::new()?;
-        let repository: Repository = Repository::new()?;
+        let repository: Repository = Repository::new(LevelFilter::Debug)?;
 
         repository.delete_all_candles()?;
         let mut candles_provider_buffer_singleton = CandlesProviderBufferSingleton::new(repository, exchange);

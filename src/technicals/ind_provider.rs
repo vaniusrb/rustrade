@@ -4,11 +4,10 @@ use super::{
     macd::macd_tac::{MacdTac, MACD_DIV_IND, MACD_IND, MACD_SIG_IND},
     sma_tac::{SmaTac, SMA_IND},
     technical::TechnicalIndicators,
-    top_bottom_tac::TOP_BOTTOM_IND,
 };
 use crate::{model::candle::Candle, technicals::indicator::Indicator};
-use eyre::eyre;
 use chrono::{DateTime, Utc};
+use eyre::eyre;
 use std::collections::HashMap;
 
 pub struct IndicatorProvider {
@@ -102,7 +101,7 @@ impl IndicatorProvider {
             }
             IndicatorType::Ema(period) => self.tac_indicator(candles, EMA_IND, *period)?,
             IndicatorType::Sma(period) => self.tac_indicator(candles, SMA_IND, *period)?,
-            IndicatorType::TopBottom(period) => self.tac_indicator(candles, TOP_BOTTOM_IND, *period)?,
+            //IndicatorType::TopBottom(period) => self.tac_indicator(candles, TOP_BOTTOM_IND, *period)?,
         };
         Ok(ind)
     }

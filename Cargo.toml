@@ -20,9 +20,10 @@ ifmt = "0.3"
 lazy_static = "1.4"
 log = "0.4"
 pad = "0.1"
+paw = "1.0.0"
 plotters = {version = "0.3"}
 rhai = "0.19.14"
-structopt = "0.3"
+structopt = {version = "0.3.21", features = ["paw"]}
 termcolor = "1.1"
 # plotters = {Version = "0.3.0", default_features = false, features = ["datetime", "candlestick", "point_series", "line_series", "ttf", "bitmap_encoder"]}
 # plotters-bitmap = {version = "0.3.0", default-features = true, features = ["image_encoder"]}
