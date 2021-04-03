@@ -16,7 +16,7 @@ pub struct Position {
 }
 
 impl Position {
-    pub fn from_asset(flow_register: FlowRegister, balance_asset: Decimal, price: Price) -> Self {
+    pub fn _from_asset(flow_register: FlowRegister, balance_asset: Decimal, price: Price) -> Self {
         Self {
             flow_register,
             side: Side::Bought,
@@ -52,10 +52,6 @@ impl Position {
             .round_dp_with_strategy(8, RoundingStrategy::RoundDown)
     }
 
-    pub fn side(&self) -> &Side {
-        &self.side
-    }
-
     pub fn register(&mut self, trade_operation: &TradeOperation) {
         // #### self.flow_register.set_position_old(&self);
         self.flow_register.set_position_old(*self);
@@ -76,9 +72,6 @@ impl Position {
                     self.balance_fiat += sell_total;
                 }
             };
-
-            // TODO register flow
-            //          when, how much sell or bough, real usd
 
             self.side = trade_operation.operation.to_side();
             self.price = trade_operation.price;

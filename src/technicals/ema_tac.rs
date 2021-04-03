@@ -33,10 +33,7 @@ impl TechnicalIndicators for EmaTac {
 }
 
 impl<'a> EmaTac {
-    // default period is 34
     pub fn new(candles: &[Candle], period: usize) -> Self {
-        // let candles = candles.candles().unwrap();
-
         let mut ema_series = Vec::with_capacity(candles.len());
 
         let mut indicators = HashMap::new();

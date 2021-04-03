@@ -42,7 +42,7 @@ impl<'a> Trader {
 
         let operation_opt = self.trend_provider.trend(position, &self.trade_context_provider)?;
         let operation = match operation_opt {
-            Some(trend) => trend,
+            Some(operation) => operation,
             None => return Ok(()),
         };
 

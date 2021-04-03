@@ -54,7 +54,7 @@ pub struct Candle {
     pub open_time: DateTime<Utc>,
     pub close_time: DateTime<Utc>,
     pub id: Decimal,
-    pub symbol: [char; 7], //String,
+    pub symbol: [char; 7],
     pub minutes: Decimal,
     pub open: Decimal,
     pub high: Decimal,
@@ -62,9 +62,6 @@ pub struct Candle {
     pub close: Decimal,
     pub volume: Decimal,
 }
-
-// 0123345
-// BTCUSDT
 
 pub fn symbol_from_string(st: &str) -> [char; 7] {
     let mut result = ['\x00'; 7];

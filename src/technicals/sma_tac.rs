@@ -32,7 +32,6 @@ impl TechnicalIndicators for SmaTac {
 }
 
 impl<'a> SmaTac {
-    // Default period is 34
     pub fn new(candles: &[Candle], period: usize) -> Self {
         let mut sma_series = Vec::with_capacity(candles.len());
 
