@@ -153,11 +153,14 @@ impl Repository {
             .map(|c| (c, self.insert_candle(c)))
             .filter(|cr| cr.1.is_err())
             .collect::<Vec<_>>();
+
         if !candles_errors.is_empty() {
             let c = candles_errors.get(0).unwrap().0;
+            let e = &candles_errors.get(0).unwrap().1;
             error!("{}", iformat!("Candles add error: {candles_errors.len()}"));
             error!("{}", iformat!("First candle: {c}"));
-            bail!("Candles add error");
+            error!("{}", iformat!("First error: {e:?}"));
+            bail!("Candles insert error");
         }
 
         Ok(())

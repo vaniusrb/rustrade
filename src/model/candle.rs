@@ -75,7 +75,7 @@ pub fn symbol_from_string(st: &str) -> [char; 7] {
 }
 
 pub fn symbol_to_string(symbol: &[char; 7]) -> String {
-    let result: String = symbol.iter().collect();
+    let result: String = symbol.iter().filter(|c| c != &&'\x00').collect();
     result
 }
 

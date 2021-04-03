@@ -41,7 +41,7 @@ impl TraderRegister {
         &self.position
     }
 
-    pub fn trades(&self) -> Vec<TradeOperation> {
-        self.trades.clone()
-    }
+    // pub fn trades(&self) -> Vec<TradeOperation> {
+    //     self.trades.clone()
+    // }
 }
