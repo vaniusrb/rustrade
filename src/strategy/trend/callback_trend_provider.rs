@@ -22,6 +22,6 @@ impl<'a> TrendProvider for CallBackTrendProvider {
         position: &Position,
         trade_context_provider: &TradeContextProvider,
     ) -> eyre::Result<Option<Operation>> {
-        (self.call_back)(position.clone(), trade_context_provider.clone())
+        (self.call_back)(*position, trade_context_provider.clone())
     }
 }

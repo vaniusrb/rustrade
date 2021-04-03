@@ -32,7 +32,7 @@ fn heikin_ashi_first(c: &Candle) -> Candle {
     Candle {
         close: (c.open + c.high + c.low + c.close) / DEC_4,
         open: (c.open + c.close) / DEC_2,
-        ..c.clone()
+        ..*c
     }
 }
 
@@ -47,6 +47,6 @@ fn heikin_ashi_candles(prev_ha_open: Decimal, prev_ha_close: Decimal, c: &Candle
         open: ha_open,
         low: ha_low,
         high: ha_high,
-        ..c.clone()
+        ..*c
     }
 }

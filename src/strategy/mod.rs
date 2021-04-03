@@ -1,8 +1,6 @@
 pub mod back_test_runner;
 pub mod flow_register;
-pub mod model;
 pub mod operation;
-pub mod order_executor;
 pub mod position;
 pub mod script_back_test;
 pub mod script_fns;

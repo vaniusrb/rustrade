@@ -1,6 +1,9 @@
 use std::str::FromStr;
 
-use crate::model::{candle::Candle, open_close::OpenClose};
+use crate::model::{
+    candle::{symbol_from_string, Candle},
+    open_close::OpenClose,
+};
 use binance::model::KlineSummary;
 use chrono::{DateTime, Duration, NaiveDateTime, TimeZone, Utc};
 use rust_decimal::Decimal;
@@ -29,7 +32,7 @@ pub fn kline_to_candle(summary: &KlineSummary, symbol: &str, minutes: u32, id: &
 
     Candle {
         id: *id,
-        symbol: symbol.into(),
+        symbol: symbol_from_string(symbol),
         minutes: minutes.into(),
         open: fdec(summary.open),
         open_time,
@@ -108,7 +111,7 @@ pub fn inconsistent_candles(candles: &[&Candle], duration: &Duration) -> Vec<Can
                     let previous_d = previous_c.open_time;
                     let current_d = current_c.open_time;
                     if current_d - previous_d != *duration {
-                        previous.0.push((*current_c).clone());
+                        previous.0.push(*(*current_c));
                     }
                 }
             };

@@ -1,3 +1,6 @@
+use crate::model::candle::candle_db_to_candle;
+use crate::model::candle::symbol_to_string;
+use crate::model::candle::CandleDb;
 use crate::{config::symbol_minutes::SymbolMinutes, model::candle::Candle};
 use chrono::{DateTime, Duration, Utc};
 use eyre::{bail, Result};
@@ -54,8 +57,8 @@ impl Repository {
     }
 
     pub fn candle_by_id(&self, id: Decimal) -> Option<Candle> {
-        let future = sqlx::query_as!(Candle, "SELECT * FROM candle WHERE id = $1", id).fetch_one(&self.pool);
-        async_std::task::block_on(future).ok()
+        let future = sqlx::query_as!(CandleDb, "SELECT * FROM candle WHERE id = $1", id).fetch_one(&self.pool);
+        async_std::task::block_on(future).ok().map(|c| candle_db_to_candle(&c))
     }
 
     pub fn candles_default(&self, symbol_minutes: &SymbolMinutes) -> Vec<Candle> {
@@ -98,7 +101,7 @@ impl Repository {
 
         #[allow(clippy::suspicious_else_formatting)]
         let future = sqlx::query_as!(
-            Candle,
+            CandleDb,
             r#"
                 SELECT * FROM candle
                 WHERE symbol = $1 AND minutes = $2 AND (open_time BETWEEN $3 AND $4 OR close_time BETWEEN $3 AND $4)
@@ -110,7 +113,8 @@ impl Repository {
             end_time
         )
         .fetch_all(&self.pool);
-        async_std::task::block_on(future).ok()
+        let candles = async_std::task::block_on(future).ok();
+        candles.map(|v| v.iter().map(|c| candle_db_to_candle(&c)).collect::<Vec<Candle>>())
     }
 
     pub fn last_candles(&self, symbol: &str, minutes: &u32, limit: &i64) -> Option<Vec<Candle>> {
@@ -118,7 +122,7 @@ impl Repository {
 
         #[allow(clippy::suspicious_else_formatting)]
         let future = sqlx::query_as!(
-            Candle,
+            CandleDb,
             r#"
                 SELECT * FROM candle
                 WHERE symbol = $1 AND minutes = $2
@@ -130,7 +134,8 @@ impl Repository {
             limit
         )
         .fetch_all(&self.pool);
-        async_std::task::block_on(future).ok()
+        let candles = async_std::task::block_on(future).ok();
+        candles.map(|v| v.iter().map(|c| candle_db_to_candle(&c)).collect::<Vec<Candle>>())
     }
 
     pub fn insert_candles(&self, candles: &mut [Candle]) -> eyre::Result<()> {
@@ -176,7 +181,7 @@ impl Repository {
                 RETURNING id
             "#,
             candle.id,
-            candle.symbol,
+            symbol_to_string(&candle.symbol),
             candle.minutes,
             candle.open_time,
             candle.close_time,
