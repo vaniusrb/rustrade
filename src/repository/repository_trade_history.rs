@@ -16,13 +16,13 @@ impl RepositoryTradeHistory {
         Self { pool }
     }
 
-    pub fn last_trade_id(&self) -> Decimal {
+    pub fn last_trade_id(&self) -> i32 {
         let future = sqlx::query_as("SELECT MAX(id) FROM trade").fetch_one(&self.pool);
         let result: (Option<Decimal>,) = async_std::task::block_on(future).unwrap();
         result.0.unwrap_or_default()
     }
 
-    pub fn read_by_id(&self, id: Decimal) -> eyre::Result<Option<TradeHistory>> {
+    pub fn read_by_id(&self, id: i32) -> eyre::Result<Option<TradeHistory>> {
         let future = sqlx::query_as!(TradeHistory, "SELECT * FROM trade WHERE id = $1", id)
             .fetch_optional(&self.pool);
         Ok(async_std::task::block_on(future)?)
@@ -31,10 +31,9 @@ impl RepositoryTradeHistory {
     /// Insert trades
     pub fn insert_trades(&self, trades: &mut [TradeHistory]) -> eyre::Result<()> {
         let mut trade_id = self.last_trade_id();
-        let one = dec!(1);
         trades.iter_mut().for_each(|c| {
             c.id = {
-                trade_id += one;
+                trade_id += 1;
                 trade_id
             }
         });
@@ -66,7 +65,7 @@ impl RepositoryTradeHistory {
         Ok(())
     }
 
-    pub fn insert_trade(&self, trade: &TradeHistory) -> eyre::Result<Decimal> {
+    pub fn insert_trade(&self, trade: &TradeHistory) -> eyre::Result<i32> {
         let future = sqlx::query!(
             "INSERT INTO trade ( \
                 id, \
@@ -74,7 +73,7 @@ impl RepositoryTradeHistory {
                 quantity, \
                 time, \
                 is_buyer_maker ) \
-            VALUES ( $1, $2, $3, $4, $5 ) \
+            VALUES ( $1, (SELECT id FROM symbol WHERE symbol = $2), $3, $4, $5 ) \
             RETURNING id \
             ",
             trade.id,

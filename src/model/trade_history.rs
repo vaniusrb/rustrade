@@ -7,12 +7,12 @@ use std::fmt::Display;
 
 #[derive(sqlx::FromRow)]
 pub struct TradeHistory {
-    pub id: Decimal,
-    pub symbol: String,
+    pub id: i32,
+    pub symbol: i32,
     pub quantity: Decimal,
     pub price: Decimal,
     pub time: DateTime<Utc>,
-    pub is_buyer_maker: Decimal,
+    pub is_buyer_maker: bool,
 }
 
 impl Display for TradeHistory {

@@ -1,5 +1,5 @@
+use crate::repository::repository_candle::RepositoryCandle;
 use crate::Exchange;
-use crate::RepositoryCandle;
 use crate::{candles_utils::inconsistent_candles, config::candles_selection::CandlesSelection};
 use chrono::{Duration, Utc};
 use eyre::bail;
@@ -42,8 +42,6 @@ impl Checker {
 
             info!("{}", iformat!("Last close time: {last_close_time:?}"));
 
-            let d1 = dec!(1);
-
             let mut candles = self.exchange.candles(
                 &self.candles_selection.symbol_minutes,
                 &Some(*last_close_time),
@@ -55,7 +53,7 @@ impl Checker {
             // Assign id to new candles
             candles.iter_mut().for_each(|c| {
                 c.id = {
-                    last_id += d1;
+                    last_id += 1;
                     last_id
                 }
             });

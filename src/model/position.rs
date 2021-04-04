@@ -1,3 +1,6 @@
+use super::price::Price;
+use rust_decimal::Decimal;
+
 #[derive(Clone, Copy)]
 pub struct Position {
     pub id: i32,

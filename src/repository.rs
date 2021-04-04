@@ -1,33 +1,40 @@
+mod repository_trade_history;
+mod repository_candle;
+
+use crate::model::candle::candle_db_to_candle;
+use crate::model::candle::symbol_to_string;
+use crate::model::candle::CandleDb;
 use crate::{config::symbol_minutes::SymbolMinutes, model::candle::Candle};
 use chrono::{DateTime, Duration, Utc};
-use colored::Colorize;
 use eyre::{bail, Result};
 use ifmt::iformat;
-use log::{error, info, LevelFilter};
-use rust_decimal::prelude::FromPrimitive;
-use rust_decimal::{prelude::ToPrimitive, Decimal};
+use log::{error, info};
+use rust_decimal::{
+    prelude::{FromPrimitive, ToPrimitive},
+    Decimal,
+};
 use rust_decimal_macros::dec;
-use sqlx::postgres::PgPool;
-use std::time::Instant;
-
-pub struct RepositoryCandle {
+use sqlx::{postgres::PgPoolOptions, PgPool};
+use std::{env, time::Instant};
+pub struct Repository {
     pool: PgPool,
 }
 
-impl RepositoryCandle {
-    pub fn new(level_filter: LevelFilter) -> Result<RepositoryCandle> {
-        Ok(RepositoryCandle {
-            pool: create_pool(level_filter)?,
-        })
+impl Repository {
+    pub fn new() -> Result<Repository> {
+        let e = env::var("DATABASE_URL")?;
+        let future = PgPoolOptions::new().max_connections(5).connect(&e);
+        let pool = async_std::task::block_on(future)?;
+        Ok(Repository { pool })
     }
 
-    pub fn last_candle_id(&self) -> i32 {
+    pub fn last_id(&self) -> Decimal {
         let future = sqlx::query_as("SELECT MAX(id) FROM candle").fetch_one(&self.pool);
         let result: (Option<Decimal>,) = async_std::task::block_on(future).unwrap();
         result.0.unwrap_or_default()
     }
 
-    pub fn last_candle_close_time(&self, symbol_minutes: &SymbolMinutes) -> Option<DateTime<Utc>> {
+    pub fn last_close_time(&self, symbol_minutes: &SymbolMinutes) -> Option<DateTime<Utc>> {
         let future = sqlx::query!(
             "SELECT MAX(close_time) as close_time FROM candle WHERE symbol = $1 AND minutes = $2",
             &symbol_minutes.symbol,
@@ -43,10 +50,7 @@ impl RepositoryCandle {
         symbol_minutes: &SymbolMinutes,
     ) -> (Option<DateTime<Utc>>, Option<DateTime<Utc>>) {
         let future = sqlx::query!(
-            "SELECT  \
-                MIN(close_time) as min_close_time, \
-                MAX(close_time) as max_close_time FROM candle WHERE symbol = (SELECT id FROM symbol WHERE symbol = $1) AND minutes = $2 \
-            ",
+            "SELECT MIN(close_time) as min_close_time, MAX(close_time) as max_close_time FROM candle WHERE symbol = $1 AND minutes = $2",
             &symbol_minutes.symbol,
             Decimal::from_u32(symbol_minutes.minutes)
         )
@@ -56,11 +60,8 @@ impl RepositoryCandle {
     }
 
     pub fn candle_by_id(&self, id: Decimal) -> Option<Candle> {
-        let future =
-            sqlx::query_as!(Candle, "SELECT * FROM candle WHERE id = $1", id).fetch_one(&self.pool);
-        async_std::task::block_on(future)
-            .ok()
-            .map(|c| candle_db_to_candle(&c))
+        let future = sqlx::query_as!(CandleDb, "SELECT * FROM candle WHERE id = $1", id).fetch_one(&self.pool);
+        async_std::task::block_on(future).ok().map(|c| candle_db_to_candle(&c))
     }
 
     pub fn candles_default(&self, symbol_minutes: &SymbolMinutes) -> Vec<Candle> {
@@ -78,10 +79,10 @@ impl RepositoryCandle {
         let mut result = Vec::new();
 
         let future = sqlx::query_as(
-            "
-            SELECT symbol, minutes, count(*) as qtd FROM candle \
-            GROUP BY symbol, minutes \
-            ",
+            r#"
+                SELECT symbol, minutes, count(*) as qtd FROM candle
+                GROUP BY symbol, minutes
+                "#,
         )
         .fetch_all(&self.pool);
 
@@ -100,14 +101,15 @@ impl RepositoryCandle {
         end_time: &DateTime<Utc>,
     ) -> Option<Vec<Candle>> {
         let minutes = Decimal::from(symbol_minutes.minutes);
+
+        #[allow(clippy::suspicious_else_formatting)]
         let future = sqlx::query_as!(
-            Candle,
-            "SELECT * FROM candle \
-            WHERE symbol = (SELECT id FROM symbol WHERE symbol = $1) AND minutes = $2 AND  \
-            (open_time BETWEEN $3 AND $4 OR
-            close_time BETWEEN $3 AND $4) \
-            ORDER BY open_time \
-            ",
+            CandleDb,
+            r#"
+                SELECT * FROM candle
+                WHERE symbol = $1 AND minutes = $2 AND (open_time BETWEEN $3 AND $4 OR close_time BETWEEN $3 AND $4)
+                ORDER BY open_time
+            "#,
             symbol_minutes.symbol,
             minutes,
             start_time,
@@ -115,40 +117,32 @@ impl RepositoryCandle {
         )
         .fetch_all(&self.pool);
         let candles = async_std::task::block_on(future).ok();
-        candles.map(|v| {
-            v.iter()
-                .map(|c| candle_db_to_candle(&c))
-                .collect::<Vec<Candle>>()
-        })
+        candles.map(|v| v.iter().map(|c| candle_db_to_candle(&c)).collect::<Vec<Candle>>())
     }
 
-    pub fn last_candles(&self, symbol: &i32, minutes: &u32, limit: &i64) -> Option<Vec<Candle>> {
+    pub fn last_candles(&self, symbol: &str, minutes: &u32, limit: &i64) -> Option<Vec<Candle>> {
         let minutes = Decimal::from(*minutes);
 
         #[allow(clippy::suspicious_else_formatting)]
         let future = sqlx::query_as!(
-            Candle,
-            "SELECT * FROM candle \
-            WHERE symbol = $1 AND minutes = $2 \
-            ORDER BY open_time DESC \
-            FETCH FIRST $3 ROWS ONLY \
-            ",
+            CandleDb,
+            r#"
+                SELECT * FROM candle
+                WHERE symbol = $1 AND minutes = $2
+                ORDER BY open_time DESC
+                FETCH FIRST $3 ROWS ONLY
+            "#,
             symbol,
             minutes,
             limit
         )
         .fetch_all(&self.pool);
         let candles = async_std::task::block_on(future).ok();
-        candles.map(|v| {
-            v.iter()
-                .map(|c| candle_db_to_candle(&c))
-                .collect::<Vec<Candle>>()
-        })
+        candles.map(|v| v.iter().map(|c| candle_db_to_candle(&c)).collect::<Vec<Candle>>())
     }
 
-    /// Insert candles
     pub fn insert_candles(&self, candles: &mut [Candle]) -> eyre::Result<()> {
-        let mut candle_id = self.last_candle_id();
+        let mut candle_id = self.last_id();
         let one = dec!(1);
         candles.iter_mut().for_each(|c| {
             c.id = {
@@ -157,51 +151,43 @@ impl RepositoryCandle {
             }
         });
 
-        // Insert candle calling method insert_candle, that returns Result<id>
-        // It's convenient collect the errors for raising the error bellow with details
         let candles_errors = candles
             .iter()
             .map(|c| (c, self.insert_candle(c)))
-            .filter_map(|cr| match cr.1 {
-                Ok(_) => None,
-                Err(e) => Some((cr.0, e)),
-            })
+            .filter(|cr| cr.1.is_err())
             .collect::<Vec<_>>();
 
         if !candles_errors.is_empty() {
             let c = candles_errors.get(0).unwrap().0;
             let e = &candles_errors.get(0).unwrap().1;
-            let context = e.root_cause().to_string().red();
-            let context_details = e.root_cause();
             error!("{}", iformat!("Candles add error: {candles_errors.len()}"));
             error!("{}", iformat!("First candle: {c}"));
-            error!("{}", iformat!("First error: {context}"));
-            error!("{}", iformat!("Details error: {context_details:?}"));
-
-            bail!("Candles insert error!");
+            error!("{}", iformat!("First error: {e:?}"));
+            bail!("Candles insert error");
         }
 
         Ok(())
     }
 
-    pub fn insert_candle(&self, candle: &Candle) -> eyre::Result<i32> {
+    pub fn insert_candle(&self, candle: &Candle) -> eyre::Result<Decimal> {
         let future = sqlx::query!(
-            "INSERT INTO candle ( \
-                id, \
-                symbol, \
-                minutes, \
-                open_time, \
-                close_time, \
-                open, \
-                high, \
-                low, \
-                close, \
-                volume ) \
-            VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10 ) \
-            RETURNING id \
-            ",
+            r#"
+                INSERT INTO candle (
+                    id,
+                    symbol,
+                    minutes,
+                    open_time,
+                    close_time,
+                    open,
+                    high,
+                    low,
+                    close,
+                    volume )
+                VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10 )
+                RETURNING id
+            "#,
             candle.id,
-            candle.symbol,
+            symbol_to_string(&candle.symbol),
             candle.minutes,
             candle.open_time,
             candle.close_time,
@@ -224,17 +210,17 @@ impl RepositoryCandle {
         Ok(())
     }
 
-    pub fn delete_candle(&self, id: &Decimal) {
+    pub fn delete_candle(&self, id: &i32) {
         let future = sqlx::query!("DELETE FROM candle WHERE id = $1", id).execute(&self.pool);
         async_std::task::block_on(future).unwrap();
     }
 
     pub fn delete_last_candle(&self, symbol_minutes: &SymbolMinutes) {
         let future = sqlx::query!(
-            "DELETE FROM candle WHERE id = \
-            (SELECT id FROM candle WHERE symbol = $1 AND minutes = $2 \
-                ORDER BY close_time DESC FETCH FIRST 1 ROWS ONLY \
-            )",
+            r#"DELETE FROM candle WHERE id =
+            (SELECT id FROM candle WHERE symbol = $1 AND minutes = $2
+                ORDER BY close_time DESC FETCH FIRST 1 ROWS ONLY
+            )"#,
             symbol_minutes.symbol,
             symbol_minutes.minutes as i64,
         )
@@ -243,9 +229,7 @@ impl RepositoryCandle {
     }
 
     pub fn list_candles(&self, symbol: &str, minutes: &u32, limit: &i64) {
-        let candles = self
-            .last_candles(symbol, minutes, limit)
-            .unwrap_or_default();
+        let candles = self.last_candles(symbol, minutes, limit).unwrap_or_default();
         info!("{}", iformat!("Listing candles limit {limit}:"));
         for candle in candles.iter() {
             info!("{}", iformat!("{candle}"));
@@ -265,7 +249,7 @@ pub mod tests {
         dotenv::dotenv().unwrap();
         let end_time = Utc::now();
         let start_time = end_time - Duration::days(30);
-        let repo = RepositoryCandle::new(log::LevelFilter::Debug).unwrap();
+        let repo = Repository::new().unwrap();
         let symbol_minutes = SymbolMinutes::new("BTCUSDT", &15);
         let candles = repo
             .candles_by_time(&symbol_minutes, &start_time, &end_time)
@@ -288,12 +272,12 @@ pub mod tests {
     #[test]
     fn symbols_minutes_test() {
         dotenv::dotenv().unwrap();
-        let repo = RepositoryCandle::new(log::LevelFilter::Debug).unwrap();
+        let repo = Repository::new().unwrap();
         let symbols_minutes = repo.symbols_minutes();
 
         iprintln!("symbols_minutes.len: {symbols_minutes.len()}");
         for (symbol_minutes, count) in symbols_minutes {
-            let last_close_time = repo.last_candle_close_time(&symbol_minutes);
+            let last_close_time = repo.last_close_time(&symbol_minutes);
             iprintln!("{symbol_minutes:?} {count}  {last_close_time:?}");
             let range = repo.ranges_symbol_minutes(&symbol_minutes);
             iprintln!("{symbol_minutes:?} {count}  {range.0:?} - {range.1:?}");

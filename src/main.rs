@@ -8,6 +8,7 @@ pub mod candles_utils;
 pub mod config;
 pub mod model;
 pub mod repository;
+pub mod repository;
 pub mod service;
 pub mod tac_plotters;
 pub mod utils;
@@ -20,7 +21,6 @@ use candles_utils::str_to_datetime;
 use config::{candles_selection::CandlesSelection, selection::Selection};
 use eyre::Result;
 use log::{info, Level, LevelFilter};
-use repository::repository_candle::RepositoryCandle;
 use service::{exchange::Exchange, technicals::technical::TechnicalDefinition};
 use std::collections::HashMap;
 #[cfg(debug_assertions)]
