@@ -1,13 +1,20 @@
--- Add migration script here
+DROP TABLE IF EXISTS symbol
+;
+CREATE TABLE symbol
+(
+    id integer NOT NULL,
+    symbol varchar(8) NOT NULL,
+    CONSTRAINT symbol_pkey PRIMARY KEY (id),
+)
 
 -- Your SQL goes here
 DROP TABLE IF EXISTS candle
 ;
 CREATE TABLE candle
 (
-    id numeric(8,0) NOT NULL,
-    symbol character varying(8) NOT NULL,
-    minutes numeric(5,0) NOT NULL,
+    id integer NOT NULL,
+    symbol integer NOT NULL,
+    minutes integer NOT NULL,
     open numeric(20,8) NOT NULL,
     high numeric(20,8) NOT NULL,
     low numeric(20,8) NOT NULL,
