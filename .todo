@@ -36,7 +36,7 @@
 ✔ Create scripting file example @done(21-03-27 21:27)
 ✔ Move sample chart to example instead "out" folder @done(21-03-27 21:26)
 ✔ Create example folder and move script to this folder @done(21-03-27 21:27)
-✔ Create PlotterSelecion, to customize additional plotters, to be used in back test tooling @done(21-03-28 22:05)
+✔ Create PlotterSelecion, to customize additional plotters, to be u'sed in back test tooling @done(21-03-28 22:05)
 ✔ Technicals ie MacdTac, must be receive &Candles instead CandlesProvider @done(21-03-28 22:05)
 ✔ testins is falling @done(21-04-03 17:38)
 ✔ Fix tons of warnings @done(21-04-03 17:38)
@@ -44,7 +44,7 @@
 ☐ Register positions
     strategy (trade, position, rule, etc)
 ☐ Organize sources in modules
-
+☐ test is break
 Medium
 ☐ Apply candles selection in all commands
 ☐ Resolve confusion checker x synchronizer

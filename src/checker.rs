@@ -7,18 +7,22 @@ use log::{error, info};
 use rust_decimal_macros::dec;
 
 use crate::{
-    candles_utils::inconsistent_candles, config::candles_selection::CandlesSelection, exchange::Exchange,
-    repository::Repository,
+    candles_utils::inconsistent_candles, config::candles_selection::CandlesSelection,
+    exchange::Exchange, repository_candle::RepositoryCandle,
 };
 
 pub struct Checker {
-    repo: Repository,
+    repo: RepositoryCandle,
     exchange: Exchange,
     candles_selection: CandlesSelection,
 }
 
 impl Checker {
-    pub fn new(candles_selection: CandlesSelection, repository: Repository, exchange: Exchange) -> Self {
+    pub fn new(
+        candles_selection: CandlesSelection,
+        repository: RepositoryCandle,
+        exchange: Exchange,
+    ) -> Self {
         Checker {
             repo: repository,
             exchange,
@@ -28,22 +32,28 @@ impl Checker {
 
     pub fn synchronize(&self) -> eyre::Result<()> {
         loop {
-            self.repo.delete_last_candle(&self.candles_selection.symbol_minutes);
+            self.repo
+                .delete_last_candle(&self.candles_selection.symbol_minutes);
 
-            let mut last_close_time = self.repo.last_close_time(&self.candles_selection.symbol_minutes);
+            let mut last_close_time = self
+                .repo
+                .last_candle_close_time(&self.candles_selection.symbol_minutes);
 
             // If not found last candle then assume last 180 days
-            let last_close_time = last_close_time.get_or_insert_with(|| Utc::now() - Duration::days(180));
+            let last_close_time =
+                last_close_time.get_or_insert_with(|| Utc::now() - Duration::days(180));
 
             info!("{}", iformat!("Last close time: {last_close_time:?}"));
 
             let d1 = dec!(1);
 
-            let mut candles =
-                self.exchange
-                    .candles(&self.candles_selection.symbol_minutes, &Some(*last_close_time), &None)?;
+            let mut candles = self.exchange.candles(
+                &self.candles_selection.symbol_minutes,
+                &Some(*last_close_time),
+                &None,
+            )?;
 
-            let mut last_id = self.repo.last_id();
+            let mut last_id = self.repo.last_candle_id();
 
             // Assign id to new candles
             candles.iter_mut().for_each(|c| {
@@ -84,7 +94,11 @@ impl Checker {
 
         let candles = self
             .repo
-            .candles_by_time(&self.candles_selection.symbol_minutes, &start_time, &end_time)
+            .candles_by_time(
+                &self.candles_selection.symbol_minutes,
+                &start_time,
+                &end_time,
+            )
             .unwrap_or_default();
 
         info!("{}", iformat!("Found candles: {candles.len()}"));
@@ -105,10 +119,14 @@ impl Checker {
     pub fn delete_inconsist(&self) {
         let end_time = Utc::now();
         let start_time = end_time - Duration::days(180);
-        let repo = Repository::new(log::LevelFilter::Debug).unwrap();
+        let repo = RepositoryCandle::new(log::LevelFilter::Debug).unwrap();
 
         let candles = repo
-            .candles_by_time(&self.candles_selection.symbol_minutes, &start_time, &end_time)
+            .candles_by_time(
+                &self.candles_selection.symbol_minutes,
+                &start_time,
+                &end_time,
+            )
             .unwrap_or_default();
 
         info!("{}", iformat!("Found candles: {candles.len()}"));

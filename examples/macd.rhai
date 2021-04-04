@@ -1,5 +1,5 @@
 fn buy() {
-    if macd(15, 34, 72, 17) > macd_signal(15, 34, 72, 17) {
+    if macd(/*min*/ 15, 34, 72, 17) > macd_signal(/*min*/ 15, 34, 72, 17) {
         // If I should buy
         if is_sold() {
             fiat_to_asset(balance_fiat())

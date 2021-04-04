@@ -1,6 +1,7 @@
 use super::{
     candles_provider::{
-        CandlesProvider, CandlesProviderBuffer, CandlesProviderBufferSingleton, CandlesProviderSelection,
+        CandlesProvider, CandlesProviderBuffer, CandlesProviderBufferSingleton,
+        CandlesProviderSelection,
     },
     plot_selection::plot_selection,
     streamer::Streamer,
@@ -12,12 +13,11 @@ use crate::{
     candles_utils::datetime_to_filename,
     config::{definition::ConfigDefinition, selection::Selection},
     exchange::Exchange,
-    repository::Repository,
+    repository_candle::RepositoryCandle,
     strategy::top_bottom_triangle::top_bottom_triangle,
 };
 use chrono::Duration;
 use log::info;
-use std::sync::{Arc, RwLock};
 
 #[derive(Clone)]
 pub struct Application {
@@ -27,10 +27,10 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new(repository: Repository, exchange: Exchange, selection: Selection) -> Self {
+    pub fn new(repository: RepositoryCandle, exchange: Exchange, selection: Selection) -> Self {
         let candles_provider_singleton = CandlesProviderBufferSingleton::new(repository, exchange);
         Application {
-            candles_provider: CandlesProviderBuffer::new(Arc::new(RwLock::new(candles_provider_singleton))),
+            candles_provider: CandlesProviderBuffer::new(candles_provider_singleton),
             selection,
             definition: ConfigDefinition::new(),
         }
@@ -74,14 +74,19 @@ impl Application {
 
     pub fn plot_selection(&mut self) -> eyre::Result<()> {
         let selection = self.selection.clone();
-        let candles_provider_selection =
-            CandlesProviderSelection::new(self.candles_provider.clone(), selection.candles_selection.clone());
+        let candles_provider_selection = CandlesProviderSelection::new(
+            self.candles_provider.clone(),
+            selection.candles_selection.clone(),
+        );
         let candles_provider = Box::new(candles_provider_selection);
         plot_selection(selection, candles_provider, Vec::new())
     }
 }
 
-pub fn plot_triangles(selection: Selection, candles_provider: Box<dyn CandlesProvider>) -> eyre::Result<()> {
+pub fn plot_triangles(
+    selection: Selection,
+    candles_provider: Box<dyn CandlesProvider>,
+) -> eyre::Result<()> {
     let mut topbottom_tac = TopBottomTac::new(candles_provider.clone_provider(), 7);
     let top_bottoms = topbottom_tac.top_bottoms()?;
 

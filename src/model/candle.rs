@@ -129,11 +129,15 @@ mod test {
     fn symbol_from_string_test() {
         let asset_char = symbol_from_string("BTCUSDT");
         assert_eq!(&asset_char, &['B', 'T', 'C', 'U', 'S', 'D', 'T']);
+        let asset_char = symbol_from_string("BTCUSD");
+        assert_eq!(&asset_char, &['B', 'T', 'C', 'U', 'S', 'D', '\x00']);
     }
 
     #[test]
     fn symbol_to_string_test() {
         let asset_char = symbol_to_string(&['B', 'T', 'C', 'U', 'S', 'D', 'T']);
         assert_eq!(&asset_char, "BTCUSDT");
+        let asset_char = symbol_to_string(&['B', 'T', 'C', 'U', 'S', 'D', '\x00']);
+        assert_eq!(&asset_char, "BTCUSD");
     }
 }

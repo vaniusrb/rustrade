@@ -3,7 +3,7 @@ use crate::{
     config::{candles_selection::CandlesSelection, symbol_minutes::SymbolMinutes},
     exchange::Exchange,
     model::{candle::Candle, open_close::OpenClose},
-    repository::Repository,
+    repository_candle::RepositoryCandle,
     technicals::heikin_ashi,
 };
 use eyre::eyre;
@@ -23,17 +23,18 @@ pub trait CandlesProvider {
 
 pub struct CandlesProviderBufferSingleton {
     exchange: Exchange,
-    repository: Repository,
+    repository: RepositoryCandle,
     buffer: HashMap<SymbolMinutes, Vec<Candle>>,
 }
 
 impl CandlesProviderBufferSingleton {
-    pub fn new(repository: Repository, exchange: Exchange) -> Self {
-        Self {
+    pub fn new(repository: RepositoryCandle, exchange: Exchange) -> Arc<RwLock<Self>> {
+        let candles_provider_singleton = Self {
             exchange,
             repository,
             buffer: HashMap::new(),
-        }
+        };
+        Arc::new(RwLock::new(candles_provider_singleton))
     }
 
     fn candles(&mut self, candles_selection: CandlesSelection) -> eyre::Result<Vec<Candle>> {
@@ -60,7 +61,10 @@ impl CandlesProviderBufferSingleton {
 
         let candles_buf = loop {
             // Get candles from buffer
-            debug!("Retrieving candles buffer {:?} {:?}...", start_time, end_time);
+            debug!(
+                "Retrieving candles buffer {:?} {:?}...",
+                start_time, end_time
+            );
             let mut candles_buf = self.buffer.entry(symbol_minutes.clone()).or_default();
             debug!("Candles buffer count: {}", candles_buf.len());
 
@@ -71,7 +75,10 @@ impl CandlesProviderBufferSingleton {
                 &candles_selection.symbol_minutes.minutes,
                 candles_buf.iter().collect::<Vec<_>>().as_slice(),
             )?;
-            debug!("Buffer ranges missing count: {}", ranges_missing_from_buffer.len());
+            debug!(
+                "Buffer ranges missing count: {}",
+                ranges_missing_from_buffer.len()
+            );
 
             if ranges_missing_from_buffer.is_empty() {
                 break candles_buf;
@@ -81,7 +88,10 @@ impl CandlesProviderBufferSingleton {
                 let (start_time, end_time) = range_missing_from_buffer;
 
                 // Get candles from repository
-                debug!("Retrieving candles repository {:?} {:?}...", start_time, end_time);
+                debug!(
+                    "Retrieving candles repository {:?} {:?}...",
+                    start_time, end_time
+                );
                 let mut candles_repo = self
                     .repository
                     .candles_by_time(
@@ -92,7 +102,11 @@ impl CandlesProviderBufferSingleton {
                     .unwrap_or_default();
                 debug!("Candles repository count: {}", candles_repo.len());
 
-                candles_to_buf(candles_selection.heikin_ashi, &mut candles_repo, &mut candles_buf);
+                candles_to_buf(
+                    candles_selection.heikin_ashi,
+                    &mut candles_repo,
+                    &mut candles_buf,
+                );
 
                 // Get ranges missing
                 debug!(
@@ -116,19 +130,26 @@ impl CandlesProviderBufferSingleton {
                 for range_missing_from_exchange in ranges_missing_from_exchange.iter() {
                     let (start_time, end_time) = range_missing_from_exchange;
 
-                    debug!("Retrieving candles from exchange {:?} {:?}...", start_time, end_time);
-                    let mut candles_exch = self.exchange.candles(
+                    debug!(
+                        "Retrieving candles from exchange {:?} {:?}...",
+                        start_time, end_time
+                    );
+                    let mut candles_exchange = self.exchange.candles(
                         &candles_selection.symbol_minutes,
                         &Some(start_time.open(minutes)),
                         &Some(end_time.open(minutes)),
                     )?;
-                    debug!("Candles exchange count: {}", candles_exch.len());
+                    debug!("Candles exchange count: {}", candles_exchange.len());
 
                     // Save news candles on repository
-                    self.repository.insert_candles(&mut candles_exch)?;
+                    self.repository.insert_candles(&mut candles_exchange)?;
 
                     // Insert candles on buffer
-                    candles_to_buf(candles_selection.heikin_ashi, &mut candles_exch, &mut candles_buf);
+                    candles_to_buf(
+                        candles_selection.heikin_ashi,
+                        &mut candles_exchange,
+                        &mut candles_buf,
+                    );
                 }
             }
         };
@@ -141,7 +162,9 @@ impl CandlesProviderBufferSingleton {
 
         debug!(
             "{}",
-            iformat!("Finished candles retrieve count: {candles.len()} elapsed: {start.elapsed():?}")
+            iformat!(
+                "Finished candles retrieve count: {candles.len()} elapsed: {start.elapsed():?}"
+            )
         );
 
         Ok(candles)
@@ -196,7 +219,10 @@ pub struct CandlesProviderSelection {
 }
 
 impl<'a> CandlesProviderSelection {
-    pub fn new(candles_provider: CandlesProviderBuffer, candles_selection: CandlesSelection) -> Self {
+    pub fn new(
+        candles_provider: CandlesProviderBuffer,
+        candles_selection: CandlesSelection,
+    ) -> Self {
         Self {
             candles_provider,
             candles_selection,
@@ -217,7 +243,10 @@ impl<'a> CandlesProvider for CandlesProviderSelection {
     }
 
     fn clone_provider(&self) -> Box<dyn CandlesProvider> {
-        Box::new(Self::new(self.candles_provider.clone(), self.candles_selection.clone()))
+        Box::new(Self::new(
+            self.candles_provider.clone(),
+            self.candles_selection.clone(),
+        ))
     }
 }
 
@@ -290,10 +319,15 @@ pub mod tests {
 
         dotenv::dotenv()?;
         let exchange: Exchange = Exchange::new(Level::Debug)?;
-        let repository: Repository = Repository::new(LevelFilter::Debug)?;
+        let repository: RepositoryCandle = RepositoryCandle::new(LevelFilter::Debug)?;
 
         repository.delete_all_candles()?;
-        let mut candles_provider_buffer_singleton = CandlesProviderBufferSingleton::new(repository, exchange);
+
+        let candles_provider_buffer_singleton_arc =
+            CandlesProviderBufferSingleton::new(repository, exchange);
+
+        let mut candles_provider_buffer_singleton =
+            candles_provider_buffer_singleton_arc.write().unwrap();
 
         {
             let candles_selection = CandlesSelection::from(

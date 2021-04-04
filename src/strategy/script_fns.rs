@@ -79,13 +79,14 @@ pub fn sma(min: i64, a: i64) -> f64 {
         .unwrap()
 }
 
+/// If I have more assets (equivalent value) than fiat
 pub fn is_bought() -> bool {
     let singleton = PositionSingleton::current();
     let position = singleton.position_opt.as_ref().unwrap();
-    // If I have more assets (equivalent value) than fiat
     position.balance_asset_r() * position.price.0 > position.balance_fiat_r()
 }
 
+/// If I have more fiat than equivalent value of asset
 pub fn is_sold() -> bool {
     !is_bought()
 }

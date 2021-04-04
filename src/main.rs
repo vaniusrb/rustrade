@@ -9,7 +9,9 @@ pub mod checker;
 mod config;
 mod exchange;
 mod model;
-mod repository;
+mod repository_candle;
+mod repository_factory;
+mod repository_trade;
 mod strategy;
 mod tac_plotters;
 mod technicals;
@@ -21,7 +23,7 @@ use config::{candles_selection::CandlesSelection, selection::Selection};
 use exchange::Exchange;
 use eyre::Result;
 use log::{info, Level, LevelFilter};
-use repository::Repository;
+use repository_candle::RepositoryCandle;
 use std::collections::HashMap;
 #[cfg(debug_assertions)]
 use std::env;
@@ -93,8 +95,8 @@ pub fn selection_factory(candles_selection: CandlesSelection) -> Selection {
     }
 }
 
-fn create_repo() -> Result<Repository> {
-    Repository::new(LevelFilter::Debug)
+fn create_repo() -> Result<RepositoryCandle> {
+    RepositoryCandle::new(LevelFilter::Debug)
 }
 
 fn create_exchange() -> Result<Exchange> {
@@ -112,7 +114,11 @@ fn candles_selection_from_arg(opt: &Args) -> CandlesSelection {
 
 fn create_app(candles_selection: CandlesSelection) -> Result<Application> {
     let selection = selection_factory(candles_selection);
-    Ok(Application::new(create_repo()?, create_exchange()?, selection))
+    Ok(Application::new(
+        create_repo()?,
+        create_exchange()?,
+        selection,
+    ))
 }
 
 fn create_checker(candles_selection: CandlesSelection) -> Result<Checker> {

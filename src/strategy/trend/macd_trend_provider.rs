@@ -21,17 +21,17 @@ impl TrendProvider for MacdTrendProvider {
         _position: &Position,
         trade_context_provider: &TradeContextProvider,
     ) -> eyre::Result<Option<Operation>> {
-        let mcad = trade_context_provider
+        let macd = trade_context_provider
             .indicator(15, &IndicatorType::Macd(34, 72, 17))?
             .value()?;
 
-        let mcad_signal = trade_context_provider
+        let macd_signal = trade_context_provider
             .indicator(15, &IndicatorType::MacdSignal(34, 72, 17))?
             .value()?;
 
-        let _trend = if mcad > mcad_signal { Side::Bought } else { Side::Sold };
+        let _trend = if macd > macd_signal { Side::Bought } else { Side::Sold };
 
-        debug!("trend: {:?} {} > {}", trade_context_provider.now(), mcad, mcad_signal);
+        debug!("trend: {:?} {} > {}", trade_context_provider.now(), macd, macd_signal);
         Ok(None)
     }
 }

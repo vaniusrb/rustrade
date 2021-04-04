@@ -11,14 +11,14 @@ use eyre::eyre;
 use std::collections::HashMap;
 
 pub struct IndicatorProvider {
-    mcads_opt: Option<(DateTime<Utc>, usize, usize, usize, MacdTac)>,
+    macds_opt: Option<(DateTime<Utc>, usize, usize, usize, MacdTac)>,
     tac_indicators: HashMap<(String, usize), eyre::Result<Box<dyn TechnicalIndicators + Send + Sync>>>, // <= to allow trait with different lifetime
 }
 
 impl Clone for IndicatorProvider {
     fn clone(&self) -> Self {
         Self {
-            mcads_opt: self.mcads_opt.clone(),
+            macds_opt: self.macds_opt.clone(),
             tac_indicators: HashMap::new(),
         }
     }
@@ -27,7 +27,7 @@ impl Clone for IndicatorProvider {
 impl IndicatorProvider {
     pub fn new() -> Self {
         Self {
-            mcads_opt: None,
+            macds_opt: None,
             tac_indicators: HashMap::new(),
         }
     }
@@ -61,12 +61,12 @@ impl IndicatorProvider {
         slow_period: usize,
         signal_period: usize,
     ) -> eyre::Result<&Indicator> {
-        // Try to reuse the same tiple mcad/signal/divergence
-        self.mcads_opt = self
-            .mcads_opt
+        // Try to reuse the same tiple macd/signal/divergence
+        self.macds_opt = self
+            .macds_opt
             .take()
             .filter(|e| e.0 == now && e.1 == fast_period && e.2 == slow_period && e.3 == signal_period);
-        let macd = self.mcads_opt.get_or_insert_with(|| {
+        let macd = self.macds_opt.get_or_insert_with(|| {
             (
                 now,
                 fast_period,

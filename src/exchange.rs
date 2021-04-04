@@ -31,13 +31,30 @@ impl Exchange {
     }
 
     // TODO historical trades
-    pub fn trades(&self) {
+    pub fn historical_trades(&self, symbol: &str, from_id: Option<u64>) -> eyre::Result<()> {
         let market = self.futures_market();
 
-        // market.get_historical_trades(symbol, from_id, limit);
+        // symbol	STRING	YES
+        // limit	INT	NO	Default 500; max 1000.
+        // fromId	LONG	NO	TradeId to fetch from. Default gets most recent trades.
 
-        // start_time: &Option<DateTime<Utc>>,
-        // end_time: &Option<DateTime<Utc>>,
+        match market.get_historical_trades(symbol, from_id, 1000) {
+            Ok(trades) => {
+                if let binance::futures::model::Trades::AllTrades(trades) = trades {
+                    for trade in trades.iter() {
+                        // trade.is_buyer_maker
+                        // trade.qty
+                        // trade.time
+                        // trade.price
+                        // trade.id
+                    }
+                }
+            }
+            Err(e) => {
+                bail!("{}", e)
+            }
+        };
+        Ok(())
     }
 
     pub fn candles(
