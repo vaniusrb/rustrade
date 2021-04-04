@@ -4,7 +4,6 @@ use crate::service::candles_provider::CandlesProviderBufferSingleton;
 use crate::service::candles_provider::CandlesProviderSelection;
 use crate::service::plot_selection::plot_selection;
 use crate::service::script::script_back_test::run_script;
-use crate::service::strategy::back_test_runner::run_trader_back_test;
 use crate::service::strategy::top_bottom_triangle::top_bottom_triangle;
 use crate::service::technicals::top_bottom_tac::TopBottomTac;
 use crate::Exchange;
@@ -44,11 +43,6 @@ impl Application {
 
     pub fn set_selection(&mut self, selection: Selection) {
         self.selection = selection;
-    }
-
-    pub fn run_back_test(&mut self) -> eyre::Result<()> {
-        run_trader_back_test(self)?;
-        Ok(())
     }
 
     pub fn run_script_test(&mut self, file: &str) -> eyre::Result<()> {

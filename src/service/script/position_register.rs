@@ -1,11 +1,13 @@
-use super::operation::Operation;
-use crate::{model::price::Price, service::strategy::flow_register::FlowRegister};
 use crate::{model::side::Side, service::strategy::trader_register::TradeOperation};
+use crate::{
+    model::{operation::Operation, price::Price},
+    service::strategy::flow_register::FlowRegister,
+};
 use rust_decimal::{Decimal, RoundingStrategy};
 use rust_decimal_macros::dec;
 
 #[derive(Clone, Copy)]
-pub struct Position {
+pub struct PositionRegister {
     pub side: Side,
     pub balance_asset: Decimal,
     pub balance_fiat: Decimal,
@@ -14,7 +16,7 @@ pub struct Position {
     pub flow_register: FlowRegister,
 }
 
-impl Position {
+impl PositionRegister {
     pub fn _from_asset(flow_register: FlowRegister, balance_asset: Decimal, price: Price) -> Self {
         Self {
             flow_register,

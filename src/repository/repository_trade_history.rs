@@ -1,14 +1,12 @@
-use crate::candles_utils::time_to_str;
 use crate::model::trade_history::TradeHistory;
-use chrono::{DateTime, Utc};
 use colored::Colorize;
 use eyre::bail;
-use ifmt::{iformat, iwrite};
+use ifmt::iformat;
 use log::error;
 use rust_decimal::Decimal;
 use rust_decimal_macros::dec;
 use sqlx::PgPool;
-use std::fmt::Display;
+
 struct RepositoryTradeHistory {
     pool: PgPool,
 }

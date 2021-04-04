@@ -1,13 +1,16 @@
 use crate::{
-    model::{operation::Operation, position::Position},
-    service::strategy::trade_context_provider::TradeContextProvider,
+    model::operation::Operation,
+    service::{
+        script::position_register::PositionRegister,
+        strategy::trade_context_provider::TradeContextProvider,
+    },
 };
 
 use super::trend_provider::TrendProvider;
 
 pub struct CallBackTrendProvider {
     call_back: Box<
-        dyn Fn(Position, TradeContextProvider) -> eyre::Result<Option<Operation>>
+        dyn Fn(PositionRegister, TradeContextProvider) -> eyre::Result<Option<Operation>>
             + Sync
             + Send
             + 'static,
@@ -16,7 +19,7 @@ pub struct CallBackTrendProvider {
 
 impl CallBackTrendProvider {
     pub fn from(
-        call_back: impl Fn(Position, TradeContextProvider) -> eyre::Result<Option<Operation>>
+        call_back: impl Fn(PositionRegister, TradeContextProvider) -> eyre::Result<Option<Operation>>
             + Sync
             + Send
             + 'static,
@@ -30,7 +33,7 @@ impl CallBackTrendProvider {
 impl<'a> TrendProvider for CallBackTrendProvider {
     fn trend(
         &mut self,
-        position: &Position,
+        position: &PositionRegister,
         trade_context_provider: &TradeContextProvider,
     ) -> eyre::Result<Option<Operation>> {
         (self.call_back)(*position, trade_context_provider.clone())

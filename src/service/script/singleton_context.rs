@@ -1,6 +1,5 @@
-use std::sync::{Arc, RwLock};
-
 use crate::service::strategy::trade_context_provider::TradeContextProvider;
+use std::sync::{Arc, RwLock};
 
 /// Singleton for trade context
 #[derive(Default)]

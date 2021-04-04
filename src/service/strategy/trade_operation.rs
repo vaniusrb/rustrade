@@ -38,7 +38,7 @@ impl<'a> Trader {
         self.trade_context_provider.set_now(now);
         self.trade_context_provider.set_price(price);
 
-        let position = self.trader_register.position();
+        let position = self.trader_register.position_register();
 
         let operation_opt = self
             .trend_provider

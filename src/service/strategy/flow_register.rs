@@ -1,6 +1,5 @@
 use super::trader_register::TradeOperation;
-use crate::model::position::Position;
-use crate::model::side::Side;
+use crate::{model::side::Side, service::script::position_register::PositionRegister};
 use colored::Colorize;
 use ifmt::iformat;
 use log::info;
@@ -20,11 +19,15 @@ impl FlowRegister {
         }
     }
 
-    pub fn set_position_old(&mut self, position: Position) {
+    pub fn set_position_old(&mut self, position: PositionRegister) {
         self.old_real_balance_usd = position.real_balance_fiat;
     }
 
-    pub fn set_position_new(&mut self, position: Position, trade_operation: &TradeOperation) {
+    pub fn set_position_new(
+        &mut self,
+        position: PositionRegister,
+        trade_operation: &TradeOperation,
+    ) {
         let gain_usd = position.real_balance_fiat - self.old_real_balance_usd;
         let _gain_usd_perc = self.old_real_balance_usd / position.real_balance_fiat;
 

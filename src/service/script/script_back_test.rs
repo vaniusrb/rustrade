@@ -1,12 +1,12 @@
 use crate::model::operation::Operation;
-use crate::model::position::Position;
 use crate::service::candles_provider::CandlesProvider;
 use crate::service::plot_selection::PlotterSelection;
+use crate::service::script::position_register::PositionRegister;
 use crate::service::script::singleton_context::ContextSingleton;
 use crate::service::script::singleton_engine::EngineSingleton;
-use crate::service::script::singleton_position::PositionSingleton;
-use crate::service::strategy::back_test_runner::TraderFactory;
+use crate::service::script::singleton_position::PositionRegisterSingleton;
 use crate::service::strategy::flow_register::FlowRegister;
+use crate::service::strategy::trader_factory::TraderFactory;
 use crate::service::strategy::trader_register::TraderRegister;
 use crate::service::strategy::trend::callback_trend_provider::CallBackTrendProvider;
 use crate::service::strategy::trend::trend_provider::TrendProvider;
@@ -42,10 +42,10 @@ pub fn run_script<P: AsRef<Path>>(
 
     // Create trend provider with call back
     let callback_trend_provider =
-        CallBackTrendProvider::from(|position, trade_context_provider| {
+        CallBackTrendProvider::from(|position_register, trade_context_provider| {
             // Set current static trade_context_provider and position
             ContextSingleton::set_current(trade_context_provider);
-            PositionSingleton::set_current(position);
+            PositionRegisterSingleton::set_current(position_register);
 
             // Get engine to run script
             let engine_arc = EngineSingleton::current();
@@ -78,9 +78,10 @@ pub fn run_script<P: AsRef<Path>>(
             .ok_or_else(|| eyre!("First candle not found!"))?
             .open,
     );
-    let position = Position::from_fiat(flow_register, dec!(1000), price);
 
-    let trader_register = TraderRegister::from(position);
+    let position_register = PositionRegister::from_fiat(flow_register, dec!(1000), price);
+
+    let trader_register = TraderRegister::from(position_register);
 
     // TODO Probably candles_provider can be within something like a ContextProvider, then can provides date_time and price
 

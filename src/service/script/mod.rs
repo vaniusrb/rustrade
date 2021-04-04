@@ -1,3 +1,4 @@
+pub mod position_register;
 pub mod script_back_test;
 pub mod script_fns;
 pub mod singleton_context;

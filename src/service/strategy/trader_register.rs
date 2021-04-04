@@ -1,6 +1,5 @@
-use crate::model::operation::Operation;
-use crate::model::position::Position;
 use crate::model::price::Price;
+use crate::{model::operation::Operation, service::script::position_register::PositionRegister};
 use chrono::{DateTime, Utc};
 
 /// TradeOperation is a Operation with current context (date_time and price)
@@ -23,26 +22,26 @@ impl TradeOperation {
 
 #[derive(Clone)]
 pub struct TraderRegister {
-    position: Position,
+    position_register: PositionRegister,
     trades: Vec<TradeOperation>,
 }
 
 impl TraderRegister {
-    pub fn from(position: Position) -> Self {
+    pub fn from(position_register: PositionRegister) -> Self {
         Self {
-            position,
+            position_register,
             trades: Vec::new(),
         }
     }
 
     /// Update profit from new operation
     pub fn register(&mut self, trade_operation: TradeOperation) {
-        self.position.register(&trade_operation);
+        self.position_register.register(&trade_operation);
         self.trades.push(trade_operation);
     }
 
-    pub fn position(&self) -> &Position {
-        &self.position
+    pub fn position_register(&self) -> &PositionRegister {
+        &self.position_register
     }
 
     // pub fn trades(&self) -> Vec<TradeOperation> {

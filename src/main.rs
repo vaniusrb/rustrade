@@ -48,8 +48,6 @@ enum Command {
     Triangle {},
     /// Interactive stream
     Stream {},
-    /// Run trader bot back test
-    BackTest {},
     /// Run script trader bot back test
     ScriptBackTest {
         /// Rhai script file
@@ -179,7 +177,6 @@ async fn main(args: Args) -> color_eyre::eyre::Result<()> {
         Command::Triangle {} => {
             app.plot_triangles()?;
         }
-        Command::BackTest {} => app.run_back_test()?,
         Command::ScriptBackTest { file } => app.run_script_test(&file)?,
     };
     info!("Exiting program");
