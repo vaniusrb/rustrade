@@ -1,8 +1,6 @@
 use super::indicator_plotter::PlotterIndicatorContext;
-use crate::{
-    config::selection::Selection,
-    technicals::top_bottom_tac::{TopBottom, TopBottomType},
-};
+use crate::service::technicals::top_bottom_tac::TopBottom;
+use crate::{config::selection::Selection, service::technicals::top_bottom_tac::TopBottomType};
 use chrono::{DateTime, Utc};
 use plotters::{
     coord::types::RangedCoordf32,
@@ -70,7 +68,10 @@ impl<'a> PlotterIndicatorContext for TopBottomPlotter<'a> {
     }
 
     fn min_max(&self) -> (f64, f64) {
-        let max = self.top_bottoms.iter().fold(dec!(0), |acc, t| acc.max(t.price));
+        let max = self
+            .top_bottoms
+            .iter()
+            .fold(dec!(0), |acc, t| acc.max(t.price));
         let min = self.top_bottoms.iter().fold(max, |acc, t| acc.min(t.price));
         (min.to_f64().unwrap(), max.to_f64().unwrap())
     }

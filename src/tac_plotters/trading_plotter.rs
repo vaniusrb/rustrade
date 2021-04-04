@@ -1,7 +1,7 @@
 use super::indicator_plotter::PlotterIndicatorContext;
 use crate::{
-    config::selection::Selection,
-    strategy::{side::Side, trader_register::TradeOperation},
+    config::selection::Selection, model::side::Side,
+    service::strategy::trader_register::TradeOperation,
 };
 use chrono::{DateTime, Utc};
 use plotters::{
@@ -49,8 +49,16 @@ impl<'a> PlotterIndicatorContext for TradingPlotter<'a> {
             .map(|c| (c.now, c.price.0.to_f32().unwrap()))
             .collect::<Vec<_>>();
 
-        chart_context.draw_series(sell_iter.iter().map(|point| TriangleMarker::new(*point, 10, &green)))?;
-        chart_context.draw_series(buy_iter.iter().map(|point| TriangleMarker::new(*point, 10, &red)))?;
+        chart_context.draw_series(
+            sell_iter
+                .iter()
+                .map(|point| TriangleMarker::new(*point, 10, &green)),
+        )?;
+        chart_context.draw_series(
+            buy_iter
+                .iter()
+                .map(|point| TriangleMarker::new(*point, 10, &red)),
+        )?;
 
         // let lows = PointSeries::of_element(
         //     sell_iter.into_iter(),
@@ -81,7 +89,10 @@ impl<'a> PlotterIndicatorContext for TradingPlotter<'a> {
     }
 
     fn min_max(&self) -> (f64, f64) {
-        let max = self.trades.iter().fold(dec!(0), |acc, t| acc.max(t.price.0));
+        let max = self
+            .trades
+            .iter()
+            .fold(dec!(0), |acc, t| acc.max(t.price.0));
         let min = self.trades.iter().fold(max, |acc, t| acc.min(t.price.0));
         (min.to_f64().unwrap(), max.to_f64().unwrap())
     }

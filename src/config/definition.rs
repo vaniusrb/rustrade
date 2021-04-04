@@ -1,4 +1,4 @@
-use crate::technicals::top_bottom_tac::TOP_BOTTOM_IND;
+use crate::service::technicals::top_bottom_tac::TOP_BOTTOM_IND;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 

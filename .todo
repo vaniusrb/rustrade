@@ -44,6 +44,21 @@
 ☐ Register positions
     strategy (trade, position, rule, etc)
 ☐ Organize sources in modules
+    config
+    controller?
+    model
+        ...
+    repository
+        ...
+    service
+        check
+        plot
+        indicator/strategy?
+        script
+            singletons
+            ...
+    security
+    util
 ☐ test is break
 Medium
 ☐ Apply candles selection in all commands

@@ -1,9 +1,7 @@
 use super::indicator_plotter::IndicatorPlotter;
-use crate::{
-    config::selection::Selection,
-    technicals::{indicator::Indicator, macd::macd_tac::MacdTac},
-};
-use eyre::{eyre, bail};
+use crate::service::technicals::indicator::Indicator;
+use crate::{config::selection::Selection, service::technicals::macd::macd_tac::MacdTac};
+use eyre::{bail, eyre};
 use log::info;
 use plotters::prelude::*;
 use plotters::{
@@ -30,7 +28,10 @@ impl<'a> IndicatorPlotter for MacdPlotter<'a> {
         upper: &DrawingArea<BitMapBackend<RGBPixel>, Shift>,
         lower: &DrawingArea<BitMapBackend<RGBPixel>, Shift>,
     ) -> eyre::Result<()> {
-        let selected_tac = selection.tacs.get("macd").ok_or_else(|| eyre!("Tac macd not selected!"))?;
+        let selected_tac = selection
+            .tacs
+            .get("macd")
+            .ok_or_else(|| eyre!("Tac macd not selected!"))?;
         let mut selected_inds = Vec::new();
 
         if self.macd_tac.indicators.is_empty() {
@@ -76,12 +77,18 @@ fn plot_indicators(
         //   .caption(iformat!("{symbol} price"), ("sans-serif", 50.0).into_font())
         .build_cartesian_2d(from_date..to_date, min_macd..max_macd)?;
 
-    cart_context_lower.configure_mesh().light_line_style(&WHITE).draw()?;
+    cart_context_lower
+        .configure_mesh()
+        .light_line_style(&WHITE)
+        .draw()?;
 
     for indicator in indicators {
         info!("Plotting indicator {}", indicator.name);
         let color = indicator_color(indicator);
-        let macd_series = LineSeries::new(indicator.series.iter().map(|s| (s.date_time, s.value)), &color);
+        let macd_series = LineSeries::new(
+            indicator.series.iter().map(|s| (s.date_time, s.value)),
+            &color,
+        );
         cart_context_lower.draw_series(macd_series)?;
     }
 

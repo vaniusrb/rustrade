@@ -2,33 +2,30 @@
 #![feature(associated_type_bounds)]
 #[macro_use]
 extern crate enum_display_derive;
-pub mod application;
+pub mod app;
 pub mod candles_range;
-mod candles_utils;
-pub mod checker;
-mod config;
-mod exchange;
-mod model;
-mod repository_candle;
-mod repository_factory;
-mod repository_trade;
-mod strategy;
-mod tac_plotters;
-mod technicals;
+pub mod candles_utils;
+pub mod config;
+pub mod model;
+pub mod repository;
+pub mod service;
+pub mod tac_plotters;
 pub mod utils;
-use application::{app::Application, streamer::Streamer};
+use crate::app::Application;
+use crate::service::checker::Checker;
+use crate::service::streamer::Streamer;
+use crate::service::technicals::ema_tac::EmaTac;
+use crate::service::technicals::macd::macd_tac::MacdTac;
 use candles_utils::str_to_datetime;
-use checker::Checker;
 use config::{candles_selection::CandlesSelection, selection::Selection};
-use exchange::Exchange;
 use eyre::Result;
 use log::{info, Level, LevelFilter};
-use repository_candle::RepositoryCandle;
+use repository::repository_candle::RepositoryCandle;
+use service::{exchange::Exchange, technicals::technical::TechnicalDefinition};
 use std::collections::HashMap;
 #[cfg(debug_assertions)]
 use std::env;
 use structopt::StructOpt;
-use technicals::{ema_tac::EmaTac, macd::macd_tac::MacdTac, technical::TechnicalDefinition};
 
 #[derive(Debug, StructOpt)]
 #[structopt(about = "Commands")]

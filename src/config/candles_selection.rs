@@ -25,7 +25,12 @@ impl CandlesSelection {
         }
     }
 
-    pub fn from(symbol: &str, minutes: &u32, start_time: DateTime<Utc>, end_time: DateTime<Utc>) -> Self {
+    pub fn from(
+        symbol: &str,
+        minutes: &u32,
+        start_time: DateTime<Utc>,
+        end_time: DateTime<Utc>,
+    ) -> Self {
         Self {
             symbol_minutes: SymbolMinutes::new(symbol, minutes),
             start_time,
@@ -72,7 +77,9 @@ mod my_date_format {
         D: Deserializer<'de>,
     {
         let s = String::deserialize(deserializer)?;
-        let result = Utc.datetime_from_str(&s, FORMAT).map_err(serde::de::Error::custom)?;
+        let result = Utc
+            .datetime_from_str(&s, FORMAT)
+            .map_err(serde::de::Error::custom)?;
         Ok(result)
     }
 }
