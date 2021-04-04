@@ -32,7 +32,7 @@ impl Repository {
         let future = sqlx::query!(
             "SELECT MAX(close_time) as close_time FROM candle WHERE symbol = $1 AND minutes = $2",
             &symbol_minutes.symbol,
-            Decimal::from_u32(symbol_minutes.minutes)
+            symbol_minutes.minutes
         )
         .fetch_one(&self.pool);
         let result = async_std::task::block_on(future).unwrap();
@@ -46,7 +46,7 @@ impl Repository {
         let future = sqlx::query!(
             "SELECT MIN(close_time) as min_close_time, MAX(close_time) as max_close_time FROM candle WHERE symbol = $1 AND minutes = $2",
             &symbol_minutes.symbol,
-            Decimal::from_u32(symbol_minutes.minutes)
+            symbol_minutes.minutes
         )
         .fetch_one(&self.pool);
         let result = async_std::task::block_on(future).unwrap();
@@ -82,7 +82,7 @@ impl Repository {
 
         let rows: Vec<(String, Decimal, i64)> = async_std::task::block_on(future).unwrap();
         for row in rows {
-            let symbol_minutes = SymbolMinutes::new(&row.0, &row.1.to_u32().unwrap());
+            let symbol_minutes = SymbolMinutes::new(&row.0, &row.1.to_i32().unwrap());
             result.push((symbol_minutes, row.2));
         }
         result
@@ -113,7 +113,7 @@ impl Repository {
         async_std::task::block_on(future).ok()
     }
 
-    pub fn last_candles(&self, symbol: &str, minutes: &u32, limit: &i64) -> Option<Vec<Candle>> {
+    pub fn last_candles(&self, symbol: &i32, minutes: &i32, limit: &i64) -> Option<Vec<Candle>> {
         let minutes = Decimal::from(*minutes);
 
         #[allow(clippy::suspicious_else_formatting)]
@@ -158,7 +158,7 @@ impl Repository {
         Ok(())
     }
 
-    pub fn insert_candle(&self, candle: &Candle) -> anyhow::Result<Decimal> {
+    pub fn insert_candle(&self, candle: &Candle) -> anyhow::Result<i32> {
         let future = sqlx::query!(
             r#"
                 INSERT INTO candle (
@@ -199,7 +199,7 @@ impl Repository {
         Ok(())
     }
 
-    pub fn delete_candle(&self, id: &Decimal) {
+    pub fn delete_candle(&self, id: &i32) {
         let future = sqlx::query!("DELETE FROM candle WHERE id = $1", id).execute(&self.pool);
         async_std::task::block_on(future).unwrap();
     }

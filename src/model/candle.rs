@@ -9,9 +9,9 @@ use std::fmt::Display;
 pub struct Candle {
     pub open_time: DateTime<Utc>,
     pub close_time: DateTime<Utc>,
-    pub id: Decimal,
+    pub id: i32,
     pub symbol: String,
-    pub minutes: Decimal,
+    pub minutes: i32,
     pub open: Decimal,
     pub high: Decimal,
     pub low: Decimal,
@@ -21,10 +21,10 @@ pub struct Candle {
 
 impl Candle {
     pub fn new(
-        id: u32,
+        id: i32,
         open_time: &str,
         close_time: &str,
-        symbol: &str,
+        symbol: i32,
         minutes: u32,
         open: Decimal,
         high: Decimal,
@@ -36,7 +36,7 @@ impl Candle {
             id: Decimal::from(id),
             open_time: str_to_datetime(open_time),
             close_time: str_to_datetime(close_time),
-            symbol: symbol.into(),
+            symbol: symbol,
             minutes: Decimal::from(minutes),
             open,
             high,
