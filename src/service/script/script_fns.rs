@@ -28,7 +28,7 @@ pub fn macd(min: i64, a: i64, b: i64, c: i64) -> f64 {
     let trade_context_provider = singleton.trade_context_provider_opt.as_ref().unwrap();
     trade_context_provider
         .indicator(
-            min as u32,
+            min as i32,
             &IndicatorType::Macd(a as usize, b as usize, c as usize),
         )
         .unwrap()
@@ -41,7 +41,7 @@ pub fn macd_signal(min: i64, a: i64, b: i64, c: i64) -> f64 {
     let trade_context_provider = singleton.trade_context_provider_opt.as_ref().unwrap();
     trade_context_provider
         .indicator(
-            min as u32,
+            min as i32,
             &IndicatorType::MacdSignal(a as usize, b as usize, c as usize),
         )
         .unwrap()
@@ -54,7 +54,7 @@ pub fn macd_divergence(min: i64, a: i64, b: i64, c: i64) -> f64 {
     let trade_context_provider = singleton.trade_context_provider_opt.as_ref().unwrap();
     trade_context_provider
         .indicator(
-            min as u32,
+            min as i32,
             &IndicatorType::MacdDivergence(a as usize, b as usize, c as usize),
         )
         .unwrap()
@@ -66,7 +66,7 @@ pub fn ema(min: i64, a: i64) -> f64 {
     let singleton = ContextSingleton::current();
     let trade_context_provider = singleton.trade_context_provider_opt.as_ref().unwrap();
     trade_context_provider
-        .indicator(min as u32, &IndicatorType::Ema(a as usize))
+        .indicator(min as i32, &IndicatorType::Ema(a as usize))
         .unwrap()
         .value()
         .unwrap()
@@ -76,7 +76,7 @@ pub fn sma(min: i64, a: i64) -> f64 {
     let singleton = ContextSingleton::current();
     let trade_context_provider = singleton.trade_context_provider_opt.as_ref().unwrap();
     trade_context_provider
-        .indicator(min as u32, &IndicatorType::Sma(a as usize))
+        .indicator(min as i32, &IndicatorType::Sma(a as usize))
         .unwrap()
         .value()
         .unwrap()

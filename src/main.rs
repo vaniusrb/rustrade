@@ -8,11 +8,13 @@ pub mod candles_utils;
 pub mod config;
 pub mod model;
 pub mod repository;
-pub mod repository;
 pub mod service;
 pub mod tac_plotters;
 pub mod utils;
 use crate::app::Application;
+use crate::repository::repository_candle::RepositoryCandle;
+use crate::repository::repository_factory::create_pool;
+use crate::repository::repository_symbol::RepositorySymbol;
 use crate::service::checker::Checker;
 use crate::service::streamer::Streamer;
 use crate::service::technicals::ema_tac::EmaTac;
@@ -22,9 +24,13 @@ use config::{candles_selection::CandlesSelection, selection::Selection};
 use eyre::Result;
 use log::{info, Level, LevelFilter};
 use service::{exchange::Exchange, technicals::technical::TechnicalDefinition};
-use std::collections::HashMap;
+use sqlx::PgPool;
 #[cfg(debug_assertions)]
 use std::env;
+use std::{
+    collections::HashMap,
+    sync::{Arc, RwLock},
+};
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -90,36 +96,45 @@ pub fn selection_factory(candles_selection: CandlesSelection) -> Selection {
     }
 }
 
-fn create_repo() -> Result<RepositoryCandle> {
-    RepositoryCandle::new(LevelFilter::Debug)
+fn create_repo_candle(pool: Arc<RwLock<PgPool>>) -> RepositoryCandle {
+    RepositoryCandle::new(pool)
 }
 
-fn create_exchange() -> Result<Exchange> {
-    Exchange::new(Level::Debug)
+fn create_exchange(repository_symbol: RepositorySymbol) -> Result<Exchange> {
+    Exchange::new(repository_symbol, Level::Debug)
 }
 
-fn candles_selection_from_arg(opt: &Args) -> CandlesSelection {
+fn candles_selection_from_arg(repository_symbol: RepositorySymbol, opt: &Args) -> CandlesSelection {
+    let symbol = repository_symbol.symbol_by_pair(&opt.symbol).unwrap().id;
     CandlesSelection::from(
-        &opt.symbol,
-        &opt.minutes,
+        symbol,
+        opt.minutes as i32,
         str_to_datetime(&opt.start_time),
         str_to_datetime(&opt.end_time),
     )
 }
 
-fn create_app(candles_selection: CandlesSelection) -> Result<Application> {
+fn create_app(
+    pool: Arc<RwLock<PgPool>>,
+    repository_symbol: RepositorySymbol,
+    candles_selection: CandlesSelection,
+) -> Result<Application> {
     let selection = selection_factory(candles_selection);
     Ok(Application::new(
-        create_repo()?,
-        create_exchange()?,
+        create_repo_candle(pool),
+        create_exchange(repository_symbol)?,
         selection,
     ))
 }
 
-fn create_checker(candles_selection: CandlesSelection) -> Result<Checker> {
-    let exchange = create_exchange()?;
-    let repo = create_repo()?;
-    let checker = Checker::new(candles_selection, repo, exchange);
+fn create_checker(
+    pool: Arc<RwLock<PgPool>>,
+    repository_symbol: RepositorySymbol,
+    candles_selection: CandlesSelection,
+) -> Result<Checker> {
+    let exchange = create_exchange(repository_symbol)?;
+    let repo = create_repo_candle(pool.clone());
+    let checker = Checker::new(pool, candles_selection, repo, exchange);
     Ok(checker)
 }
 
@@ -143,30 +158,41 @@ async fn main(args: Args) -> color_eyre::eyre::Result<()> {
 
     dotenv::dotenv()?;
 
-    let candles_selection = candles_selection_from_arg(&args);
+    let pool = create_pool(LevelFilter::Debug)?;
+    let repository_symbol = RepositorySymbol::new(pool.clone());
 
-    let mut app = create_app(candles_selection.clone())?;
+    let candles_selection = candles_selection_from_arg(repository_symbol.clone(), &args);
+
+    let mut app = create_app(
+        pool.clone(),
+        repository_symbol.clone(),
+        candles_selection.clone(),
+    )?;
 
     match args.command {
         Command::Check {} => {
-            let checker = create_checker(candles_selection)?;
+            let checker =
+                create_checker(pool.clone(), repository_symbol.clone(), candles_selection)?;
             checker.check_inconsist();
         }
         Command::Sync {} => {
-            let checker = create_checker(candles_selection)?;
+            let checker =
+                create_checker(pool.clone(), repository_symbol.clone(), candles_selection)?;
             checker.synchronize()?;
         }
         Command::Fix {} => {
-            let checker = create_checker(candles_selection)?;
+            let checker =
+                create_checker(pool.clone(), repository_symbol.clone(), candles_selection)?;
             checker.delete_inconsist();
         }
         Command::DeleteAll {} => {
-            let repo = create_repo()?;
+            let repo = create_repo_candle(pool.clone());
             repo.delete_all_candles()?;
         }
         Command::List {} => {
-            let repo = create_repo()?;
-            repo.list_candles(&args.symbol, &args.minutes, &10);
+            let repo = create_repo_candle(pool.clone());
+            let symbol = repository_symbol.symbol_by_pair(&args.symbol).unwrap().id;
+            repo.list_candles(symbol, args.minutes as i32, 10);
         }
         Command::Plot {} => app.plot_selection()?,
         Command::Stream {} => {

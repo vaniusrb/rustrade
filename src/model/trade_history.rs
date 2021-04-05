@@ -18,11 +18,7 @@ pub struct TradeHistory {
 impl Display for TradeHistory {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let time_fmt = time_to_str(&self.time);
-        let side = if self.is_buyer_maker == dec!(1) {
-            "buy"
-        } else {
-            "sell"
-        };
+        let side = if self.is_buyer_maker { "buy" } else { "sell" };
         iwrite!(
             f,
             "[{time_fmt} {&self.symbol}] {side} {self.quantity} {self.price}"

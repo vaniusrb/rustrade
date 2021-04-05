@@ -184,7 +184,6 @@ fn min_price<'a>(previous: &'a TopBottom, current: &'a TopBottom) -> &'a TopBott
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::model::candle::symbol_from_string;
     use crate::service::candles_provider::CandlesProviderVec;
     use crate::{candles_utils::str_to_datetime, model::candle::Candle};
     use ifmt::iprintln;
@@ -193,11 +192,11 @@ pub mod tests {
     #[test]
     fn topbottom_test() {
         let c1 = Candle {
-            id: dec!(0),
+            id: 0,
             open_time: str_to_datetime("2020-01-12 12:00:00"),
             close_time: str_to_datetime("2020-01-12 12:14:59"),
-            symbol: symbol_from_string("BTCUSDT"),
-            minutes: dec!(15),
+            symbol: 1, // symbol_from_string("BTCUSDT"),
+            minutes: 15,
             open: dec!(100.0),
             high: dec!(100.0),
             low: dec!(100.0),
@@ -206,11 +205,11 @@ pub mod tests {
         };
 
         let c2 = Candle {
-            id: dec!(0),
+            id: 0,
             open_time: str_to_datetime("2020-01-12 12:15:00"),
             close_time: str_to_datetime("2020-01-12 12:29:59"),
-            symbol: symbol_from_string("BTCUSDT"),
-            minutes: dec!(15),
+            symbol: 1, // symbol_from_string("BTCUSDT"),
+            minutes: 15,
             open: dec!(100.0),
             high: dec!(102.0),
             low: dec!(102.0),
@@ -219,11 +218,11 @@ pub mod tests {
         };
 
         let c3 = Candle {
-            id: dec!(0),
+            id: 0,
             open_time: str_to_datetime("2020-01-12 12:30:00"),
             close_time: str_to_datetime("2020-01-12 12:44:59"),
-            symbol: symbol_from_string("BTCUSDT"),
-            minutes: dec!(15),
+            symbol: 1, // symbol_from_string("BTCUSDT"),
+            minutes: 15,
             open: dec!(100.0),
             high: dec!(103.0),
             low: dec!(103.0),
@@ -232,11 +231,11 @@ pub mod tests {
         };
 
         let c4 = Candle {
-            id: dec!(0),
+            id: 0,
             open_time: str_to_datetime("2020-01-12 12:45:00"),
             close_time: str_to_datetime("2020-01-12 12:59:59"),
-            symbol: symbol_from_string("BTCUSDT"),
-            minutes: dec!(15),
+            symbol: 1, // symbol_from_string("BTCUSDT"),
+            minutes: 15,
             open: dec!(100.0),
             high: dec!(104.0),
             low: dec!(104.0),
@@ -245,11 +244,11 @@ pub mod tests {
         };
 
         let c5 = Candle {
-            id: dec!(0),
+            id: 0,
             open_time: str_to_datetime("2020-01-12 13:00:00"),
             close_time: str_to_datetime("2020-01-12 13:14:59"),
-            symbol: symbol_from_string("BTCUSDT"),
-            minutes: dec!(15),
+            symbol: 1, // symbol_from_string("BTCUSDT"),
+            minutes: 15,
             open: dec!(100.0),
             high: dec!(105.0),
             low: dec!(105.0),
@@ -258,11 +257,11 @@ pub mod tests {
         };
 
         let c6 = Candle {
-            id: dec!(0),
+            id: 0,
             open_time: str_to_datetime("2020-01-12 13:15:00"),
             close_time: str_to_datetime("2020-01-12 13:29:59"),
-            symbol: symbol_from_string("BTCUSDT"),
-            minutes: dec!(15),
+            symbol: 1, // symbol_from_string("BTCUSDT"),
+            minutes: 15,
             open: dec!(100.0),
             high: dec!(106.0),
             low: dec!(106.0),
@@ -271,11 +270,11 @@ pub mod tests {
         };
 
         let c7 = Candle {
-            id: dec!(0),
+            id: 0,
             open_time: str_to_datetime("2020-01-12 13:30:00"),
             close_time: str_to_datetime("2020-01-12 13:44:59"),
-            symbol: symbol_from_string("BTCUSDT"),
-            minutes: dec!(15),
+            symbol: 1, // symbol_from_string("BTCUSDT"),
+            minutes: 15,
             open: dec!(100.0),
             high: dec!(107.0),
             low: dec!(107.0),
@@ -284,11 +283,11 @@ pub mod tests {
         };
 
         let c8 = Candle {
-            id: dec!(0),
+            id: 0,
             open_time: str_to_datetime("2020-01-12 13:45:00"),
             close_time: str_to_datetime("2020-01-12 13:59:59"),
-            symbol: symbol_from_string("BTCUSDT"),
-            minutes: dec!(15),
+            symbol: 1, // symbol_from_string("BTCUSDT"),
+            minutes: 15,
             open: dec!(100.0),
             high: dec!(108.0),
             low: dec!(108.0),
@@ -297,11 +296,11 @@ pub mod tests {
         };
 
         let c9 = Candle {
-            id: dec!(0),
+            id: 0,
             open_time: str_to_datetime("2020-01-12 14:00:00"),
             close_time: str_to_datetime("2020-01-12 14:14:59"),
-            symbol: symbol_from_string("BTCUSDT"),
-            minutes: dec!(15),
+            symbol: 1, // symbol_from_string("BTCUSDT"),
+            minutes: 15,
             open: dec!(100.0),
             high: dec!(107.0),
             low: dec!(107.0),
@@ -310,11 +309,11 @@ pub mod tests {
         };
 
         let c10 = Candle {
-            id: dec!(0),
+            id: 0,
             open_time: str_to_datetime("2020-01-12 14:15:00"),
             close_time: str_to_datetime("2020-01-12 14:29:59"),
-            symbol: symbol_from_string("BTCUSDT"),
-            minutes: dec!(15),
+            symbol: 1, // symbol_from_string("BTCUSDT"),
+            minutes: 15,
             open: dec!(100.0),
             high: dec!(106.0),
             low: dec!(106.0),
@@ -323,11 +322,11 @@ pub mod tests {
         };
 
         let c11 = Candle {
-            id: dec!(0),
+            id: 0,
             open_time: str_to_datetime("2020-01-12 14:30:00"),
             close_time: str_to_datetime("2020-01-12 14:44:59"),
-            symbol: symbol_from_string("BTCUSDT"),
-            minutes: dec!(15),
+            symbol: 1, // symbol_from_string("BTCUSDT"),
+            minutes: 15,
             open: dec!(100.0),
             high: dec!(105.0),
             low: dec!(105.0),
@@ -336,11 +335,11 @@ pub mod tests {
         };
 
         let c12 = Candle {
-            id: dec!(0),
+            id: 0,
             open_time: str_to_datetime("2020-01-12 14:45:00"),
             close_time: str_to_datetime("2020-01-12 14:59:59"),
-            symbol: symbol_from_string("BTCUSDT"),
-            minutes: dec!(15),
+            symbol: 1, // symbol_from_string("BTCUSDT"),
+            minutes: 15,
             open: dec!(100.0),
             high: dec!(104.0),
             low: dec!(104.0),
@@ -349,11 +348,11 @@ pub mod tests {
         };
 
         let c13 = Candle {
-            id: dec!(0),
+            id: 0,
             open_time: str_to_datetime("2020-01-12 15:00:00"),
             close_time: str_to_datetime("2020-01-12 15:14:59"),
-            symbol: symbol_from_string("BTCUSDT"),
-            minutes: dec!(15),
+            symbol: 1, // symbol_from_string("BTCUSDT"),
+            minutes: 15,
             open: dec!(100.0),
             high: dec!(103.0),
             low: dec!(103.0),
@@ -362,11 +361,11 @@ pub mod tests {
         };
 
         let c14 = Candle {
-            id: dec!(0),
+            id: 0,
             open_time: str_to_datetime("2020-01-12 15:15:00"),
             close_time: str_to_datetime("2020-01-12 15:29:59"),
-            symbol: symbol_from_string("BTCUSDT"),
-            minutes: dec!(15),
+            symbol: 1, // symbol_from_string("BTCUSDT"),
+            minutes: 15,
             open: dec!(100.0),
             high: dec!(102.0),
             low: dec!(102.0),
@@ -375,11 +374,11 @@ pub mod tests {
         };
 
         let c15 = Candle {
-            id: dec!(0),
+            id: 0,
             open_time: str_to_datetime("2020-01-12 15:30:00"),
             close_time: str_to_datetime("2020-01-12 15:44:59"),
-            symbol: symbol_from_string("BTCUSDT"),
-            minutes: dec!(15),
+            symbol: 1, // symbol_from_string("BTCUSDT"),
+            minutes: 15,
             open: dec!(100.0),
             high: dec!(101.0),
             low: dec!(101.0),
@@ -388,11 +387,11 @@ pub mod tests {
         };
 
         let c16 = Candle {
-            id: dec!(0),
+            id: 0,
             open_time: str_to_datetime("2020-01-12 15:45:00"),
             close_time: str_to_datetime("2020-01-12 15:59:59"),
-            symbol: symbol_from_string("BTCUSDT"),
-            minutes: dec!(15),
+            symbol: 1, // symbol_from_string("BTCUSDT"),
+            minutes: 15,
             open: dec!(100.0),
             high: dec!(100.0),
             low: dec!(100.0),
@@ -401,11 +400,11 @@ pub mod tests {
         };
 
         let c17 = Candle {
-            id: dec!(0),
+            id: 0,
             open_time: str_to_datetime("2020-01-12 16:00:00"),
             close_time: str_to_datetime("2020-01-12 16:14:59"),
-            symbol: symbol_from_string("BTCUSDT"),
-            minutes: dec!(15),
+            symbol: 1, // symbol_from_string("BTCUSDT"),
+            minutes: 15,
             open: dec!(100.0),
             high: dec!(99.0),
             low: dec!(99.0),

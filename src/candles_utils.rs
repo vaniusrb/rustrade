@@ -1,12 +1,8 @@
-use std::str::FromStr;
-
-use crate::model::{
-    candle::{symbol_from_string, Candle},
-    open_close::OpenClose,
-};
+use crate::model::{candle::Candle, open_close::OpenClose};
 use binance::model::KlineSummary;
 use chrono::{DateTime, Duration, NaiveDateTime, TimeZone, Utc};
 use rust_decimal::Decimal;
+use std::str::FromStr;
 use ta::DataItem;
 
 /// Convert binance Kline to TA DataItem
@@ -26,14 +22,13 @@ pub fn fdec(value: f64) -> Decimal {
 }
 
 /// Convert binance Kline to app Candle
-pub fn kline_to_candle(summary: &KlineSummary, symbol: &str, minutes: u32, id: &Decimal) -> Candle {
+pub fn kline_to_candle(summary: &KlineSummary, symbol: i32, minutes: i32, id: i32) -> Candle {
     let open_time = timestamp_to_datetime(&(summary.open_time as u64));
     let close_time = timestamp_to_datetime(&(summary.close_time as u64));
-
     Candle {
-        id: *id,
-        symbol: symbol_from_string(symbol),
-        minutes: minutes.into(),
+        id,
+        symbol,
+        minutes,
         open: fdec(summary.open),
         open_time,
         high: fdec(summary.high),
@@ -158,7 +153,7 @@ pub mod tests {
             0,
             "2020-01-12 12:00:00",
             "2020-01-12 12:14:59",
-            "BTCUSDT",
+            1,
             15,
             fdec(100.0),
             fdec(100.0),
@@ -170,7 +165,7 @@ pub mod tests {
             0,
             "2020-01-12 12:15:00",
             "2020-01-12 12:29:59",
-            "BTCUSDT",
+            1,
             15,
             fdec(100.0),
             fdec(100.0),
@@ -199,7 +194,7 @@ pub mod tests {
             0,
             "2020-11-16 01:25:00",
             "2020-11-16 01:29:59",
-            "BTCUSDT",
+            1,
             15,
             fdec(100.0),
             fdec(100.0),
@@ -212,7 +207,7 @@ pub mod tests {
             0,
             "2020-11-20 11:15:00",
             "2020-11-20 11:29:59",
-            "BTCUSDT",
+            1,
             15,
             fdec(100.0),
             fdec(100.0),

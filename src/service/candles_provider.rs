@@ -1,6 +1,6 @@
+use crate::repository::repository_candle::RepositoryCandle;
 use crate::service::technicals::heikin_ashi;
 use crate::Exchange;
-use crate::RepositoryCandle;
 use crate::{
     candles_range::candles_to_ranges_missing,
     config::{candles_selection::CandlesSelection, symbol_minutes::SymbolMinutes},
@@ -56,8 +56,8 @@ impl CandlesProviderBufferSingleton {
         // Normalize default start/end date time
         let start_time = &candles_selection.start_time;
         let end_time = &candles_selection.end_time;
-        let minutes = &candles_selection.symbol_minutes.minutes;
-        let symbol_minutes = &candles_selection.symbol_minutes;
+        let minutes = candles_selection.symbol_minutes.minutes;
+        let symbol_minutes = candles_selection.symbol_minutes;
 
         let candles_buf = loop {
             // Get candles from buffer
@@ -72,7 +72,7 @@ impl CandlesProviderBufferSingleton {
             let ranges_missing_from_buffer = candles_to_ranges_missing(
                 &OpenClose::from_date(start_time, minutes),
                 &OpenClose::from_date(end_time, minutes),
-                &candles_selection.symbol_minutes.minutes,
+                candles_selection.symbol_minutes.minutes,
                 candles_buf.iter().collect::<Vec<_>>().as_slice(),
             )?;
             debug!(
@@ -116,7 +116,7 @@ impl CandlesProviderBufferSingleton {
                 let ranges_missing_from_exchange = candles_to_ranges_missing(
                     &start_time,
                     &end_time,
-                    &candles_selection.symbol_minutes.minutes,
+                    candles_selection.symbol_minutes.minutes,
                     candles_repo.iter().collect::<Vec<_>>().as_slice(),
                 )?;
                 debug!(
@@ -309,6 +309,8 @@ where
 pub mod tests {
     use super::*;
     use crate::candles_utils::str_to_datetime;
+    use crate::repository::repository_factory::create_pool;
+    use crate::repository::repository_symbol::RepositorySymbol;
     use crate::utils;
     use eyre::Result;
     use log::{Level, LevelFilter};
@@ -318,8 +320,12 @@ pub mod tests {
         utils::log_utils::setup_log(LevelFilter::Debug, module_path!());
 
         dotenv::dotenv()?;
-        let exchange: Exchange = Exchange::new(Level::Debug)?;
-        let repository: RepositoryCandle = RepositoryCandle::new(LevelFilter::Debug)?;
+        let pool = create_pool(log::LevelFilter::Debug).unwrap();
+
+        let repository_symbol = RepositorySymbol::new(pool.clone());
+
+        let exchange: Exchange = Exchange::new(repository_symbol, Level::Debug)?;
+        let repository: RepositoryCandle = RepositoryCandle::new(pool);
 
         repository.delete_all_candles()?;
 
@@ -331,8 +337,8 @@ pub mod tests {
 
         {
             let candles_selection = CandlesSelection::from(
-                "BTCUSDT",
-                &15u32,
+                1,
+                15,
                 str_to_datetime("2020-11-11 10:00:00"),
                 str_to_datetime("2020-11-11 10:30:00"),
             );
@@ -343,8 +349,8 @@ pub mod tests {
 
         {
             let candles_selection = CandlesSelection::from(
-                "BTCUSDT",
-                &15u32,
+                1,
+                15,
                 str_to_datetime("2020-11-11 11:00:00"),
                 str_to_datetime("2020-11-11 11:30:00"),
             );
@@ -355,8 +361,8 @@ pub mod tests {
 
         {
             let candles_selection = CandlesSelection::from(
-                "BTCUSDT",
-                &15u32,
+                1,
+                15,
                 str_to_datetime("2020-11-11 10:00:00"),
                 str_to_datetime("2020-11-11 11:30:00"),
             );

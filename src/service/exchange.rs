@@ -2,6 +2,7 @@ use crate::{
     candles_utils::{datetime_to_timestamp, kline_to_candle},
     config::symbol_minutes::SymbolMinutes,
     model::candle::Candle,
+    repository::repository_symbol::RepositorySymbol,
 };
 use binance::{api::Binance, futures::market::FuturesMarket};
 use chrono::{DateTime, Duration, Utc};
@@ -15,14 +16,16 @@ pub struct Exchange {
     api_key: String,
     secret_key: String,
     level: Level,
+    repository_symbol: RepositorySymbol,
 }
 
 impl Exchange {
-    pub fn new(level: Level) -> Result<Exchange> {
+    pub fn new(repository_symbol: RepositorySymbol, level: Level) -> Result<Exchange> {
         Ok(Exchange {
             api_key: env::var("API_KEY")?,
             secret_key: env::var("SECRET_KEY")?,
             level,
+            repository_symbol,
         })
     }
 
@@ -31,7 +34,8 @@ impl Exchange {
     }
 
     // TODO historical trades
-    pub fn historical_trades(&self, symbol: &str, from_id: Option<u64>) -> eyre::Result<()> {
+    pub fn historical_trades(&self, symbol: i32, from_id: Option<u64>) -> eyre::Result<()> {
+        let symbol = self.repository_symbol.symbol_by_id(symbol).unwrap().symbol;
         let market = self.futures_market();
 
         // symbol	STRING	YES
@@ -88,6 +92,11 @@ impl Exchange {
         end_time: &Option<DateTime<Utc>>,
         limit: u16,
     ) -> eyre::Result<Vec<Candle>> {
+        let symbol = self
+            .repository_symbol
+            .symbol_by_id(symbol_minutes.symbol)
+            .unwrap()
+            .symbol;
         let start_time = start_time.map(|d| datetime_to_timestamp(&d));
         let end_time = end_time.map(|d| datetime_to_timestamp(&d));
         let mut candles = Vec::new();
@@ -95,7 +104,7 @@ impl Exchange {
         let market = self.futures_market();
 
         match market.get_klines(
-            symbol_minutes.symbol.to_string(),
+            symbol,
             iformat! {"{symbol_minutes.minutes}m"},
             limit,
             start_time,
@@ -105,9 +114,17 @@ impl Exchange {
                 match answer {
                     binance::model::KlineSummaries::AllKlineSummaries(summaries) => {
                         for summary in summaries {
-                            let candle =
-                                kline_to_candle(&summary, &symbol_minutes.symbol, symbol_minutes.minutes, &0u32.into());
-                            log!(self.level, "{}", iformat!("{self.level:?} exchange: {candle}"));
+                            let candle = kline_to_candle(
+                                &summary,
+                                symbol_minutes.symbol,
+                                symbol_minutes.minutes,
+                                0i32,
+                            );
+                            log!(
+                                self.level,
+                                "{}",
+                                iformat!("{self.level:?} exchange: {candle}")
+                            );
                             candles.push(candle);
                         }
                     }
@@ -133,18 +150,24 @@ impl Exchange {
 mod tests {
     use std::thread;
 
+    use super::*;
+    use crate::repository::repository_factory::create_pool;
     use chrono::Duration;
     use ifmt::iprintln;
-
-    use super::*;
+    use log::LevelFilter;
 
     #[test]
     fn candles_test() {
         dotenv::dotenv().unwrap();
-        let exchange = Exchange::new(Level::Info).unwrap();
+        let pool = create_pool(LevelFilter::Debug).unwrap();
+        let repository_symbol = RepositorySymbol::new(pool);
+
+        let exchange = Exchange::new(repository_symbol, Level::Info).unwrap();
         let start = Utc::now() - Duration::minutes(15);
-        let symbol_minutes = SymbolMinutes::new("BTCUSDT", &15);
-        let candles = exchange.candles(&symbol_minutes, &Some(start), &None).unwrap();
+        let symbol_minutes = SymbolMinutes::new(1, 15);
+        let candles = exchange
+            .candles(&symbol_minutes, &Some(start), &None)
+            .unwrap();
         for candle in candles {
             iprintln!("{candle}");
         }
@@ -153,8 +176,11 @@ mod tests {
     #[test]
     fn last_candle_test() {
         dotenv::dotenv().unwrap();
-        let exchange = Exchange::new(Level::Info).unwrap();
-        let symbol_minutes = SymbolMinutes::new("BTCUSDT", &15);
+        let pool = create_pool(LevelFilter::Debug).unwrap();
+        let repository_symbol = RepositorySymbol::new(pool);
+
+        let exchange = Exchange::new(repository_symbol, Level::Info).unwrap();
+        let symbol_minutes = SymbolMinutes::new(1, 15);
         for i in 0..10 {
             let candle = exchange.last_candle(&symbol_minutes).unwrap();
             iprintln!("{i}: {candle:?}");

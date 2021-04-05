@@ -33,7 +33,7 @@ impl TraderFactory {
 
         Trader::new(
             trend_provider,
-            &self.candles_selection.symbol_minutes.symbol,
+            self.candles_selection.symbol_minutes.symbol,
             indicator_provider,
             candles_provider,
             trader_register,

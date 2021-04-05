@@ -22,7 +22,7 @@ impl Clone for TradeContextProvider {
 
 impl TradeContextProvider {
     pub fn new(
-        symbol: &str,
+        symbol: i32,
         indicator_provider: IndicatorProvider,
         candles_provider: CandlesProviderBuffer,
     ) -> Self {
@@ -55,7 +55,7 @@ impl TradeContextProvider {
         self.trade_context.lock().unwrap().get_mut().price()
     }
 
-    pub fn indicator(&self, minutes: u32, i_type: &IndicatorType) -> eyre::Result<Indicator> {
+    pub fn indicator(&self, minutes: i32, i_type: &IndicatorType) -> eyre::Result<Indicator> {
         self.trade_context
             .lock()
             .unwrap()

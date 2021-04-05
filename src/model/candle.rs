@@ -11,7 +11,7 @@ pub struct Candle {
     pub close_time: DateTime<Utc>,
     pub id: i32,
     pub symbol: i32,
-    pub minutes: Decimal,
+    pub minutes: i32,
     pub open: Decimal,
     pub high: Decimal,
     pub low: Decimal,
@@ -21,11 +21,11 @@ pub struct Candle {
 
 impl Candle {
     pub fn new(
-        id: u32,
+        id: i32,
         open_time: &str,
         close_time: &str,
         symbol: i32,
-        minutes: u32,
+        minutes: i32,
         open: Decimal,
         high: Decimal,
         low: Decimal,
@@ -37,7 +37,7 @@ impl Candle {
             open_time: str_to_datetime(open_time),
             close_time: str_to_datetime(close_time),
             symbol, // #### symbol_from_string
-            minutes: Decimal::from(minutes),
+            minutes,
             open,
             high,
             low,

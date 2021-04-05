@@ -9,22 +9,22 @@ use chrono::{DateTime, Utc};
 
 #[derive(Clone)]
 pub struct TradeContext {
-    symbol: String,
+    symbol: i32,
     indicator_provider: IndicatorProvider,
     candles_provider: CandlesProviderBuffer,
-    candles_opt: Option<(DateTime<Utc>, u32, Vec<Candle>)>,
+    candles_opt: Option<(DateTime<Utc>, i32, Vec<Candle>)>,
     now: Option<DateTime<Utc>>,
     price: Option<Price>,
 }
 
 impl TradeContext {
     pub fn new(
-        symbol: &str,
+        symbol: i32,
         indicator_provider: IndicatorProvider,
         candles_provider: CandlesProviderBuffer,
     ) -> Self {
         Self {
-            symbol: symbol.to_string(),
+            symbol,
             indicator_provider,
             candles_provider,
             candles_opt: None,
@@ -50,9 +50,9 @@ impl TradeContext {
     }
 
     // TODO Should use max period from indicator
-    const LAST_CANDLES_INDICATOR: u32 = 100;
+    const LAST_CANDLES_INDICATOR: i32 = 100;
 
-    pub fn indicator(&mut self, minutes: u32, i_type: &IndicatorType) -> eyre::Result<&Indicator> {
+    pub fn indicator(&mut self, minutes: i32, i_type: &IndicatorType) -> eyre::Result<&Indicator> {
         let now = self.now();
         self.candles_opt = self
             .candles_opt
@@ -64,7 +64,7 @@ impl TradeContext {
 
         let now_candles = self.candles_opt.get_or_insert_with(|| {
             let candles_selection =
-                CandlesSelection::last_n(symbol, &minutes, Self::LAST_CANDLES_INDICATOR, now);
+                CandlesSelection::last_n(*symbol, minutes, Self::LAST_CANDLES_INDICATOR, now);
             let mut candles_provider_selection =
                 CandlesProviderSelection::new(candles_provider.clone(), candles_selection);
             let candles = candles_provider_selection.candles().unwrap();

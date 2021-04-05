@@ -2,7 +2,7 @@ use super::symbol_minutes::SymbolMinutes;
 use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Hash, Eq, PartialEq, PartialOrd, Debug, Clone)]
+#[derive(Serialize, Deserialize, Hash, Eq, PartialEq, PartialOrd, Debug, Clone, Copy)]
 pub struct CandlesSelection {
     pub symbol_minutes: SymbolMinutes,
     #[serde(with = "my_date_format")]
@@ -13,7 +13,7 @@ pub struct CandlesSelection {
 }
 
 impl CandlesSelection {
-    pub fn last_n(symbol: &str, minutes: &u32, last: u32, now: DateTime<Utc>) -> Self {
+    pub fn last_n(symbol: i32, minutes: i32, last: i32, now: DateTime<Utc>) -> Self {
         let end_time = now;
         let start_time = end_time - (Duration::minutes((minutes * last) as i64));
 
@@ -26,8 +26,8 @@ impl CandlesSelection {
     }
 
     pub fn from(
-        symbol: &str,
-        minutes: &u32,
+        symbol: i32,
+        minutes: i32,
         start_time: DateTime<Utc>,
         end_time: DateTime<Utc>,
     ) -> Self {

@@ -5,22 +5,28 @@ use chrono::{Duration, Utc};
 use eyre::bail;
 use ifmt::iformat;
 use log::{error, info};
-use rust_decimal_macros::dec;
-use std::time::Instant;
+use sqlx::PgPool;
+use std::{
+    sync::{Arc, RwLock},
+    time::Instant,
+};
 
 pub struct Checker {
     repo: RepositoryCandle,
     exchange: Exchange,
     candles_selection: CandlesSelection,
+    pool: Arc<RwLock<PgPool>>,
 }
 
 impl Checker {
     pub fn new(
+        pool: Arc<RwLock<PgPool>>,
         candles_selection: CandlesSelection,
         repository: RepositoryCandle,
         exchange: Exchange,
     ) -> Self {
         Checker {
+            pool,
             repo: repository,
             exchange,
             candles_selection,
@@ -114,7 +120,7 @@ impl Checker {
     pub fn delete_inconsist(&self) {
         let end_time = Utc::now();
         let start_time = end_time - Duration::days(180);
-        let repo = RepositoryCandle::new(log::LevelFilter::Debug).unwrap();
+        let repo = RepositoryCandle::new(self.pool.clone());
 
         let candles = repo
             .candles_by_time(
@@ -135,7 +141,7 @@ impl Checker {
         );
         for candle in inconsist.iter() {
             info!("{}", iformat!("{candle}"));
-            self.repo.delete_candle(&candle.id);
+            self.repo.delete_candle(candle.id);
         }
     }
 }

@@ -1,3 +1,4 @@
+use crate::repository::repository_candle::RepositoryCandle;
 use crate::service::candles_provider::CandlesProvider;
 use crate::service::candles_provider::CandlesProviderBuffer;
 use crate::service::candles_provider::CandlesProviderBufferSingleton;
@@ -7,7 +8,6 @@ use crate::service::script::script_back_test::run_script;
 use crate::service::strategy::top_bottom_triangle::top_bottom_triangle;
 use crate::service::technicals::top_bottom_tac::TopBottomTac;
 use crate::Exchange;
-use crate::RepositoryCandle;
 use crate::Streamer;
 use crate::{
     candles_utils::datetime_to_filename,
@@ -87,10 +87,10 @@ pub fn plot_triangles(
 
     let minutes = selection.candles_selection.symbol_minutes.minutes;
 
-    let triangles = top_bottom_triangle(top_bottoms_ref, &minutes);
+    let triangles = top_bottom_triangle(top_bottoms_ref, minutes);
     triangles.iter().for_each(|triangle| {
         let mut selection_par = selection.clone();
-        let open_time = triangle.open(&minutes);
+        let open_time = triangle.open(minutes);
         let margin = Duration::minutes(minutes as i64 * 100);
         selection_par.candles_selection.start_time = open_time - margin;
         selection_par.candles_selection.end_time = open_time + margin;

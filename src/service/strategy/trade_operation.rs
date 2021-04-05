@@ -18,7 +18,7 @@ pub struct Trader {
 impl<'a> Trader {
     pub fn new(
         trend_provider: Box<dyn TrendProvider + Send + Sync>,
-        symbol: &str,
+        symbol: i32,
         indicator_provider: IndicatorProvider,
         candles_provider: CandlesProviderBuffer,
         trader_register: TraderRegister,

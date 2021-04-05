@@ -18,7 +18,7 @@ impl RepositoryTradeHistory {
 
     pub fn last_trade_id(&self) -> i32 {
         let future = sqlx::query_as("SELECT MAX(id) FROM trade").fetch_one(&self.pool);
-        let result: (Option<Decimal>,) = async_std::task::block_on(future).unwrap();
+        let result: (Option<i32>,) = async_std::task::block_on(future).unwrap();
         result.0.unwrap_or_default()
     }
 
@@ -73,7 +73,7 @@ impl RepositoryTradeHistory {
                 quantity, \
                 time, \
                 is_buyer_maker ) \
-            VALUES ( $1, (SELECT id FROM symbol WHERE symbol = $2), $3, $4, $5 ) \
+            VALUES ( $1, $2, $3, $4, $5 ) \
             RETURNING id \
             ",
             trade.id,
@@ -87,18 +87,3 @@ impl RepositoryTradeHistory {
         Ok(rec.id)
     }
 }
-
-// #[test]
-// fn sqlx_test() -> eyre::Result<()> {
-//     let pool = create_pool(LevelFilter::Debug)?;
-//     let symbol = "BTCUSDT".to_string();
-//     let minutes = 15u32;
-//     let stream = sqlx::query_as::<_, Trade>("SELECT * FROM candle WHERE symbol = ? OR minutes = ?")
-//         .bind(symbol)
-//         .bind(minutes)
-//         .fetch_all(&pool);
-
-//     let rows: Vec<Trade> = async_std::task::block_on(stream).unwrap();
-
-//     Ok(())
-// }
