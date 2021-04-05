@@ -19,8 +19,10 @@ pub trait PlotterIndicatorContext {
     fn plot(
         &self,
         selection: &Selection,
-        chart_context: &mut ChartContext<BitMapBackend<RGBPixel>, Cartesian2d<RangedDateTime<DateTime<Utc>>, RangedCoordf32>>,
+        chart_context: &mut ChartContext<
+            BitMapBackend<RGBPixel>,
+            Cartesian2d<RangedDateTime<DateTime<Utc>>, RangedCoordf32>,
+        >,
     ) -> eyre::Result<()>;
-
     fn min_max(&self) -> (f64, f64);
 }

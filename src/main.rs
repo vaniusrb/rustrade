@@ -163,34 +163,27 @@ async fn main(args: Args) -> color_eyre::eyre::Result<()> {
 
     let candles_selection = candles_selection_from_arg(repository_symbol.clone(), &args);
 
-    let mut app = create_app(
-        pool.clone(),
-        repository_symbol.clone(),
-        candles_selection.clone(),
-    )?;
+    let mut app = create_app(pool.clone(), repository_symbol.clone(), candles_selection)?;
 
     match args.command {
         Command::Check {} => {
-            let checker =
-                create_checker(pool.clone(), repository_symbol.clone(), candles_selection)?;
+            let checker = create_checker(pool, repository_symbol, candles_selection)?;
             checker.check_inconsist();
         }
         Command::Sync {} => {
-            let checker =
-                create_checker(pool.clone(), repository_symbol.clone(), candles_selection)?;
+            let checker = create_checker(pool, repository_symbol, candles_selection)?;
             checker.synchronize()?;
         }
         Command::Fix {} => {
-            let checker =
-                create_checker(pool.clone(), repository_symbol.clone(), candles_selection)?;
+            let checker = create_checker(pool, repository_symbol, candles_selection)?;
             checker.delete_inconsist();
         }
         Command::DeleteAll {} => {
-            let repo = create_repo_candle(pool.clone());
+            let repo = create_repo_candle(pool);
             repo.delete_all_candles()?;
         }
         Command::List {} => {
-            let repo = create_repo_candle(pool.clone());
+            let repo = create_repo_candle(pool);
             let symbol = repository_symbol.symbol_by_pair(&args.symbol).unwrap().id;
             repo.list_candles(symbol, args.minutes as i32, 10);
         }

@@ -6,6 +6,7 @@ use crate::config::selection::Selection;
 use ifmt::iformat;
 use log::info;
 use plotters::prelude::*;
+use plotters_bitmap::BitMapBackend;
 use std::{path::Path, time::Instant};
 
 pub struct Plotter<'a> {
@@ -61,7 +62,8 @@ impl<'a> Plotter<'a> {
         let bg_color = ThemePlotter::back_ground();
         upper.fill(&bg_color)?;
 
-        let font = FontDesc::new(FontFamily::Name("sans-serif"), 20.0, FontStyle::Normal).color(&ThemePlotter::fore_ground());
+        let font = FontDesc::new(FontFamily::Name("sans-serif"), 20.0, FontStyle::Normal)
+            .color(&ThemePlotter::fore_ground());
 
         let mut chart_context_upper = ChartBuilder::on(&upper)
             .set_label_area_size(LabelAreaPosition::Left, 30)
@@ -71,7 +73,11 @@ impl<'a> Plotter<'a> {
             .caption(iformat!("{symbol_minutes.symbol} price"), font)
             .build_cartesian_2d(from_date..to_date, min_price..max_price)?;
 
-        chart_context_upper.configure_mesh().x_labels(12).light_line_style(&bg_color).draw()?;
+        chart_context_upper
+            .configure_mesh()
+            .x_labels(12)
+            .light_line_style(&bg_color)
+            .draw()?;
 
         for plotter_upper_ind in self.plotters_ind_upper.iter() {
             plotter_upper_ind.plot(&self.selection, &mut chart_context_upper)?;

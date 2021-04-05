@@ -43,10 +43,14 @@
 ✔ Register positions and flow @done(21-04-05 15:59)
 ✔ test is break @done(21-04-05 16:05)
 ✔ Organize sources in modules @done(21-04-05 15:58)
-☐ Is RefCell clone_provider effective? Check if is creating heavy structs. Add log
 
+High
+☐ Percent gain to start/stop gain
 ☐ All indiciators should have a parameter for "previous" nth candle
+☐ How easy turn same previows candle
+
 Medium
+☐ Is RefCell clone_provider effective? Check if is creating heavy structs. Add log
 ☐ Apply candles selection in all commands
 ☐ Resolve confusion checker x synchronizer
 ☐ Add RSI tac and plot
@@ -55,8 +59,6 @@ Medium
 ☐ Not working minutes 60 from Exchange, fn for h, m, d
 ☐ Is indicators caching working? Add log
 ☐ Parametrize output filename plot image
-
-
 
 Low priority
 ☐ Create load command (load from database without read from expo) ?

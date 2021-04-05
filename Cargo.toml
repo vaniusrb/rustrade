@@ -21,19 +21,24 @@ lazy_static = "1.4"
 log = "0.4.14"
 pad = "0.1.6"
 paw = "1.0.0"
-plotters = {version = "0.3"}
-rhai = "0.19.14"
-structopt = {version = "0.3.21", features = ["paw"]}
-termcolor = "1.1"
-# plotters = {Version = "0.3.0", default_features = false, features = ["datetime", "candlestick", "point_series", "line_series", "ttf", "bitmap_encoder"]}
-# plotters-bitmap = {version = "0.3.0", default-features = true, features = ["image_encoder"]}
-lockfree-object-pool = "0.1"
-# object-pool = "0.5.3"
-plotters-bitmap = "0.3"
+plotters = {git = "https://github.com/38/plotters.git", default_features = false, features = [
+  "datetime",
+  "candlestick",
+  "point_series",
+  "line_series",
+  "ttf",
+  "bitmap_encoder",
+]}
+plotters-bitmap = "0.3.0"
 rayon = "1.5"
+rhai = "0.19.14"
 rust_decimal = {version = "1.10"}
 rust_decimal_macros = "1.10"
 serde = {version = "1.0", features = ["derive"]}
 serde_json = "1.0"
 sqlx = {version = "0.5", features = ["runtime-async-std-native-tls", "postgres", "macros", "decimal", "chrono"]}
+structopt = {version = "0.3.21", features = ["paw"]}
 ta = "0.4"
+termcolor = "1.1"
+# lockfree-object-pool = "0.1"
+# object-pool = "0.5.3"
