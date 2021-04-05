@@ -15,7 +15,7 @@ impl PositionRegister {
         }
     }
 
-    pub fn register(&mut self, trade_operation: &TradeOperation) {
+    pub fn register(&mut self, trade_operation: &TradeOperation) -> eyre::Result<()> {
         self.flow_register.set_position_old(&self.position);
 
         {
@@ -41,6 +41,7 @@ impl PositionRegister {
         }
 
         self.flow_register
-            .set_position_new(&self.position, trade_operation);
+            .set_position_new(&self.position, trade_operation)?;
+        Ok(())
     }
 }

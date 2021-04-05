@@ -245,7 +245,7 @@ impl<'a> CandlesProvider for CandlesProviderSelection {
     fn clone_provider(&self) -> Box<dyn CandlesProvider> {
         Box::new(Self::new(
             self.candles_provider.clone(),
-            self.candles_selection.clone(),
+            self.candles_selection,
         ))
     }
 }

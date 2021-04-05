@@ -54,7 +54,7 @@ impl Application {
 
     pub fn plot_triangles(&mut self) -> eyre::Result<()> {
         let selection = self.selection.clone();
-        let candles_selection = selection.candles_selection.clone();
+        let candles_selection = selection.candles_selection;
         let candles_provider_selection =
             CandlesProviderSelection::new(self.candles_provider.clone(), candles_selection);
         let candles_provider = Box::new(candles_provider_selection);

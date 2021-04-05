@@ -40,26 +40,12 @@
 ✔ Technicals ie MacdTac, must be receive &Candles instead CandlesProvider @done(21-03-28 22:05)
 ✔ testins is falling @done(21-04-03 17:38)
 ✔ Fix tons of warnings @done(21-04-03 17:38)
+✔ Register positions and flow @done(21-04-05 15:59)
+✔ test is break @done(21-04-05 16:05)
+✔ Organize sources in modules @done(21-04-05 15:58)
+☐ Is RefCell clone_provider effective? Check if is creating heavy structs. Add log
+
 ☐ All indiciators should have a parameter for "previous" nth candle
-☐ Register positions
-    strategy (trade, position, rule, etc)
-☐ Organize sources in modules
-    config
-    controller?
-    model
-        ...
-    repository
-        ...
-    service
-        check
-        plot
-        indicator/strategy?
-        script
-            singletons
-            ...
-    security
-    util
-☐ test is break
 Medium
 ☐ Apply candles selection in all commands
 ☐ Resolve confusion checker x synchronizer
@@ -67,7 +53,6 @@ Medium
 ☐ Reduce plot dependency wasm x servo | slow time compilation
 ☐ Live download candle/tickets/trade
 ☐ Not working minutes 60 from Exchange, fn for h, m, d
-☐ Is RefCell clone_provider effective? Check if is creating heavy structs. Add log
 ☐ Is indicators caching working? Add log
 ☐ Parametrize output filename plot image
 

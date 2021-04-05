@@ -190,7 +190,9 @@ pub mod tests {
     use rust_decimal_macros::dec;
 
     #[test]
-    fn topbottom_test() {
+    fn topbottom_test() -> color_eyre::eyre::Result<()> {
+        color_eyre::install()?;
+
         let c1 = Candle {
             id: 0,
             open_time: str_to_datetime("2020-01-12 12:00:00"),
@@ -417,7 +419,7 @@ pub mod tests {
             &c17,
         ];
         let candles_vec = candles.iter().cloned().cloned().collect::<Vec<_>>();
-        let candles_provider_vec = CandlesProviderVec::new(&candles_vec, 100);
+        let candles_provider_vec = CandlesProviderVec::new(&candles_vec, 17);
 
         let candles_provider = Box::new(candles_provider_vec);
 
@@ -429,5 +431,6 @@ pub mod tests {
         for topbottom in top_bottoms.iter() {
             iprintln!("{topbottom:?}");
         }
+        Ok(())
     }
 }

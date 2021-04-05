@@ -92,7 +92,7 @@ pub fn run_script<P: AsRef<Path>>(
     let flow_register = FlowRegister::new(flow_repository.clone());
 
     // Initial position
-    let price = Price(
+    let _first_price = Price(
         candles
             .first()
             .ok_or_else(|| eyre!("First candle not found!"))?
@@ -100,24 +100,16 @@ pub fn run_script<P: AsRef<Path>>(
     );
 
     let position_description = path_to_description(&script_file);
-    let position_repository = RepositoryPosition::new(pool.clone());
+    let position_repository = RepositoryPosition::new(pool);
 
     let position_opt = position_repository.position_by_description(&position_description);
     if let Some(position) = position_opt {
         flow_repository.delete_flows_from_position(position.id);
         position_repository.delete_position(position.id);
     }
-    let mut position = Position {
-        id: 0,
-        balance_asset: dec!(0),
-        balance_fiat: dec!(1000),
-        price: dec!(1000),
-        real_balance_fiat: dec!(1000),
-        description: position_description,
-    };
-    position_repository.insert_position(&mut position)?;
 
-    let position = Position::from_fiat(position_description, dec!(1000));
+    let mut position = Position::from_fiat(&position_description, dec!(1000));
+    position_repository.insert_position(&mut position)?;
 
     let position_register = PositionRegister::new(position, flow_register);
 

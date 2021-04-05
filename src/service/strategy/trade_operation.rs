@@ -50,7 +50,7 @@ impl<'a> Trader {
 
         let trade_operation = TradeOperation::new(operation, now, price);
 
-        self.trader_register.register(trade_operation);
+        self.trader_register.register(trade_operation)?;
 
         self.trade_operations.push(trade_operation);
         Ok(())

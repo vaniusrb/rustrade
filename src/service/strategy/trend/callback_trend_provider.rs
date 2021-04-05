@@ -33,9 +33,9 @@ impl CallBackTrendProvider {
 impl<'a> TrendProvider for CallBackTrendProvider {
     fn trend(
         &mut self,
-        position: &PositionRegister,
+        position_register: &PositionRegister,
         trade_context_provider: &TradeContextProvider,
     ) -> eyre::Result<Option<Operation>> {
-        (self.call_back)(*position, trade_context_provider.clone())
+        (self.call_back)(position_register.clone(), trade_context_provider.clone())
     }
 }

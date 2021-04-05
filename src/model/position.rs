@@ -1,5 +1,5 @@
 use super::price::Price;
-use rust_decimal::Decimal;
+use rust_decimal::{Decimal, RoundingStrategy};
 use rust_decimal_macros::dec;
 
 #[derive(Clone)]
@@ -13,25 +13,25 @@ pub struct Position {
 }
 
 impl Position {
-    pub fn from_asset(description: String, balance_asset: Decimal, price: Price) -> Self {
+    pub fn from_asset(description: &str, balance_asset: Decimal, price: Price) -> Self {
         Self {
             id: 0,
             balance_asset,
             balance_fiat: dec!(0),
             price: price.0,
             real_balance_fiat: balance_asset * price.0,
-            description,
+            description: description.to_string(),
         }
     }
 
-    pub fn from_fiat(description: String, balance_fiat: Decimal) -> Self {
+    pub fn from_fiat(description: &str, balance_fiat: Decimal) -> Self {
         Self {
             id: 0,
             balance_asset: dec!(0),
             balance_fiat,
-            price: price.0,
+            price: dec!(0),
             real_balance_fiat: balance_fiat,
-            description,
+            description: description.to_string(),
         }
     }
 

@@ -35,16 +35,13 @@ impl TraderRegister {
     }
 
     /// Update profit from new operation
-    pub fn register(&mut self, trade_operation: TradeOperation) {
-        self.position_register.register(&trade_operation);
+    pub fn register(&mut self, trade_operation: TradeOperation) -> eyre::Result<()> {
+        self.position_register.register(&trade_operation)?;
         self.trades.push(trade_operation);
+        Ok(())
     }
 
     pub fn position_register(&self) -> &PositionRegister {
         &self.position_register
     }
-
-    // pub fn trades(&self) -> Vec<TradeOperation> {
-    //     self.trades.clone()
-    // }
 }

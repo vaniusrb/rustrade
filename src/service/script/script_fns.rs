@@ -85,8 +85,9 @@ pub fn sma(min: i64, a: i64) -> f64 {
 /// If I have more assets (equivalent value) than fiat
 pub fn is_bought() -> bool {
     let singleton = PositionRegisterSingleton::current();
-    let position = singleton.position_opt.as_ref().unwrap();
-    position.balance_asset_r() * position.price.0 > position.balance_fiat_r()
+    let position_register = singleton.position_opt.as_ref().unwrap();
+    position_register.position.balance_asset_r() * position_register.position.price
+        > position_register.position.balance_fiat_r()
 }
 
 /// If I have more fiat than equivalent value of asset
@@ -96,14 +97,22 @@ pub fn is_sold() -> bool {
 
 pub fn balance_fiat() -> f64 {
     let singleton = PositionRegisterSingleton::current();
-    let position = singleton.position_opt.as_ref().unwrap();
-    position.balance_fiat_r().to_f64().unwrap()
+    let position_register = singleton.position_opt.as_ref().unwrap();
+    position_register
+        .position
+        .balance_fiat_r()
+        .to_f64()
+        .unwrap()
 }
 
 pub fn balance_asset() -> f64 {
     let singleton = PositionRegisterSingleton::current();
-    let position = singleton.position_opt.as_ref().unwrap();
-    position.balance_asset_r().to_f64().unwrap()
+    let position_register = singleton.position_opt.as_ref().unwrap();
+    position_register
+        .position
+        .balance_asset_r()
+        .to_f64()
+        .unwrap()
 }
 
 pub fn fiat_to_asset(fiat_quantity: f64) -> f64 {

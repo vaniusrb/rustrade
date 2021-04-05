@@ -203,7 +203,7 @@ async fn main(args: Args) -> color_eyre::eyre::Result<()> {
         Command::Triangle {} => {
             app.plot_triangles()?;
         }
-        Command::ScriptBackTest { file } => app.run_script_test(pool.clone(), &file)?,
+        Command::ScriptBackTest { file } => app.run_script_test(pool, &file)?,
     };
     info!("Exiting program");
     Ok(())

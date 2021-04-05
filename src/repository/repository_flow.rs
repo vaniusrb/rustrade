@@ -37,6 +37,7 @@ impl RepositoryFlow {
     pub fn insert_flow(&self, flow: &mut Flow) -> eyre::Result<i32> {
         flow.id = self.last_flow_id() + 1;
         let pool = self.pool.read().unwrap();
+
         let future = sqlx::query!(
             "INSERT INTO flow ( \
                 id, \
@@ -47,9 +48,10 @@ impl RepositoryFlow {
                 quantity, \
                 total, \
                 real_balance_fiat_old, \
-                real_balance_fiat_new \
+                real_balance_fiat_new, \
+                gain_perc
                 ) \
-                VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9 ) \
+                VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10 ) \
                 RETURNING id \
             ",
             flow.id,
@@ -61,6 +63,7 @@ impl RepositoryFlow {
             flow.total,
             flow.real_balance_fiat_old,
             flow.real_balance_fiat_new,
+            flow.gain_perc
         )
         .fetch_one(&*pool);
         let rec = async_std::task::block_on(future)?;

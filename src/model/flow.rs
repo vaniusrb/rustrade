@@ -11,4 +11,5 @@ pub struct Flow {
     pub total: Decimal,
     pub real_balance_fiat_old: Decimal,
     pub real_balance_fiat_new: Decimal,
+    pub gain_perc: Decimal,
 }
