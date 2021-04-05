@@ -1,0 +1,2 @@
+[build]
+rustc-wrapper = "/home/vanius/.cargo/bin/sccache"

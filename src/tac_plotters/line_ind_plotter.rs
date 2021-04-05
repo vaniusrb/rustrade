@@ -4,6 +4,7 @@ use crate::service::technicals::indicator::Indicator;
 use chrono::{DateTime, Utc};
 use plotters::{coord::types::RangedCoordf32, prelude::*};
 use plotters_bitmap::bitmap_pixel::RGBPixel;
+use plotters_bitmap::BitMapBackend;
 
 pub struct LineIndicatorPlotter<'a> {
     indicator: &'a Indicator,

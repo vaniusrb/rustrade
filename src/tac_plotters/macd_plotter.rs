@@ -9,7 +9,7 @@ use plotters::{
     prelude::{ChartBuilder, LabelAreaPosition, LineSeries},
     style::{BLACK, WHITE},
 };
-use plotters_bitmap::{self, bitmap_pixel::RGBPixel};
+use plotters_bitmap::{self, bitmap_pixel::RGBPixel, BitMapBackend};
 
 pub struct MacdPlotter<'a> {
     macd_tac: &'a MacdTac,
