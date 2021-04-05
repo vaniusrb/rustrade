@@ -1,4 +1,7 @@
 use crate::model::operation::Operation;
+use crate::model::position::Position;
+use crate::repository::repository_flow::RepositoryFlow;
+use crate::repository::repository_position::RepositoryPosition;
 use crate::service::candles_provider::CandlesProvider;
 use crate::service::plot_selection::PlotterSelection;
 use crate::service::script::position_register::PositionRegister;
@@ -20,12 +23,28 @@ use log::info;
 use quantity::Quantity;
 use rust_decimal::{prelude::FromPrimitive, Decimal};
 use rust_decimal_macros::dec;
-use std::{path::Path, time::Instant};
+use sqlx::PgPool;
+use std::{
+    path::Path,
+    sync::{Arc, RwLock},
+    time::Instant,
+};
 
 const FN_BUY: &str = "buy";
 
+fn path_to_description<P: AsRef<Path>>(path: P) -> String {
+    let script_file_path = path.as_ref();
+    script_file_path
+        .with_extension("")
+        .file_name()
+        .unwrap()
+        .to_string_lossy()
+        .to_string()
+}
+
 /// Run script back test
 pub fn run_script<P: AsRef<Path>>(
+    pool: Arc<RwLock<PgPool>>,
     app: &mut Application,
     script_file: P,
 ) -> eyre::Result<Vec<TradeOperation>> {
@@ -33,11 +52,11 @@ pub fn run_script<P: AsRef<Path>>(
     info!("Initializing back test...");
 
     // Create engine script and register functions
-    EngineSingleton::install(script_file)?;
+    EngineSingleton::install(&script_file)?;
 
     // Load candles from selection
     app.candles_provider
-        .set_candles_selection(app.selection.candles_selection.clone());
+        .set_candles_selection(app.selection.candles_selection);
     let candles = app.candles_provider.candles()?;
 
     // Create trend provider with call back
@@ -69,7 +88,8 @@ pub fn run_script<P: AsRef<Path>>(
             Ok(result)
         });
 
-    let flow_register = FlowRegister::new();
+    let flow_repository = RepositoryFlow::new(pool.clone());
+    let flow_register = FlowRegister::new(flow_repository.clone());
 
     // Initial position
     let price = Price(
@@ -79,7 +99,27 @@ pub fn run_script<P: AsRef<Path>>(
             .open,
     );
 
-    let position_register = PositionRegister::from_fiat(flow_register, dec!(1000), price);
+    let position_description = path_to_description(&script_file);
+    let position_repository = RepositoryPosition::new(pool.clone());
+
+    let position_opt = position_repository.position_by_description(&position_description);
+    if let Some(position) = position_opt {
+        flow_repository.delete_flows_from_position(position.id);
+        position_repository.delete_position(position.id);
+    }
+    let mut position = Position {
+        id: 0,
+        balance_asset: dec!(0),
+        balance_fiat: dec!(1000),
+        price: dec!(1000),
+        real_balance_fiat: dec!(1000),
+        description: position_description,
+    };
+    position_repository.insert_position(&mut position)?;
+
+    let position = Position::from_fiat(position_description, dec!(1000));
+
+    let position_register = PositionRegister::new(position, flow_register);
 
     let trader_register = TraderRegister::from(position_register);
 
@@ -87,7 +127,7 @@ pub fn run_script<P: AsRef<Path>>(
 
     // Create trader from trend provider
     let trader_factory = TraderFactory::from(
-        app.selection.candles_selection.clone(),
+        app.selection.candles_selection,
         app.candles_provider.clone(),
     );
     let trend_provider: Box<dyn TrendProvider + Send + Sync> = Box::new(callback_trend_provider);
@@ -124,4 +164,14 @@ pub fn run_script<P: AsRef<Path>>(
     }
 
     Ok(trades)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn path_to_description_test() {
+        assert_eq!(path_to_description("/~/scripts/macd.rhai"), "macd");
+    }
 }

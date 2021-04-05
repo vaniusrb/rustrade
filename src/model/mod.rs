@@ -1,7 +1,8 @@
 pub mod candle;
+pub mod flow;
 pub mod open_close;
 pub mod operation;
-mod position;
+pub mod position;
 pub mod price;
 pub mod quantity;
 pub mod side;

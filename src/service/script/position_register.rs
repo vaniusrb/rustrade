@@ -1,85 +1,46 @@
-use crate::{model::side::Side, service::strategy::trader_register::TradeOperation};
-use crate::{
-    model::{operation::Operation, price::Price},
-    service::strategy::flow_register::FlowRegister,
-};
-use rust_decimal::{Decimal, RoundingStrategy};
-use rust_decimal_macros::dec;
+use crate::{model::operation::Operation, service::strategy::flow_register::FlowRegister};
+use crate::{model::position::Position, service::strategy::trader_register::TradeOperation};
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct PositionRegister {
-    pub side: Side,
-    pub balance_asset: Decimal,
-    pub balance_fiat: Decimal,
-    pub price: Price,
-    pub real_balance_fiat: Decimal,
+    pub position: Position,
     pub flow_register: FlowRegister,
 }
 
 impl PositionRegister {
-    pub fn _from_asset(flow_register: FlowRegister, balance_asset: Decimal, price: Price) -> Self {
+    pub fn new(position: Position, flow_register: FlowRegister) -> Self {
         Self {
+            position,
             flow_register,
-            side: Side::Bought,
-            balance_asset,
-            balance_fiat: dec!(0),
-            price,
-            real_balance_fiat: balance_asset * price.0,
         }
-    }
-
-    pub fn from_fiat(flow_register: FlowRegister, balance_fiat: Decimal, price: Price) -> Self {
-        Self {
-            flow_register,
-            side: Side::Sold,
-            balance_asset: dec!(0),
-            balance_fiat,
-            price,
-            real_balance_fiat: balance_fiat,
-        }
-    }
-
-    pub fn balance_asset_r(&self) -> Decimal {
-        self.balance_asset
-            .round_dp_with_strategy(8, RoundingStrategy::RoundDown)
-    }
-
-    pub fn balance_fiat_r(&self) -> Decimal {
-        self.balance_fiat
-            .round_dp_with_strategy(8, RoundingStrategy::RoundDown)
-    }
-
-    pub fn real_balance_fiat_r(&self) -> Decimal {
-        self.real_balance_fiat
-            .round_dp_with_strategy(8, RoundingStrategy::RoundDown)
     }
 
     pub fn register(&mut self, trade_operation: &TradeOperation) {
-        // #### self.flow_register.set_position_old(&self);
-        self.flow_register.set_position_old(*self);
+        self.flow_register.set_position_old(&self.position);
 
         {
             match trade_operation.operation {
                 // I have USD and must buy coin
                 Operation::Buy(quantity_asset) => {
                     let buy_total = quantity_asset.0 * trade_operation.price.0;
-                    self.balance_asset += quantity_asset.0;
-                    self.balance_fiat -= buy_total;
+                    self.position.balance_asset += quantity_asset.0;
+                    self.position.balance_fiat -= buy_total;
                 }
 
                 // I have coin and must sell to gain USD
                 Operation::Sell(quantity_asset) => {
                     let sell_total = quantity_asset.0 * trade_operation.price.0;
-                    self.balance_asset -= quantity_asset.0;
-                    self.balance_fiat += sell_total;
+                    self.position.balance_asset -= quantity_asset.0;
+                    self.position.balance_fiat += sell_total;
                 }
             };
 
-            self.side = trade_operation.operation.to_side();
-            self.price = trade_operation.price;
-            self.real_balance_fiat = self.balance_asset * self.price.0 + self.balance_fiat;
+            self.position.price = trade_operation.price.0;
+            self.position.real_balance_fiat =
+                self.position.balance_asset * self.position.price + self.position.balance_fiat;
         }
 
-        self.flow_register.set_position_new(*self, trade_operation);
+        self.flow_register
+            .set_position_new(&self.position, trade_operation);
     }
 }

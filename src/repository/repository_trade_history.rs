@@ -23,7 +23,8 @@ impl RepositoryTradeHistory {
     pub fn read_by_id(&self, id: i32) -> eyre::Result<Option<TradeHistory>> {
         let future = sqlx::query_as!(TradeHistory, "SELECT * FROM trade WHERE id = $1", id)
             .fetch_optional(&self.pool);
-        Ok(async_std::task::block_on(future)?)
+        let result = async_std::task::block_on(future)?;
+        Ok(result)
     }
 
     /// Insert trades

@@ -15,6 +15,8 @@ use crate::{
 };
 use chrono::Duration;
 use log::info;
+use sqlx::PgPool;
+use std::sync::{Arc, RwLock};
 
 #[derive(Clone)]
 pub struct Application {
@@ -45,8 +47,8 @@ impl Application {
         self.selection = selection;
     }
 
-    pub fn run_script_test(&mut self, file: &str) -> eyre::Result<()> {
-        run_script(self, file)?;
+    pub fn run_script_test(&mut self, pool: Arc<RwLock<PgPool>>, file: &str) -> eyre::Result<()> {
+        run_script(pool, self, file)?;
         Ok(())
     }
 
