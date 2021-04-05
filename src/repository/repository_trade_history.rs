@@ -3,8 +3,6 @@ use colored::Colorize;
 use eyre::bail;
 use ifmt::iformat;
 use log::error;
-use rust_decimal::Decimal;
-use rust_decimal_macros::dec;
 use sqlx::PgPool;
 
 struct RepositoryTradeHistory {
