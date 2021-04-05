@@ -5,13 +5,13 @@ use ifmt::iwrite;
 use rust_decimal::Decimal;
 use std::fmt::Display;
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Copy)]
 pub struct Candle {
     pub open_time: DateTime<Utc>,
     pub close_time: DateTime<Utc>,
-    pub id: Decimal,
-    pub symbol: String,
-    pub minutes: Decimal,
+    pub id: i32,
+    pub symbol: i32,
+    pub minutes: i32,
     pub open: Decimal,
     pub high: Decimal,
     pub low: Decimal,
@@ -21,11 +21,11 @@ pub struct Candle {
 
 impl Candle {
     pub fn new(
-        id: u32,
+        id: i32,
         open_time: &str,
         close_time: &str,
-        symbol: &str,
-        minutes: u32,
+        symbol: i32,
+        minutes: i32,
         open: Decimal,
         high: Decimal,
         low: Decimal,
@@ -33,11 +33,11 @@ impl Candle {
         volume: Decimal,
     ) -> Self {
         Self {
-            id: Decimal::from(id),
+            id,
             open_time: str_to_datetime(open_time),
             close_time: str_to_datetime(close_time),
-            symbol: symbol.into(),
-            minutes: Decimal::from(minutes),
+            symbol, // #### symbol_from_string
+            minutes,
             open,
             high,
             low,
@@ -56,7 +56,7 @@ impl Display for Candle {
         let close_time_fmt = time_to_str(&self.close_time);
         iwrite!(
             f,
-            "{self.symbol} [{self.minutes} {self.open_time} {close_time_fmt}] {self.close}"
+            "{&self.symbol} [{self.minutes} {self.open_time} {close_time_fmt}] {self.close}"
         )
     }
 }

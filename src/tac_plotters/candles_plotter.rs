@@ -7,11 +7,11 @@ use rust_decimal::prelude::ToPrimitive;
 use rust_decimal_macros::dec;
 
 pub struct CandlePlotter<'a> {
-    candles: &'a [&'a Candle],
+    candles: &'a [Candle],
 }
 
 impl<'a> CandlePlotter<'a> {
-    pub fn new(candles: &'a [&'a Candle]) -> Self {
+    pub fn new(candles: &'a [Candle]) -> Self {
         CandlePlotter { candles }
     }
 }
@@ -20,9 +20,16 @@ impl<'a> PlotterIndicatorContext for CandlePlotter<'a> {
     fn plot(
         &self,
         _selection: &Selection,
-        chart_context: &mut ChartContext<BitMapBackend<RGBPixel>, Cartesian2d<RangedDateTime<DateTime<Utc>>, RangedCoordf32>>,
-    ) -> anyhow::Result<()> {
-        chart_context.configure_mesh().x_labels(12).light_line_style(&WHITE).draw()?;
+        chart_context: &mut ChartContext<
+            BitMapBackend<RGBPixel>,
+            Cartesian2d<RangedDateTime<DateTime<Utc>>, RangedCoordf32>,
+        >,
+    ) -> eyre::Result<()> {
+        chart_context
+            .configure_mesh()
+            .x_labels(12)
+            .light_line_style(&WHITE)
+            .draw()?;
 
         let red = RGBColor(164, 16, 64);
         let green = RGBColor(16, 196, 64);
