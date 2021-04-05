@@ -37,7 +37,7 @@ impl<'a> Plotter<'a> {
         self._plotters_ind_lower.push(plotter_ind);
     }
 
-    pub fn plot<P: AsRef<Path>>(&self, image_path: P) -> anyhow::Result<()> {
+    pub fn plot<P: AsRef<Path>>(&self, image_path: P) -> eyre::Result<()> {
         let start = Instant::now();
         let symbol_minutes = &self.selection.candles_selection.symbol_minutes;
 

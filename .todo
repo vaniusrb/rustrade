@@ -36,27 +36,44 @@
 ✔ Create scripting file example @done(21-03-27 21:27)
 ✔ Move sample chart to example instead "out" folder @done(21-03-27 21:26)
 ✔ Create example folder and move script to this folder @done(21-03-27 21:27)
-☐ Fix tons of warnings
-☐ Parametrize output filename plot image
-☐ Create configuration file for backtest (period, symbol, script file, initial position, etc)
-☐ Create unity test for scripting (mock candles buffer and check out trades result)
-☐ Register positions
-☐ Indicator process only last period candles, but on plotting need process all
-☐ Add new candle to indicators (or replace last)
-☐ Strategy (trade, position, rule, etc)
-☐ Create docker compose
-☐ Use close time or open time ? ema / mcad must use same
-☐ See video Heikin Aishi
-☐ More days to split column
-☐ Candle width dynamic with selection
-☐ Reduce plot dependency wasm x servo | slow time compilation
-☐ Plot macd inds from selected
-☐ Black theme (white grid lines)
-☐ Download tickets/trade
-☐ Live download tickets/trade
-☐ Resolve confusion checker x synchronizer
+✔ Create PlotterSelecion, to customize additional plotters, to be u'sed in back test tooling @done(21-03-28 22:05)
+✔ Technicals ie MacdTac, must be receive &Candles instead CandlesProvider @done(21-03-28 22:05)
+✔ testins is falling @done(21-04-03 17:38)
+✔ Fix tons of warnings @done(21-04-03 17:38)
+✔ Register positions and flow @done(21-04-05 15:59)
+✔ test is break @done(21-04-05 16:05)
+✔ Organize sources in modules @done(21-04-05 15:58)
+☐ Is RefCell clone_provider effective? Check if is creating heavy structs. Add log
+
+☐ All indiciators should have a parameter for "previous" nth candle
+Medium
 ☐ Apply candles selection in all commands
-☐ Gui interface
-☐ Create load command (load from database without read from expo) ?
-☐ Not working minutes 60 from Exchange, fn for h, m, d
+☐ Resolve confusion checker x synchronizer
 ☐ Add RSI tac and plot
+☐ Reduce plot dependency wasm x servo | slow time compilation
+☐ Live download candle/tickets/trade
+☐ Not working minutes 60 from Exchange, fn for h, m, d
+☐ Is indicators caching working? Add log
+☐ Parametrize output filename plot image
+
+
+
+Low priority
+☐ Create load command (load from database without read from expo) ?
+☐ Plot macd inds from selected
+☐ Create configuration file for backtest (period, symbol, script file, initial position, etc)
+☐ Candle width dynamic with selection
+☐ Black theme (white grid lines)
+☐ More days to split column
+☐ See video Heikin Aishi
+☐ Add new candle to indicators (or replace last) => LIVE UPDATE
+☐ Indicator process only last period candles, but on plotting need process all (live update?)
+☐ Download tickets/trade/bid
+    https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md
+    GET /api/v3/historicalTrades
+    I think candles are ok
+☐ Use close time or open time ? ema / mcad must use same
+    I think should use the close because last candle update close (to confirm...)
+☐ Create docker compose
+☐ Gui interface
+☐ Create unity test for scripting (mock candles buffer and check out trades result)

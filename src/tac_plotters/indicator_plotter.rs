@@ -12,7 +12,7 @@ pub trait IndicatorPlotter {
         selection: &Selection,
         upper: &DrawingArea<BitMapBackend<RGBPixel>, Shift>,
         lower: &DrawingArea<BitMapBackend<RGBPixel>, Shift>,
-    ) -> anyhow::Result<()>;
+    ) -> eyre::Result<()>;
 }
 
 pub trait PlotterIndicatorContext {
@@ -20,7 +20,7 @@ pub trait PlotterIndicatorContext {
         &self,
         selection: &Selection,
         chart_context: &mut ChartContext<BitMapBackend<RGBPixel>, Cartesian2d<RangedDateTime<DateTime<Utc>>, RangedCoordf32>>,
-    ) -> anyhow::Result<()>;
+    ) -> eyre::Result<()>;
 
     fn min_max(&self) -> (f64, f64);
 }

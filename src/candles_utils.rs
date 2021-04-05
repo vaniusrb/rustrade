@@ -1,9 +1,8 @@
-use std::str::FromStr;
-
 use crate::model::{candle::Candle, open_close::OpenClose};
 use binance::model::KlineSummary;
 use chrono::{DateTime, Duration, NaiveDateTime, TimeZone, Utc};
 use rust_decimal::Decimal;
+use std::str::FromStr;
 use ta::DataItem;
 
 /// Convert binance Kline to TA DataItem
@@ -23,14 +22,13 @@ pub fn fdec(value: f64) -> Decimal {
 }
 
 /// Convert binance Kline to app Candle
-pub fn kline_to_candle(summary: &KlineSummary, symbol: &str, minutes: u32, id: &Decimal) -> Candle {
+pub fn kline_to_candle(summary: &KlineSummary, symbol: i32, minutes: i32, id: i32) -> Candle {
     let open_time = timestamp_to_datetime(&(summary.open_time as u64));
     let close_time = timestamp_to_datetime(&(summary.close_time as u64));
-
     Candle {
-        id: *id,
-        symbol: symbol.into(),
-        minutes: minutes.into(),
+        id,
+        symbol,
+        minutes,
         open: fdec(summary.open),
         open_time,
         high: fdec(summary.high),
@@ -79,18 +77,21 @@ pub fn str_d(string: &str) -> DateTime<Utc> {
 
 /// If candles are sorted ok
 pub fn _candles_sorted_ok(candles: &[&Candle]) -> bool {
-    let sort_ok = candles.iter().map(Some).fold((true, None::<&&Candle>), |previous, current| {
-        let result = if let Some(previous_c) = previous.1 {
-            if let Some(current_c) = current {
-                previous.0 && (current_c.open_time > previous_c.open_time)
+    let sort_ok = candles
+        .iter()
+        .map(Some)
+        .fold((true, None::<&&Candle>), |previous, current| {
+            let result = if let Some(previous_c) = previous.1 {
+                if let Some(current_c) = current {
+                    previous.0 && (current_c.open_time > previous_c.open_time)
+                } else {
+                    previous.0
+                }
             } else {
                 previous.0
-            }
-        } else {
-            previous.0
-        };
-        (result, current)
-    });
+            };
+            (result, current)
+        });
     sort_ok.0
 }
 
@@ -105,7 +106,7 @@ pub fn inconsistent_candles(candles: &[&Candle], duration: &Duration) -> Vec<Can
                     let previous_d = previous_c.open_time;
                     let current_d = current_c.open_time;
                     if current_d - previous_d != *duration {
-                        previous.0.push((*current_c).clone());
+                        previous.0.push(*(*current_c));
                     }
                 }
             };
@@ -120,8 +121,14 @@ pub fn min_max_close_time_from_candles(candles: &[&Candle]) -> Option<(OpenClose
         return None;
     }
     let mut min_date = OpenClose::Open(str_to_datetime("2000-01-01 00:00:00"));
-    let max_date = candles.iter().map(|c| c.open_close()).fold(min_date, |acc, x| acc.max(x));
-    min_date = candles.iter().map(|c| c.open_close()).fold(max_date, |acc, x| acc.min(x));
+    let max_date = candles
+        .iter()
+        .map(|c| c.open_close())
+        .fold(min_date, |acc, x| acc.max(x));
+    min_date = candles
+        .iter()
+        .map(|c| c.open_close())
+        .fold(max_date, |acc, x| acc.min(x));
     Some((min_date, max_date))
 }
 
@@ -146,7 +153,7 @@ pub mod tests {
             0,
             "2020-01-12 12:00:00",
             "2020-01-12 12:14:59",
-            "BTCUSDT",
+            1,
             15,
             fdec(100.0),
             fdec(100.0),
@@ -158,7 +165,7 @@ pub mod tests {
             0,
             "2020-01-12 12:15:00",
             "2020-01-12 12:29:59",
-            "BTCUSDT",
+            1,
             15,
             fdec(100.0),
             fdec(100.0),
@@ -187,7 +194,7 @@ pub mod tests {
             0,
             "2020-11-16 01:25:00",
             "2020-11-16 01:29:59",
-            "BTCUSDT",
+            1,
             15,
             fdec(100.0),
             fdec(100.0),
@@ -200,7 +207,7 @@ pub mod tests {
             0,
             "2020-11-20 11:15:00",
             "2020-11-20 11:29:59",
-            "BTCUSDT",
+            1,
             15,
             fdec(100.0),
             fdec(100.0),

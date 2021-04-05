@@ -63,6 +63,36 @@
         {
             "type": "lldb",
             "request": "launch",
+            "name": "Debug executable 'rustrade' script",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=rustrade",
+                    "--package=rustrade"
+                ],
+                "filter": {
+                    "name": "rustrade",
+                    "kind": "bin"
+                }
+            },
+            "args": [
+                "-y",
+                "BTCUSDT",
+                "-m",
+                "15",
+                "-s",
+                "2020-12-20 00:00:00",
+                "-e",
+                "2020-12-24 23:45:00",
+                "script-back-test",
+                "--file",
+                "examples/mcad.rhai"
+            ],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
             "name": "Debug unit tests in executable 'rustrade'",
             "cargo": {
                 "args": [
