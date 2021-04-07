@@ -44,14 +44,24 @@
 ✔ test is break @done(21-04-05 16:05)
 ✔ Organize sources in modules @done(21-04-05 15:58)
 ✔ Add RSI tac @done(21-04-06 19:58)
+✔ RSI plot @done(21-04-06 23:12)
 
 High
-☐ Percent gain to start/stop gain
+☐ How allow gain to start/stop gain? Should have a "trend" function to trigger a "change direction"
+    trend() {
+        return +1 or -1
+    }
+    trigger_to_buy() { ?
+
+    }
+    trigger_to_sell() { ?
+
+    }
+
 ☐ All indiciators should have a parameter for "previous" nth candle
 ☐ How easy turn same previows candle
 
 Medium
-☐ RSI plot
 ☐ Is RefCell clone_provider effective? Check if is creating heavy structs. Add log
 ☐ Is indicators caching working? Add log
 ☐ Apply candles selection in all commands?
