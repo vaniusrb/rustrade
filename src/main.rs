@@ -18,7 +18,7 @@ use crate::repository::repository_symbol::RepositorySymbol;
 use crate::service::checker::Checker;
 use crate::service::streamer::Streamer;
 use crate::service::technicals::ema_tac::EmaTac;
-use crate::service::technicals::macd::macd_tac::MacdTac;
+use crate::service::technicals::macd_tac::MacdTac;
 use candles_utils::str_to_datetime;
 use config::{candles_selection::CandlesSelection, selection::Selection};
 use eyre::Result;

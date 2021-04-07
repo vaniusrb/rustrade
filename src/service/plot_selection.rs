@@ -1,8 +1,8 @@
 use super::candles_provider::CandlesProvider;
+use crate::service::technicals::macd_tac::MacdTac;
 use crate::service::technicals::technical::TechnicalIndicators;
 use crate::service::technicals::top_bottom_tac::TopBottomTac;
 use crate::EmaTac;
-use crate::MacdTac;
 use crate::{
     config::selection::Selection,
     tac_plotters::{

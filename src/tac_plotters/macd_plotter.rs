@@ -1,6 +1,6 @@
 use super::indicator_plotter::IndicatorPlotter;
-use crate::service::technicals::indicator::Indicator;
-use crate::{config::selection::Selection, service::technicals::macd::macd_tac::MacdTac};
+use crate::config::selection::Selection;
+use crate::service::technicals::{indicator::Indicator, macd_tac::MacdTac};
 use eyre::{bail, eyre};
 use log::info;
 use plotters::prelude::*;

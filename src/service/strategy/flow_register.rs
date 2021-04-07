@@ -17,6 +17,14 @@ pub struct FlowRegister {
     old_real_balance_usd: Decimal,
 }
 
+const DEC_1: Decimal = dec!(1);
+const DEC_100: Decimal = dec!(100);
+
+#[inline]
+fn percent(new: &Decimal, old: &Decimal) -> Decimal {
+    ((new / old - DEC_1) * DEC_100).round_dp_with_strategy(2, RoundingStrategy::RoundDown)
+}
+
 impl FlowRegister {
     pub fn new(flow_repository: RepositoryFlow) -> Self {
         Self {
@@ -34,16 +42,11 @@ impl FlowRegister {
         position: &Position,
         trade_operation: &TradeOperation,
     ) -> eyre::Result<()> {
-        let gain_usd = (position.real_balance_fiat - self.old_real_balance_usd)
-            .round_dp_with_strategy(8, RoundingStrategy::RoundDown);
+        let gain_perc = percent(&position.real_balance_fiat, &self.old_real_balance_usd);
 
-        let gain_perc = ((position.real_balance_fiat / self.old_real_balance_usd - dec!(1))
-            * dec!(100))
-        .round_dp_with_strategy(2, RoundingStrategy::RoundDown);
-
-        let (is_buyer_maker, quantity, state_str) = match trade_operation.operation {
-            Operation::Buy(quantity) => (true, quantity, "Bought".pad_to_width(6).green()),
-            Operation::Sell(quantity) => (false, quantity, "Sold".pad_to_width(6).red()),
+        let (is_buyer_maker, quantity) = match trade_operation.operation {
+            Operation::Buy(quantity) => (true, quantity),
+            Operation::Sell(quantity) => (false, quantity),
         };
         let mut flow = Flow {
             id: 0,
@@ -59,30 +62,40 @@ impl FlowRegister {
         };
         self.flow_repository.insert_flow(&mut flow)?;
 
-        let gain_usd_str = gain_usd
-            .to_string()
-            .pad_to_width_with_alignment(14, Alignment::Right);
-        let gain_perc_str =
-            iformat!("{gain_perc}%").pad_to_width_with_alignment(6, Alignment::Right);
+        {
+            let gain_usd = (position.real_balance_fiat - self.old_real_balance_usd)
+                .round_dp_with_strategy(8, RoundingStrategy::RoundDown);
+            let state_str = if is_buyer_maker {
+                "Bought".pad_to_width(6).green()
+            } else {
+                "Sold".pad_to_width(6).red()
+            };
+            let gain_usd_str = gain_usd
+                .to_string()
+                .pad_to_width_with_alignment(14, Alignment::Right);
+            let gain_perc_str =
+                iformat!("{gain_perc}%").pad_to_width_with_alignment(6, Alignment::Right);
 
-        let (gain_usd_str, gain_perc_str) = if gain_usd < dec!(0) {
-            (gain_usd_str.red(), gain_perc_str.red())
-        } else {
-            (gain_usd_str.green(), gain_perc_str.green())
-        };
+            let (gain_usd_str, gain_perc_str) = if gain_usd < dec!(0) {
+                (gain_usd_str.red(), gain_perc_str.red())
+            } else {
+                (gain_usd_str.green(), gain_perc_str.green())
+            };
 
-        let real_balance_fiat_str = position
-            .real_balance_fiat_r()
-            .to_string()
-            .pad_to_width_with_alignment(14, Alignment::Right);
+            let real_balance_fiat_str = position
+                .real_balance_fiat_r()
+                .to_string()
+                .pad_to_width_with_alignment(14, Alignment::Right);
 
-        let message = iformat!(
-            "{trade_operation.now} {state_str} \
+            let message = iformat!(
+                "{trade_operation.now} {state_str} \
             price {trade_operation.price} Balance USD {position.balance_asset_r()} \
             Position USD {real_balance_fiat_str} \
             Gain USD {gain_usd_str} {gain_perc_str}"
-        );
-        info!("{}", message);
+            );
+            info!("{}", message);
+        }
+
         Ok(())
     }
 }
