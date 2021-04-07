@@ -1,8 +1,7 @@
-use super::{
-    indicator_plotter::{IndicatorPlotter, PlotterIndicatorContext},
-    theme_plotter::ThemePlotter,
-};
+use super::theme_plotter::ThemePlotter;
 use crate::config::selection::Selection;
+use crate::tac_plotters::plotter_indicator_area::PlotterIndicatorArea;
+use crate::tac_plotters::plotter_indicator_context::PlotterIndicatorContext;
 use ifmt::iformat;
 use log::info;
 use plotters::prelude::*;
@@ -11,7 +10,7 @@ use std::{path::Path, time::Instant};
 
 pub struct Plotter<'a> {
     selection: Selection,
-    plotters_ind_lower: Vec<&'a dyn IndicatorPlotter>,
+    plotters_ind_lower: Vec<&'a dyn PlotterIndicatorArea>,
     plotters_ind_upper: Vec<&'a dyn PlotterIndicatorContext>,
 }
 
@@ -24,7 +23,7 @@ impl<'a> Plotter<'a> {
         }
     }
 
-    pub fn add_plotter_ind(&mut self, plotter_ind: &'a dyn IndicatorPlotter) {
+    pub fn add_plotter_lower_ind(&mut self, plotter_ind: &'a dyn PlotterIndicatorArea) {
         self.plotters_ind_lower.push(plotter_ind);
     }
 
@@ -54,15 +53,15 @@ impl<'a> Plotter<'a> {
         };
 
         let mut area_to_split = lower;
-        let mut plot_to_divid = self.plotters_ind_lower.len();
+        let mut plot_to_divide = self.plotters_ind_lower.len();
 
         let plotter_areas = self
             .plotters_ind_lower
             .iter()
             .map(|p| {
-                let perc_low_plot = 100 / plot_to_divid as i32;
+                let perc_low_plot = 100 / plot_to_divide as i32;
                 let (l1, l2) = { area_to_split.split_vertically((perc_low_plot).percent()) };
-                plot_to_divid -= 1;
+                plot_to_divide -= 1;
                 area_to_split = l2;
                 (p, l1)
             })
@@ -92,9 +91,9 @@ impl<'a> Plotter<'a> {
             plotter_upper_ind.plot(&self.selection, &mut chart_context_upper)?;
         }
 
-        for (ind_plot, lower_area) in plotter_areas.iter() {
+        for (plotter_lower_ind, lower_area) in plotter_areas.iter() {
             lower_area.fill(&bg_color)?;
-            ind_plot.plot(&self.selection, &upper, &lower_area)?;
+            plotter_lower_ind.plot(&self.selection, &lower_area)?;
         }
 
         info!("{}", iformat!("*** Plotting elapsed: {start.elapsed():?}"));

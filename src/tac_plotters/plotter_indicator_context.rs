@@ -1,19 +1,8 @@
 use crate::config::selection::Selection;
 use chrono::{DateTime, Utc};
-use plotters::{
-    coord::{types::RangedCoordf32, Shift},
-    prelude::{Cartesian2d, ChartContext, DrawingArea, RangedDateTime},
-};
+use plotters::prelude::{ChartContext, RangedDateTime};
+use plotters::{coord::types::RangedCoordf32, prelude::Cartesian2d};
 use plotters_bitmap::{bitmap_pixel::RGBPixel, BitMapBackend};
-
-pub trait IndicatorPlotter {
-    fn plot(
-        &self,
-        selection: &Selection,
-        upper: &DrawingArea<BitMapBackend<RGBPixel>, Shift>,
-        lower: &DrawingArea<BitMapBackend<RGBPixel>, Shift>,
-    ) -> eyre::Result<()>;
-}
 
 pub trait PlotterIndicatorContext {
     fn plot(
@@ -24,5 +13,6 @@ pub trait PlotterIndicatorContext {
             Cartesian2d<RangedDateTime<DateTime<Utc>>, RangedCoordf32>,
         >,
     ) -> eyre::Result<()>;
+
     fn min_max(&self) -> (f64, f64);
 }

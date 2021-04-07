@@ -3,14 +3,14 @@ use crate::service::technicals::macd_tac::MacdTac;
 use crate::service::technicals::rsi_tac::RsiTac;
 use crate::service::technicals::technical::TechnicalIndicators;
 use crate::service::technicals::top_bottom_tac::TopBottomTac;
+use crate::tac_plotters::plotter_indicator_context::PlotterIndicatorContext;
 use crate::tac_plotters::rsi_plotter::RsiPlotter;
 use crate::EmaTac;
 use crate::{
     config::selection::Selection,
     tac_plotters::{
-        candles_plotter::CandlePlotter, indicator_plotter::PlotterIndicatorContext,
-        line_ind_plotter::LineIndicatorPlotter, macd_plotter::MacdPlotter, plotter::Plotter,
-        top_bottom_plotter::TopBottomPlotter,
+        candles_plotter::CandlePlotter, line_ind_plotter::LineIndicatorPlotter,
+        macd_plotter::MacdPlotter, plotter::Plotter, top_bottom_plotter::TopBottomPlotter,
     },
 };
 use colored::Colorize;
@@ -99,10 +99,10 @@ impl<'a> PlotterSelection<'a> {
 
         // Lower indicators plotters
         let macd_plotter = MacdPlotter::new(&macd_tac);
-        plotter.add_plotter_ind(&macd_plotter);
+        plotter.add_plotter_lower_ind(&macd_plotter);
 
         let rsi_plotter = RsiPlotter::new(&rsi_tac);
-        plotter.add_plotter_ind(&rsi_plotter);
+        plotter.add_plotter_lower_ind(&rsi_plotter);
 
         let start = Instant::now();
 

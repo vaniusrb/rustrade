@@ -9,7 +9,10 @@ use rust_decimal::prelude::ToPrimitive;
 use std::collections::HashMap;
 use ta::{indicators::SimpleMovingAverage as Sma, Next};
 
-pub const SMA_IND: &str = "sma";
+pub const IND_SMA: &str = "sma";
+
+pub const TAC_SMA: &str = "sma";
+
 #[derive(Clone)]
 pub struct SmaTac {
     pub indicators: HashMap<String, Indicator>,
@@ -17,8 +20,8 @@ pub struct SmaTac {
 
 impl TechnicalDefinition for SmaTac {
     fn definition() -> crate::config::definition::TacDefinition {
-        let indicators = vec![SMA_IND];
-        TacDefinition::new(SMA_IND, &indicators)
+        let indicators = vec![IND_SMA];
+        TacDefinition::new(IND_SMA, &indicators)
     }
 }
 
@@ -28,7 +31,11 @@ impl TechnicalIndicators for SmaTac {
     }
 
     fn main_indicator(&self) -> &Indicator {
-        self.indicators.get(SMA_IND).unwrap()
+        self.indicators.get(IND_SMA).unwrap()
+    }
+
+    fn name(&self) -> String {
+        todo!()
     }
 }
 
@@ -46,7 +53,7 @@ impl<'a> SmaTac {
             sma_series.push(Serie::new(candle.close_time, sma_result));
         }
 
-        let sma = Indicator::from(SMA_IND, sma_series);
+        let sma = Indicator::from(IND_SMA, sma_series);
         indicators.insert(sma.name.clone(), sma);
 
         Self { indicators }

@@ -9,7 +9,9 @@ use rust_decimal::prelude::ToPrimitive;
 use std::collections::HashMap;
 use ta::{indicators::RelativeStrengthIndex as Rsi, Next};
 
-pub const RSI_IND: &str = "rsi";
+pub const IND_RSI: &str = "rsi";
+
+pub const TAC_RSI: &str = "rsi";
 
 #[derive(Clone)]
 pub struct RsiTac {
@@ -18,8 +20,8 @@ pub struct RsiTac {
 
 impl TechnicalDefinition for RsiTac {
     fn definition() -> crate::config::definition::TacDefinition {
-        let indicators = vec![RSI_IND];
-        TacDefinition::new(RSI_IND, &indicators)
+        let indicators = vec![IND_RSI];
+        TacDefinition::new(IND_RSI, &indicators)
     }
 }
 
@@ -29,7 +31,11 @@ impl TechnicalIndicators for RsiTac {
     }
 
     fn main_indicator(&self) -> &Indicator {
-        self.indicators.get(RSI_IND).unwrap()
+        self.indicators.get(IND_RSI).unwrap()
+    }
+
+    fn name(&self) -> String {
+        TAC_RSI.to_string()
     }
 }
 
@@ -47,7 +53,7 @@ impl<'a> RsiTac {
             rsi_series.push(Serie::new(candle.close_time, rsi_result));
         }
 
-        let rsi = Indicator::from(RSI_IND, rsi_series);
+        let rsi = Indicator::from(IND_RSI, rsi_series);
         indicators.insert(rsi.name.clone(), rsi);
 
         Self { indicators }

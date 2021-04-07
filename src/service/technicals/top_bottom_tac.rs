@@ -4,7 +4,9 @@ use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
 use std::{cmp::Ordering, collections::HashSet};
 
-pub const TOP_BOTTOM_IND: &str = "topbottom";
+pub const IND_TOP_BOTTOM: &str = "topbottom";
+
+pub const TAC_TOP_BOTTOM: &str = "topbottom";
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Clone, Hash)]
 pub enum TopBottomType {
@@ -78,6 +80,10 @@ impl TechnicalIndicators for TopBottomTac {
 
     fn main_indicator(&self) -> &super::indicator::Indicator {
         todo!()
+    }
+
+    fn name(&self) -> String {
+        TAC_TOP_BOTTOM.to_string()
     }
 }
 

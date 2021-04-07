@@ -1,8 +1,9 @@
 pub mod candles_plotter;
-pub mod indicator_plotter;
 pub mod line_ind_plotter;
 pub mod macd_plotter;
 pub mod plotter;
+pub mod plotter_indicator_area;
+pub mod plotter_indicator_context;
 pub mod plotter_utils;
 pub mod rsi_plotter;
 pub mod theme_plotter;

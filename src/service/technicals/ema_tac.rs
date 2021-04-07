@@ -9,7 +9,9 @@ use rust_decimal::prelude::ToPrimitive;
 use std::collections::HashMap;
 use ta::{indicators::ExponentialMovingAverage as Ema, Next};
 
-pub const EMA_IND: &str = "ema";
+pub const IND_EMA: &str = "ema";
+
+pub const TAC_EMA: &str = "ema";
 
 #[derive(Clone)]
 pub struct EmaTac {
@@ -18,8 +20,8 @@ pub struct EmaTac {
 
 impl TechnicalDefinition for EmaTac {
     fn definition() -> crate::config::definition::TacDefinition {
-        let indicators = vec![EMA_IND];
-        TacDefinition::new(EMA_IND, &indicators)
+        let indicators = vec![IND_EMA];
+        TacDefinition::new(IND_EMA, &indicators)
     }
 }
 
@@ -29,7 +31,11 @@ impl TechnicalIndicators for EmaTac {
     }
 
     fn main_indicator(&self) -> &Indicator {
-        self.indicators.get(EMA_IND).unwrap()
+        self.indicators.get(IND_EMA).unwrap()
+    }
+
+    fn name(&self) -> String {
+        TAC_EMA.to_string()
     }
 }
 
@@ -48,13 +54,13 @@ impl<'a> EmaTac {
             ema_series.push(Serie::new(candle.close_time, ema_result));
         }
 
-        let ema = Indicator::from(EMA_IND, ema_series);
+        let ema = Indicator::from(IND_EMA, ema_series);
         indicators.insert(ema.name.clone(), ema);
 
         EmaTac { indicators }
     }
 
     pub fn _indicator(&self) -> &Indicator {
-        self.indicators.get(EMA_IND).unwrap()
+        self.indicators.get(IND_EMA).unwrap()
     }
 }
