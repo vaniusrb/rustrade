@@ -22,7 +22,7 @@ impl<'a> PlotterIndicatorArea for MacdPlotter<'a> {
         }
     }
 
-    fn technical_indicators(&self) -> Box<dyn TechnicalIndicators> {
-        Box::new(self.macd_tac.clone()) as Box<dyn TechnicalIndicators>
+    fn technical_indicators(&self) -> &dyn TechnicalIndicators {
+        self.macd_tac
     }
 }

@@ -13,7 +13,7 @@ use plotters::{
 use plotters_bitmap::{bitmap_pixel::RGBPixel, BitMapBackend};
 
 pub trait PlotterIndicatorArea {
-    fn technical_indicators(&self) -> Box<dyn TechnicalIndicators>;
+    fn technical_indicators(&self) -> &dyn TechnicalIndicators;
 
     fn plot(
         &self,
