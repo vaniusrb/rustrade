@@ -10,9 +10,11 @@ use rust_decimal::prelude::ToPrimitive;
 use std::{collections::HashMap, time::Instant};
 use ta::{indicators::MovingAverageConvergenceDivergence as Macd, Next};
 
-pub const MACD_IND: &str = "macd";
-pub const MACD_SIG_IND: &str = "signal";
-pub const MACD_DIV_IND: &str = "divergence";
+pub const IND_MACD: &str = "macd";
+pub const IND_MACD_SIG: &str = "signal";
+pub const IND_MACD_DIV: &str = "divergence";
+
+pub const TAC_MCAD: &str = "macd";
 
 #[derive(Clone)]
 pub struct MacdTac {
@@ -21,17 +23,21 @@ pub struct MacdTac {
 
 impl TechnicalDefinition for MacdTac {
     fn definition() -> crate::config::definition::TacDefinition {
-        let indicators = vec![MACD_IND, MACD_SIG_IND, MACD_DIV_IND];
-        TacDefinition::new(MACD_IND, &indicators)
+        let indicators = vec![IND_MACD, IND_MACD_SIG, IND_MACD_DIV];
+        TacDefinition::new(IND_MACD, &indicators)
     }
 }
 impl TechnicalIndicators for MacdTac {
     fn main_indicator(&self) -> &Indicator {
-        self.indicators.get(MACD_IND).unwrap()
+        self.indicators.get(IND_MACD).unwrap()
     }
 
     fn indicators(&self) -> &HashMap<String, Indicator> {
         &self.indicators
+    }
+
+    fn name(&self) -> String {
+        TAC_MCAD.to_string()
     }
 }
 
@@ -43,8 +49,6 @@ impl<'a> MacdTac {
         signal_period: usize,
     ) -> Self {
         let start = Instant::now();
-
-        //let candles = candles_provider.candles().unwrap();
 
         let mut macd_series = Vec::with_capacity(candles.len());
         let mut signal_series = Vec::with_capacity(candles.len());
@@ -64,9 +68,9 @@ impl<'a> MacdTac {
             divergence_series.push(Serie::new(candle.close_time, macd_result.2));
         }
 
-        let macd = Indicator::from(MACD_IND, macd_series);
-        let signal = Indicator::from(MACD_SIG_IND, signal_series);
-        let divergence = Indicator::from(MACD_DIV_IND, divergence_series);
+        let macd = Indicator::from(IND_MACD, macd_series);
+        let signal = Indicator::from(IND_MACD_SIG, signal_series);
+        let divergence = Indicator::from(IND_MACD_DIV, divergence_series);
 
         indicators.insert(macd.name.clone(), macd);
         indicators.insert(signal.name.clone(), signal);

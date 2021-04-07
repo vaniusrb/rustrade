@@ -1,9 +1,9 @@
 use super::{
-    ema_tac::{EmaTac, EMA_IND},
+    ema_tac::{EmaTac, IND_EMA},
     ind_type::IndicatorType,
-    macd_tac::{MacdTac, MACD_DIV_IND, MACD_IND, MACD_SIG_IND},
-    rsi_tac::{RsiTac, RSI_IND},
-    sma_tac::{SmaTac, SMA_IND},
+    macd_tac::{MacdTac, IND_MACD, IND_MACD_DIV, IND_MACD_SIG},
+    rsi_tac::{RsiTac, IND_RSI},
+    sma_tac::{SmaTac, IND_SMA},
     technical::TechnicalIndicators,
 };
 use crate::model::candle::Candle;
@@ -49,11 +49,11 @@ impl IndicatorProvider {
                 let result: eyre::Result<Box<dyn TechnicalIndicators + Send + Sync>> =
                     // TODO here should use enum instead constant
                     match ind_name {
-                        EMA_IND => Ok(Box::new(EmaTac::new(candles, period))
+                        IND_EMA => Ok(Box::new(EmaTac::new(candles, period))
                             as Box<dyn TechnicalIndicators + Send + Sync>), // <= cast box<struct> as box<trait>
-                        SMA_IND => Ok(Box::new(SmaTac::new(candles, period))
+                        IND_SMA => Ok(Box::new(SmaTac::new(candles, period))
                             as Box<dyn TechnicalIndicators + Send + Sync>),
-                        RSI_IND => Ok(Box::new(RsiTac::new(candles, period))
+                        IND_RSI => Ok(Box::new(RsiTac::new(candles, period))
                             as Box<dyn TechnicalIndicators + Send + Sync>),
                         other => Err(eyre!("Not found indicator {}!", other)),
                     };
@@ -106,7 +106,7 @@ impl IndicatorProvider {
             IndicatorType::Macd(fast_period, slow_period, signal_period) => self.macd(
                 now,
                 candles,
-                MACD_IND,
+                IND_MACD,
                 *fast_period,
                 *slow_period,
                 *signal_period,
@@ -114,7 +114,7 @@ impl IndicatorProvider {
             IndicatorType::MacdSignal(fast_period, slow_period, signal_period) => self.macd(
                 now,
                 candles,
-                MACD_SIG_IND,
+                IND_MACD_SIG,
                 *fast_period,
                 *slow_period,
                 *signal_period,
@@ -122,14 +122,14 @@ impl IndicatorProvider {
             IndicatorType::MacdDivergence(fast_period, slow_period, signal_period) => self.macd(
                 now,
                 candles,
-                MACD_DIV_IND,
+                IND_MACD_DIV,
                 *fast_period,
                 *slow_period,
                 *signal_period,
             )?,
-            IndicatorType::Ema(period) => self.tac_indicator(candles, EMA_IND, *period)?,
-            IndicatorType::Sma(period) => self.tac_indicator(candles, SMA_IND, *period)?,
-            IndicatorType::Rsi(period) => self.tac_indicator(candles, RSI_IND, *period)?,
+            IndicatorType::Ema(period) => self.tac_indicator(candles, IND_EMA, *period)?,
+            IndicatorType::Sma(period) => self.tac_indicator(candles, IND_SMA, *period)?,
+            IndicatorType::Rsi(period) => self.tac_indicator(candles, IND_RSI, *period)?,
             //IndicatorType::TopBottom(period) => self.tac_indicator(candles, TOP_BOTTOM_IND, *period)?,
         };
         Ok(ind)

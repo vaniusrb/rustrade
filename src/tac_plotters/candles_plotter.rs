@@ -1,4 +1,4 @@
-use super::indicator_plotter::PlotterIndicatorContext;
+use crate::tac_plotters::plotter_indicator_context::PlotterIndicatorContext;
 use crate::{config::selection::Selection, model::candle::Candle};
 use chrono::{DateTime, Utc};
 use plotters::{coord::types::RangedCoordf32, prelude::*};

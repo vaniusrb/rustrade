@@ -11,6 +11,5 @@ pub trait TechnicalDefinition {
 pub trait TechnicalIndicators {
     fn indicators(&self) -> &HashMap<String, Indicator>;
     fn main_indicator(&self) -> &Indicator;
-    // fn clone(&self) -> Self;
-    // fn clone_from(&mut self, source: &Self);
+    fn name(&self) -> String;
 }

@@ -207,7 +207,7 @@ impl CandlesProvider for CandlesProviderBuffer {
     fn clone_provider(&self) -> Box<dyn CandlesProvider> {
         let candles_provider = Self {
             candles_provider_singleton: self.candles_provider_singleton.clone(),
-            candles_selection_opt: self.candles_selection_opt.clone(),
+            candles_selection_opt: self.candles_selection_opt,
         };
         Box::new(candles_provider)
     }
@@ -230,7 +230,7 @@ impl<'a> CandlesProviderSelection {
     }
 
     pub fn candles_selection(&self) -> CandlesSelection {
-        self.candles_selection.clone()
+        self.candles_selection
     }
 }
 
@@ -238,7 +238,7 @@ impl<'a> CandlesProvider for CandlesProviderSelection {
     fn candles(&mut self) -> eyre::Result<Vec<Candle>> {
         // TODO HERE SHOULD FILTER
         self.candles_provider
-            .set_candles_selection(self.candles_selection.clone());
+            .set_candles_selection(self.candles_selection);
         self.candles_provider.candles()
     }
 

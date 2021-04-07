@@ -13,7 +13,7 @@ use crate::service::strategy::trader_factory::TraderFactory;
 use crate::service::strategy::trader_register::TraderRegister;
 use crate::service::strategy::trend::callback_trend_provider::CallBackTrendProvider;
 use crate::service::strategy::trend::trend_provider::TrendProvider;
-use crate::tac_plotters::indicator_plotter::PlotterIndicatorContext;
+use crate::tac_plotters::plotter_indicator_context::PlotterIndicatorContext;
 use crate::tac_plotters::trading_plotter::TradingPlotter;
 use crate::{app::Application, model::price::Price};
 use crate::{model::quantity, service::strategy::trader_register::TradeOperation};
