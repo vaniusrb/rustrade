@@ -1,8 +1,10 @@
 use super::candles_provider::CandlesProvider;
+use crate::service::technicals::macd_tac::MacdTac;
+use crate::service::technicals::rsi_tac::RsiTac;
 use crate::service::technicals::technical::TechnicalIndicators;
 use crate::service::technicals::top_bottom_tac::TopBottomTac;
+use crate::tac_plotters::rsi_plotter::RsiPlotter;
 use crate::EmaTac;
-use crate::MacdTac;
 use crate::{
     config::selection::Selection,
     tac_plotters::{
@@ -62,8 +64,10 @@ impl<'a> PlotterSelection<'a> {
             self.selection.image_name.green()
         );
 
+        // TODO must obey the Selection.tacs
         // Default technicals
         let macd_tac = MacdTac::new(&candles, 34, 72, 17);
+        let rsi_tac = RsiTac::new(&candles, 14);
         let ema_short_tac = EmaTac::new(&candles, 17);
         let ema_long_tac = EmaTac::new(&candles, 72);
         let mut top_bottom_tac = TopBottomTac::new(candles_provider_clone, 7);
@@ -96,6 +100,9 @@ impl<'a> PlotterSelection<'a> {
         // Lower indicators plotters
         let macd_plotter = MacdPlotter::new(&macd_tac);
         plotter.add_plotter_ind(&macd_plotter);
+
+        let rsi_plotter = RsiPlotter::new(&rsi_tac);
+        plotter.add_plotter_ind(&rsi_plotter);
 
         let start = Instant::now();
 

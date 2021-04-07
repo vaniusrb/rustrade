@@ -18,12 +18,15 @@ use crate::repository::repository_symbol::RepositorySymbol;
 use crate::service::checker::Checker;
 use crate::service::streamer::Streamer;
 use crate::service::technicals::ema_tac::EmaTac;
-use crate::service::technicals::macd::macd_tac::MacdTac;
+use crate::service::technicals::macd_tac::MacdTac;
 use candles_utils::str_to_datetime;
 use config::{candles_selection::CandlesSelection, selection::Selection};
 use eyre::Result;
 use log::{info, Level, LevelFilter};
-use service::{exchange::Exchange, technicals::technical::TechnicalDefinition};
+use service::{
+    exchange::Exchange,
+    technicals::{rsi_tac::RsiTac, technical::TechnicalDefinition},
+};
 use sqlx::PgPool;
 #[cfg(debug_assertions)]
 use std::env;
@@ -84,9 +87,13 @@ struct Args {
     command: Command,
 }
 
-pub fn selection_factory(candles_selection: CandlesSelection) -> Selection {
+pub fn selection_default(candles_selection: CandlesSelection) -> Selection {
     let mut tacs = HashMap::new();
-    for tac in vec![MacdTac::definition(), EmaTac::definition()] {
+    for tac in vec![
+        RsiTac::definition(),
+        MacdTac::definition(),
+        EmaTac::definition(),
+    ] {
         tacs.insert(tac.name.clone(), tac);
     }
     Selection {
@@ -119,7 +126,7 @@ fn create_app(
     repository_symbol: RepositorySymbol,
     candles_selection: CandlesSelection,
 ) -> Result<Application> {
-    let selection = selection_factory(candles_selection);
+    let selection = selection_default(candles_selection);
     Ok(Application::new(
         create_repo_candle(pool),
         create_exchange(repository_symbol)?,

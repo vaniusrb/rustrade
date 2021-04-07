@@ -36,7 +36,7 @@ impl Candle {
             id,
             open_time: str_to_datetime(open_time),
             close_time: str_to_datetime(close_time),
-            symbol, // #### symbol_from_string
+            symbol,
             minutes,
             open,
             high,
