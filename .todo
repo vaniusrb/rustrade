@@ -75,7 +75,7 @@ Low priority
     https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md
     GET /api/v3/historicalTrades
     I think candles are ok
-☐ Use close time or open time ? ema / mcad must use same
+☐ Use close time or open time ? ema / macd must use same
     I think should use the close because last candle update close (to confirm...)
 ☐ Create docker compose
 ☐ Gui interface

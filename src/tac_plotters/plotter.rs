@@ -50,23 +50,11 @@ impl<'a> Plotter<'a> {
 
         let (upper, lower) = {
             let root = BitMapBackend::new(&image_path, (1920, 1080)).into_drawing_area();
-            root.split_vertically((80).percent())
+            root.split_vertically((70).percent())
         };
-
-        // 100
-        //    33% <=
-        //    33%
-        //    33%
 
         let mut area_to_split = lower;
         let mut plot_to_divid = self.plotters_ind_lower.len();
-
-        // for _ in self.plotters_ind_lower.iter() {
-        //     let perc_low_plot = 100 / plot_to_divid as i32;
-        //     let (l1, l2) = { area_to_split.split_vertically((perc_low_plot).percent()) };
-        //     plot_to_divid -= 1;
-        //     area_to_split = l2;
-        // }
 
         let plotter_areas = self
             .plotters_ind_lower
@@ -79,8 +67,6 @@ impl<'a> Plotter<'a> {
                 (p, l1)
             })
             .collect::<Vec<_>>();
-
-        //self.plotters_ind_lower.iter().map( |p| (p, root.split_vertically((80).percent() )
 
         let bg_color = ThemePlotter::back_ground();
         upper.fill(&bg_color)?;

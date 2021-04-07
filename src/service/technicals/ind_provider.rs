@@ -47,6 +47,7 @@ impl IndicatorProvider {
             .entry((ind_name.to_string(), period))
             .or_insert_with(|| {
                 let result: eyre::Result<Box<dyn TechnicalIndicators + Send + Sync>> =
+                    // TODO here should use enum instead constant
                     match ind_name {
                         EMA_IND => Ok(Box::new(EmaTac::new(candles, period))
                             as Box<dyn TechnicalIndicators + Send + Sync>), // <= cast box<struct> as box<trait>

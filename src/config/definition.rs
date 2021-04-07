@@ -19,11 +19,11 @@ impl TacDefinition {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ConfigDefinition {
-    tacs: Vec<TacDefinition>, //[{name: macd, indicators: [ "signal", "diff" ] }]
-    minutes: Vec<u32>,        //[1,5,15],
-    symbol: Vec<String>,      //["BTCUSDT", "IOTUSDT"],
-    period_start: String,     //"2020-10-01",//"2020-10",
-    period_end: String,       // "2020-11-01",
+    tacs: Vec<TacDefinition>,
+    minutes: Vec<u32>,
+    symbol: Vec<String>,
+    period_start: String,
+    period_end: String,
 }
 
 impl ConfigDefinition {
