@@ -33,6 +33,7 @@ impl EngineSingleton {
         // Create engine script and register functions
         let mut engine = Engine::new();
         // Current context
+        engine.register_fn("rsi", rsi);
         engine.register_fn("price", price);
         engine.register_fn("ema", ema);
         engine.register_fn("sma", sma);

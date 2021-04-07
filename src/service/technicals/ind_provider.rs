@@ -1,7 +1,8 @@
 use super::{
     ema_tac::{EmaTac, EMA_IND},
     ind_type::IndicatorType,
-    macd::macd_tac::{MacdTac, MACD_DIV_IND, MACD_IND, MACD_SIG_IND},
+    macd_tac::{MacdTac, MACD_DIV_IND, MACD_IND, MACD_SIG_IND},
+    rsi_tac::{RsiTac, RSI_IND},
     sma_tac::{SmaTac, SMA_IND},
     technical::TechnicalIndicators,
 };
@@ -46,10 +47,13 @@ impl IndicatorProvider {
             .entry((ind_name.to_string(), period))
             .or_insert_with(|| {
                 let result: eyre::Result<Box<dyn TechnicalIndicators + Send + Sync>> =
+                    // TODO here should use enum instead constant
                     match ind_name {
                         EMA_IND => Ok(Box::new(EmaTac::new(candles, period))
                             as Box<dyn TechnicalIndicators + Send + Sync>), // <= cast box<struct> as box<trait>
                         SMA_IND => Ok(Box::new(SmaTac::new(candles, period))
+                            as Box<dyn TechnicalIndicators + Send + Sync>),
+                        RSI_IND => Ok(Box::new(RsiTac::new(candles, period))
                             as Box<dyn TechnicalIndicators + Send + Sync>),
                         other => Err(eyre!("Not found indicator {}!", other)),
                     };
@@ -125,6 +129,7 @@ impl IndicatorProvider {
             )?,
             IndicatorType::Ema(period) => self.tac_indicator(candles, EMA_IND, *period)?,
             IndicatorType::Sma(period) => self.tac_indicator(candles, SMA_IND, *period)?,
+            IndicatorType::Rsi(period) => self.tac_indicator(candles, RSI_IND, *period)?,
             //IndicatorType::TopBottom(period) => self.tac_indicator(candles, TOP_BOTTOM_IND, *period)?,
         };
         Ok(ind)

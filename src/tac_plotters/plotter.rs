@@ -11,31 +11,25 @@ use std::{path::Path, time::Instant};
 
 pub struct Plotter<'a> {
     selection: Selection,
-    plotters_ind: Vec<&'a dyn IndicatorPlotter>,
+    plotters_ind_lower: Vec<&'a dyn IndicatorPlotter>,
     plotters_ind_upper: Vec<&'a dyn PlotterIndicatorContext>,
-    _plotters_ind_lower: Vec<&'a dyn PlotterIndicatorContext>,
 }
 
 impl<'a> Plotter<'a> {
     pub fn new(selection: Selection) -> Self {
         Plotter {
             selection,
-            plotters_ind: vec![],
+            plotters_ind_lower: vec![],
             plotters_ind_upper: vec![],
-            _plotters_ind_lower: vec![],
         }
     }
 
     pub fn add_plotter_ind(&mut self, plotter_ind: &'a dyn IndicatorPlotter) {
-        self.plotters_ind.push(plotter_ind);
+        self.plotters_ind_lower.push(plotter_ind);
     }
 
     pub fn add_plotter_upper_ind(&mut self, plotter_ind: &'a dyn PlotterIndicatorContext) {
         self.plotters_ind_upper.push(plotter_ind);
-    }
-
-    pub fn _add_plotter_lower_ind(&mut self, plotter_ind: &'a dyn PlotterIndicatorContext) {
-        self._plotters_ind_lower.push(plotter_ind);
     }
 
     pub fn plot<P: AsRef<Path>>(&self, image_path: P) -> eyre::Result<()> {
@@ -56,8 +50,23 @@ impl<'a> Plotter<'a> {
 
         let (upper, lower) = {
             let root = BitMapBackend::new(&image_path, (1920, 1080)).into_drawing_area();
-            root.split_vertically((80).percent())
+            root.split_vertically((70).percent())
         };
+
+        let mut area_to_split = lower;
+        let mut plot_to_divid = self.plotters_ind_lower.len();
+
+        let plotter_areas = self
+            .plotters_ind_lower
+            .iter()
+            .map(|p| {
+                let perc_low_plot = 100 / plot_to_divid as i32;
+                let (l1, l2) = { area_to_split.split_vertically((perc_low_plot).percent()) };
+                plot_to_divid -= 1;
+                area_to_split = l2;
+                (p, l1)
+            })
+            .collect::<Vec<_>>();
 
         let bg_color = ThemePlotter::back_ground();
         upper.fill(&bg_color)?;
@@ -83,15 +92,10 @@ impl<'a> Plotter<'a> {
             plotter_upper_ind.plot(&self.selection, &mut chart_context_upper)?;
         }
 
-        lower.fill(&bg_color)?;
-
-        for plotter_ind in self.plotters_ind.iter() {
-            plotter_ind.plot(&self.selection, &upper, &lower)?;
+        for (ind_plot, lower_area) in plotter_areas.iter() {
+            lower_area.fill(&bg_color)?;
+            ind_plot.plot(&self.selection, &upper, &lower_area)?;
         }
-
-        // for plotters_ind_upper_ind in self.plotters_ind_lower.iter() {
-        //     plotters_ind_upper_ind.plot(&mut chart_context_lower)?;
-        // }
 
         info!("{}", iformat!("*** Plotting elapsed: {start.elapsed():?}"));
         Ok(())

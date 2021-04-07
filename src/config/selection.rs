@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Selection {
-    pub tacs: HashMap<String, TacDefinition>, //[{name: macd, indicators: [ "signal", "diff" ] }]
+    pub tacs: HashMap<String, TacDefinition>,
     pub candles_selection: CandlesSelection,
     pub image_name: String,
 }
