@@ -15,8 +15,8 @@ impl<'a> RsiPlotter<'a> {
 }
 
 impl<'a> PlotterIndicatorArea for RsiPlotter<'a> {
-    fn technical_indicators(&self) -> Box<dyn TechnicalIndicators> {
-        Box::new(self.rsi_tac.clone()) as Box<dyn TechnicalIndicators>
+    fn technical_indicators(&self) -> &dyn TechnicalIndicators {
+        self.rsi_tac
     }
 
     fn indicator_color(&self, indicator: &Indicator) -> RGBColor {
