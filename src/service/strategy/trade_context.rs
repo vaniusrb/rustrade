@@ -7,9 +7,8 @@ use crate::service::{
 use crate::{config::candles_selection::CandlesSelection, model::candle::Candle};
 use crate::{model::price::Price, service::technicals::ind_type::IndicatorType};
 use chrono::{DateTime, Utc};
-use log::info;
 
-#[derive(Clone)]
+//#[derive(Clone)]
 pub struct TradeContext {
     symbol: i32,
     indicator_provider: IndicatorProvider,
@@ -17,7 +16,7 @@ pub struct TradeContext {
     candles_opt: Option<(DateTime<Utc>, i32, Vec<Candle>)>,
     now: Option<DateTime<Utc>>,
     price: Option<Price>,
-    trend_direction: Option<TrendDirection>,
+    current_trend_direction_opt: Option<TrendDirection>,
     trend_directions: Vec<TrendDirection>,
     changed_trend: Option<TrendDirection>,
 }
@@ -35,7 +34,7 @@ impl TradeContext {
             candles_opt: None,
             now: None,
             price: None,
-            trend_direction: None,
+            current_trend_direction_opt: None,
             trend_directions: Vec::new(),
             changed_trend: None,
         }
@@ -68,17 +67,18 @@ impl TradeContext {
     }
 
     pub fn set_trend_direction(&mut self, trend_direction: TrendDirection) {
-        if self.trend_direction.is_none() {
-            self.trend_direction = Some(trend_direction.clone());
+        if self.current_trend_direction_opt.is_none() {
+            self.current_trend_direction_opt = Some(trend_direction.clone());
         }
         self.trend_directions.push(trend_direction);
         if self.trend_directions.len() > 3 {
             self.trend_directions.remove(0);
         }
         if let Some(normalized_trend) = self.normalized_trend() {
-            if &normalized_trend != self.trend_direction.as_ref().unwrap() {
+            let current_trend_direction = self.current_trend_direction_opt.as_ref().unwrap();
+            if &normalized_trend != current_trend_direction {
                 self.changed_trend = Some(normalized_trend.clone());
-                self.trend_direction = Some(normalized_trend);
+                self.current_trend_direction_opt = Some(normalized_trend);
             }
         }
     }

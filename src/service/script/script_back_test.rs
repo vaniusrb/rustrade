@@ -19,6 +19,7 @@ use crate::tac_plotters::plotter_indicator_context::PlotterIndicatorContext;
 use crate::tac_plotters::trading_plotter::TradingPlotter;
 use crate::{app::Application, model::price::Price};
 use crate::{model::quantity, service::strategy::trader_register::TradeOperation};
+use colored::Colorize;
 use eyre::eyre;
 use ifmt::iformat;
 use log::info;
@@ -26,13 +27,12 @@ use quantity::Quantity;
 use rust_decimal::{prelude::FromPrimitive, Decimal};
 use rust_decimal_macros::dec;
 use sqlx::PgPool;
+use std::cmp::Ordering;
 use std::{
     path::Path,
     sync::{Arc, RwLock},
     time::Instant,
 };
-
-const FN_BUY: &str = "buy";
 
 fn path_to_description<P: AsRef<Path>>(path: P) -> String {
     let script_file_path = path.as_ref();
@@ -65,6 +65,7 @@ pub fn run_script<P: AsRef<Path>>(
     let callback_trend_provider =
         CallBackTrendProvider::from(|position_register, trade_context_provider| {
             let changed_trend = trade_context_provider.changed_trend();
+            let date_time = trade_context_provider.now();
 
             // Set current static trade_context_provider and position
             ContextSingleton::set_current(trade_context_provider);
@@ -78,12 +79,11 @@ pub fn run_script<P: AsRef<Path>>(
             let trend: i64 = engine
                 .call_fn(&mut scope.clone(), &ast, "trend", ())
                 .unwrap();
-            let trend_direction = if trend > 0 {
-                TrendDirection::Buy
-            } else if trend < 0 {
-                TrendDirection::Sell
-            } else {
-                TrendDirection::None
+
+            let trend_direction = match trend.cmp(&0) {
+                Ordering::Greater => TrendDirection::Buy,
+                Ordering::Less => TrendDirection::Sell,
+                Ordering::Equal => TrendDirection::None,
             };
 
             // Retrieving quantity to buy or sell
@@ -93,24 +93,21 @@ pub fn run_script<P: AsRef<Path>>(
                     TrendDirection::Sell => -1,
                     TrendDirection::None => 0,
                 };
+                // info!(
+                //     "{} {} {:?}",
+                //     date_time,
+                //     "change_trend app".purple(),
+                //     trend_direction
+                // );
                 engine
                     .call_fn(&mut scope.clone(), &ast, "change_trend", (trend as i64,))
                     .unwrap()
             } else {
+                // info!("{} {}", date_time, "run app".bright_magenta());
                 engine.call_fn(&mut scope.clone(), &ast, "run", ()).unwrap()
             };
 
-            let operation_opt = if quantity > 0. {
-                Some(Operation::Buy(Quantity(
-                    Decimal::from_f64(quantity).unwrap(),
-                )))
-            } else if quantity < 0. {
-                Some(Operation::Sell(Quantity(
-                    Decimal::from_f64(quantity * -1.).unwrap(),
-                )))
-            } else {
-                None
-            };
+            let operation_opt = quantity_to_operation_opt(quantity);
 
             Ok(RunningScriptState {
                 trend_direction,
@@ -186,6 +183,20 @@ pub fn run_script<P: AsRef<Path>>(
     }
 
     Ok(trades)
+}
+
+fn quantity_to_operation_opt(quantity: f64) -> Option<Operation> {
+    if quantity > 0. {
+        Some(Operation::Buy(Quantity(
+            Decimal::from_f64(quantity).unwrap(),
+        )))
+    } else if quantity < 0. {
+        Some(Operation::Sell(Quantity(
+            Decimal::from_f64(quantity * -1.).unwrap(),
+        )))
+    } else {
+        None
+    }
 }
 
 #[cfg(test)]
