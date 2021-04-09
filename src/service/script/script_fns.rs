@@ -1,5 +1,7 @@
 use super::{singleton_context::ContextSingleton, singleton_position::PositionRegisterSingleton};
-use crate::service::technicals::ind_type::IndicatorType;
+use crate::service::{strategy::flow_register::percent, technicals::ind_type::IndicatorType};
+use colored::Colorize;
+use log::info;
 use rust_decimal::{
     prelude::{FromPrimitive, ToPrimitive},
     Decimal,
@@ -16,11 +18,18 @@ pub fn price() -> f64 {
 }
 
 pub fn gain_perc() -> f64 {
-    0.0
+    if !is_bought() {
+        return 0.;
+    }
+    let singleton = PositionRegisterSingleton::current();
+    let position_register = singleton.position_opt.as_ref().unwrap();
+    let old = position_register.position.real_balance_fiat_r();
+    let new = price_dec() * position_register.position.balance_asset_r();
+    percent(&new, &old).to_f64().unwrap()
 }
 
-pub fn loss_perc() -> f64 {
-    0.0
+pub fn log(text: String) {
+    info!("{}", text.blue());
 }
 
 pub fn macd(min: i64, a: i64, b: i64, c: i64) -> f64 {

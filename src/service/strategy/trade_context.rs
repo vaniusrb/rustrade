@@ -77,7 +77,6 @@ impl TradeContext {
         }
         if let Some(normalized_trend) = self.normalized_trend() {
             if &normalized_trend != self.trend_direction.as_ref().unwrap() {
-                info!("******** change_trend!");
                 self.changed_trend = Some(normalized_trend.clone());
                 self.trend_direction = Some(normalized_trend);
             }

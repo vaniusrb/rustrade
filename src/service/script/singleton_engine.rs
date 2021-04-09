@@ -54,6 +54,9 @@ impl EngineSingleton {
         engine.register_fn("sell", sell);
         engine.register_fn("buy", buy);
 
+        // Debugging
+        engine.register_fn("log", log);
+
         // Load script file and compile AST
         let script_content = fs::read_to_string(script_file)?;
         let ast = engine.compile(&script_content)?;
