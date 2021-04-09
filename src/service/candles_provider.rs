@@ -65,7 +65,7 @@ impl CandlesProviderBufferSingleton {
                 "Retrieving candles buffer {:?} {:?}...",
                 start_time, end_time
             );
-            let mut candles_buf = self.buffer.entry(symbol_minutes.clone()).or_default();
+            let mut candles_buf = self.buffer.entry(symbol_minutes).or_default();
             debug!("Candles buffer count: {}", candles_buf.len());
 
             debug!("Retrieving ranges missing from buffer...");

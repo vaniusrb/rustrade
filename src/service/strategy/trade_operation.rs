@@ -40,10 +40,14 @@ impl<'a> Trader {
 
         let position = self.trader_register.position_register();
 
-        let operation_opt = self
+        let running_script_state = self
             .trend_provider
             .trend(position, &self.trade_context_provider)?;
-        let operation = match operation_opt {
+
+        self.trade_context_provider
+            .set_trend_direction(running_script_state.trend_direction);
+
+        let operation = match running_script_state.operation_opt {
             Some(operation) => operation,
             None => return Ok(()),
         };

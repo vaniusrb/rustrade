@@ -9,9 +9,11 @@ use crate::service::script::singleton_context::ContextSingleton;
 use crate::service::script::singleton_engine::EngineSingleton;
 use crate::service::script::singleton_position::PositionRegisterSingleton;
 use crate::service::strategy::flow_register::FlowRegister;
+use crate::service::strategy::running_script_state::RunningScriptState;
 use crate::service::strategy::trader_factory::TraderFactory;
 use crate::service::strategy::trader_register::TraderRegister;
 use crate::service::strategy::trend::callback_trend_provider::CallBackTrendProvider;
+use crate::service::strategy::trend::trend_direction::TrendDirection;
 use crate::service::strategy::trend::trend_provider::TrendProvider;
 use crate::tac_plotters::plotter_indicator_context::PlotterIndicatorContext;
 use crate::tac_plotters::trading_plotter::TradingPlotter;
@@ -62,6 +64,8 @@ pub fn run_script<P: AsRef<Path>>(
     // Create trend provider with call back
     let callback_trend_provider =
         CallBackTrendProvider::from(|position_register, trade_context_provider| {
+            let changed_trend = trade_context_provider.changed_trend();
+
             // Set current static trade_context_provider and position
             ContextSingleton::set_current(trade_context_provider);
             PositionRegisterSingleton::set_current(position_register);
@@ -69,12 +73,34 @@ pub fn run_script<P: AsRef<Path>>(
             // Get engine to run script
             let engine_arc = EngineSingleton::current();
             let (engine, scope, ast) = &engine_arc.engine_scope.as_ref().unwrap();
-            // Run script
-            let quantity: f64 = engine
-                .call_fn(&mut scope.clone(), &ast, FN_BUY, ())
+
+            // Retrieving trend direction
+            let trend: i64 = engine
+                .call_fn(&mut scope.clone(), &ast, "trend", ())
                 .unwrap();
-            // Check if have to do nothing, buy or sell asset
-            let result = if quantity > 0. {
+            let trend_direction = if trend > 0 {
+                TrendDirection::Buy
+            } else if trend < 0 {
+                TrendDirection::Sell
+            } else {
+                TrendDirection::None
+            };
+
+            // Retrieving quantity to buy or sell
+            let quantity: f64 = if let Some(trend_direction) = changed_trend {
+                let trend = match trend_direction {
+                    TrendDirection::Buy => 1,
+                    TrendDirection::Sell => -1,
+                    TrendDirection::None => 0,
+                };
+                engine
+                    .call_fn(&mut scope.clone(), &ast, "change_trend", (trend as i64,))
+                    .unwrap()
+            } else {
+                engine.call_fn(&mut scope.clone(), &ast, "run", ()).unwrap()
+            };
+
+            let operation_opt = if quantity > 0. {
                 Some(Operation::Buy(Quantity(
                     Decimal::from_f64(quantity).unwrap(),
                 )))
@@ -85,7 +111,11 @@ pub fn run_script<P: AsRef<Path>>(
             } else {
                 None
             };
-            Ok(result)
+
+            Ok(RunningScriptState {
+                trend_direction,
+                operation_opt,
+            })
         });
 
     let flow_repository = RepositoryFlow::new(pool.clone());

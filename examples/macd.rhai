@@ -1,17 +1,32 @@
-fn buy() {
-    let result = 0.0;
-    if rsi(15, 14) < 30 && macd(/*min*/ 15, 34, 72, 17) > macd_signal(/*min*/ 15, 34, 72, 17) {
-        // If I should buy
-        if is_sold() {
-            let fiat = balance_fiat();
-            result = fiat_to_asset(fiat);
-        }
+fn trend() {
+    if rsi(15, 14) < 30 && macd(15, 34, 72, 17) > macd_signal(15, 34, 72, 17) {
+        return 1;
     };
-    if rsi(15, 14) > 70 && macd(/*min*/ 15, 34, 72, 17) <= macd_signal(/*min*/ 15, 34, 72, 17) {
-        // If I should sell
-        if is_bought() {
-            result = balance_asset() * -1;
-        }
+    if rsi(15, 14) > 70 && macd(15, 34, 72, 17) <= macd_signal(15, 34, 72, 17) {
+        return -1;
     };
-    result
+    0
 }
+
+fn run() {
+    // if gain_perc() > 5 {
+    //     return balance_asset();
+    // };
+    // if gain_perc() < 5 {
+    //     return balance_asset();
+    // };
+    0.0
+}
+
+fn change_trend(t) {
+    if t > 0 && is_sold() {
+        let fiat = balance_fiat();
+        let asset = fiat_to_asset(fiat);
+        return asset;
+    };
+    if t < 0 && is_bought() {
+        return balance_asset() * -1;
+    };
+    0.0
+}
+

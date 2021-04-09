@@ -84,7 +84,7 @@ impl<'a> Streamer<'a> {
                     info!("Getting candles...");
                     self.app
                         .candles_provider
-                        .set_candles_selection(self.app.selection.candles_selection.clone());
+                        .set_candles_selection(self.app.selection.candles_selection);
                     let _candles = self.app.candles_provider.candles()?;
                     info!("Candles got");
                     continue;

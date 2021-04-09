@@ -1,4 +1,4 @@
-use super::trade_context::TradeContext;
+use super::{trade_context::TradeContext, trend::trend_direction::TrendDirection};
 use crate::service::candles_provider::CandlesProviderBuffer;
 use crate::service::technicals::ind_type::IndicatorType;
 use crate::service::technicals::indicator::Indicator;
@@ -37,6 +37,18 @@ impl TradeContextProvider {
 
     pub fn set_now(&self, now: DateTime<Utc>) {
         self.trade_context.lock().unwrap().get_mut().set_now(now);
+    }
+
+    pub fn changed_trend(&self) -> Option<TrendDirection> {
+        self.trade_context.lock().unwrap().get_mut().changed_trend()
+    }
+
+    pub fn set_trend_direction(&self, trend_direction: TrendDirection) {
+        self.trade_context
+            .lock()
+            .unwrap()
+            .get_mut()
+            .set_trend_direction(trend_direction);
     }
 
     pub fn set_price(&self, price: Price) {

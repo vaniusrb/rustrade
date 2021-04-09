@@ -28,7 +28,7 @@ impl TraderFactory {
         trader_register: TraderRegister,
     ) -> Trader {
         let mut candles_provider = self.candles_provider.clone();
-        candles_provider.set_candles_selection(self.candles_selection.clone());
+        candles_provider.set_candles_selection(self.candles_selection);
         let indicator_provider = IndicatorProvider::new();
 
         Trader::new(

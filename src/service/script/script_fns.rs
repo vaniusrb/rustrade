@@ -15,12 +15,12 @@ pub fn price() -> f64 {
     price_dec().to_f64().unwrap()
 }
 
-fn gain_perc() -> u32 {
-    todo!()
+pub fn gain_perc() -> f64 {
+    0.0
 }
 
-fn loss_perc() -> u32 {
-    todo!()
+pub fn loss_perc() -> f64 {
+    0.0
 }
 
 pub fn macd(min: i64, a: i64, b: i64, c: i64) -> f64 {
@@ -104,6 +104,10 @@ pub fn is_bought() -> bool {
 pub fn is_sold() -> bool {
     !is_bought()
 }
+
+pub fn buy(quantity: f64) {}
+
+pub fn sell(quantity: f64) {}
 
 pub fn balance_fiat() -> f64 {
     let singleton = PositionRegisterSingleton::current();
