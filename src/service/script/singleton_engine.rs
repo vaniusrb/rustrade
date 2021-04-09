@@ -48,6 +48,11 @@ impl EngineSingleton {
         engine.register_fn("balance_asset", balance_asset);
         engine.register_fn("is_bought", is_bought);
         engine.register_fn("is_sold", is_sold);
+        engine.register_fn("gain_perc", gain_perc);
+
+        // Operations
+        engine.register_fn("sell", sell);
+        engine.register_fn("buy", buy);
 
         // Load script file and compile AST
         let script_content = fs::read_to_string(script_file)?;

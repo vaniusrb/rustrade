@@ -1,3 +1,4 @@
+use super::trend::trend_direction::TrendDirection;
 use crate::service::candles_provider::{CandlesProvider, CandlesProviderSelection};
 use crate::service::technicals::indicator::Indicator;
 use crate::service::{
@@ -6,6 +7,7 @@ use crate::service::{
 use crate::{config::candles_selection::CandlesSelection, model::candle::Candle};
 use crate::{model::price::Price, service::technicals::ind_type::IndicatorType};
 use chrono::{DateTime, Utc};
+use log::info;
 
 #[derive(Clone)]
 pub struct TradeContext {
@@ -15,6 +17,9 @@ pub struct TradeContext {
     candles_opt: Option<(DateTime<Utc>, i32, Vec<Candle>)>,
     now: Option<DateTime<Utc>>,
     price: Option<Price>,
+    trend_direction: Option<TrendDirection>,
+    trend_directions: Vec<TrendDirection>,
+    changed_trend: Option<TrendDirection>,
 }
 
 impl TradeContext {
@@ -30,6 +35,9 @@ impl TradeContext {
             candles_opt: None,
             now: None,
             price: None,
+            trend_direction: None,
+            trend_directions: Vec::new(),
+            changed_trend: None,
         }
     }
 
@@ -41,12 +49,51 @@ impl TradeContext {
         self.price = Some(price);
     }
 
+    fn normalized_trend(&self) -> Option<TrendDirection> {
+        if self
+            .trend_directions
+            .iter()
+            .all(|t| t == &TrendDirection::Sell)
+        {
+            Some(TrendDirection::Sell)
+        } else if self
+            .trend_directions
+            .iter()
+            .all(|t| t == &TrendDirection::Buy)
+        {
+            Some(TrendDirection::Buy)
+        } else {
+            None
+        }
+    }
+
+    pub fn set_trend_direction(&mut self, trend_direction: TrendDirection) {
+        if self.trend_direction.is_none() {
+            self.trend_direction = Some(trend_direction.clone());
+        }
+        self.trend_directions.push(trend_direction);
+        if self.trend_directions.len() > 3 {
+            self.trend_directions.remove(0);
+        }
+        if let Some(normalized_trend) = self.normalized_trend() {
+            if &normalized_trend != self.trend_direction.as_ref().unwrap() {
+                info!("******** change_trend!");
+                self.changed_trend = Some(normalized_trend.clone());
+                self.trend_direction = Some(normalized_trend);
+            }
+        }
+    }
+
     pub fn now(&self) -> DateTime<Utc> {
         self.now.unwrap()
     }
 
     pub fn price(&self) -> Price {
         self.price.unwrap()
+    }
+
+    pub fn changed_trend(&mut self) -> Option<TrendDirection> {
+        self.changed_trend.take()
     }
 
     // TODO Should use max period from indicator

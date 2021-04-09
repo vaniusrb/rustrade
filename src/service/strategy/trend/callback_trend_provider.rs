@@ -2,7 +2,9 @@ use crate::{
     model::operation::Operation,
     service::{
         script::position_register::PositionRegister,
-        strategy::trade_context_provider::TradeContextProvider,
+        strategy::{
+            running_script_state::RunningScriptState, trade_context_provider::TradeContextProvider,
+        },
     },
 };
 
@@ -10,7 +12,7 @@ use super::trend_provider::TrendProvider;
 
 pub struct CallBackTrendProvider {
     call_back: Box<
-        dyn Fn(PositionRegister, TradeContextProvider) -> eyre::Result<Option<Operation>>
+        dyn Fn(PositionRegister, TradeContextProvider) -> eyre::Result<RunningScriptState>
             + Sync
             + Send
             + 'static,
@@ -19,7 +21,7 @@ pub struct CallBackTrendProvider {
 
 impl CallBackTrendProvider {
     pub fn from(
-        call_back: impl Fn(PositionRegister, TradeContextProvider) -> eyre::Result<Option<Operation>>
+        call_back: impl Fn(PositionRegister, TradeContextProvider) -> eyre::Result<RunningScriptState>
             + Sync
             + Send
             + 'static,
@@ -35,7 +37,8 @@ impl<'a> TrendProvider for CallBackTrendProvider {
         &mut self,
         position_register: &PositionRegister,
         trade_context_provider: &TradeContextProvider,
-    ) -> eyre::Result<Option<Operation>> {
+    ) -> eyre::Result<RunningScriptState> {
+        // TODO remove clone
         (self.call_back)(position_register.clone(), trade_context_provider.clone())
     }
 }

@@ -52,12 +52,12 @@ impl<'a> PlotterIndicatorContext for TradingPlotter<'a> {
         chart_context.draw_series(
             sell_iter
                 .iter()
-                .map(|point| TriangleMarker::new(*point, 10, &green)),
+                .map(|point| TriangleMarker::new(*point, 10, &red)),
         )?;
         chart_context.draw_series(
             buy_iter
                 .iter()
-                .map(|point| TriangleMarker::new(*point, 10, &red)),
+                .map(|point| TriangleMarker::new(*point, 10, &green)),
         )?;
 
         // let lows = PointSeries::of_element(

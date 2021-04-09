@@ -49,15 +49,26 @@
 High
 ☐ top bottom tac plotter does not implements TechnicalIndicators (see todo!)
 ☐ How allow gain to start/stop gain? Should have a "trend" function to trigger a "change direction"
+
+    // Must return only if is a thrend to sell -1, none 0 or buy +1
     trend() {
         return +1 or -1
     }
-    trigger_to_buy() { ?
 
+    // When detect invert trend to buy then this function is called
+    // Must return how much asset should to buy
+    trigger_buy() {
+        100
     }
-    trigger_to_sell() { ?
 
+    // When detect invert trend to sell then this function is called
+    // Must return how much asset should to sell
+    trigger_sell() {
+        100
     }
+
+
+
 
 ☐ All indiciators should have a parameter for "previous" nth candle
 ☐ How easy turn same previows candle
