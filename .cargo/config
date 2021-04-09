@@ -1,2 +1,3 @@
 [build]
 rustc-wrapper = "/home/vanius/.cargo/bin/sccache"
+target-cpu = "native"

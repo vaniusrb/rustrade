@@ -4,18 +4,17 @@ use crate::service::technicals::ind_type::IndicatorType;
 use crate::service::technicals::indicator::Indicator;
 use crate::{model::price::Price, service::technicals::ind_provider::IndicatorProvider};
 use chrono::{DateTime, Utc};
+use std::rc::Rc;
 use std::{cell::Cell, sync::Mutex};
 
 pub struct TradeContextProvider {
-    trade_context: Mutex<Cell<TradeContext>>,
+    trade_context: Rc<Mutex<Cell<TradeContext>>>,
 }
 
 impl Clone for TradeContextProvider {
     fn clone(&self) -> Self {
         Self {
-            trade_context: Mutex::new(Cell::new(
-                self.trade_context.lock().unwrap().get_mut().clone(),
-            )),
+            trade_context: self.trade_context.clone(),
         }
     }
 }
@@ -27,11 +26,11 @@ impl TradeContextProvider {
         candles_provider: CandlesProviderBuffer,
     ) -> Self {
         Self {
-            trade_context: Mutex::new(Cell::new(TradeContext::new(
+            trade_context: Rc::new(Mutex::new(Cell::new(TradeContext::new(
                 symbol,
                 indicator_provider,
                 candles_provider,
-            ))),
+            )))),
         }
     }
 

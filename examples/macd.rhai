@@ -11,6 +11,7 @@ fn trend() {
 }
 
 fn run() {
+    log("run");
     let g = gain_perc();
     if g > 2.0 {
         log("stop gain: " + g);
