@@ -21,8 +21,15 @@ const DEC_1: Decimal = dec!(1);
 const DEC_100: Decimal = dec!(100);
 
 #[inline]
-fn percent(new: &Decimal, old: &Decimal) -> Decimal {
+pub fn percent(new: &Decimal, old: &Decimal) -> Decimal {
     ((new / old - DEC_1) * DEC_100).round_dp_with_strategy(2, RoundingStrategy::RoundDown)
+}
+
+#[test]
+fn percent_test() {
+    assert_eq!(percent(&dec!(150), &dec!(100)), dec!(50));
+    assert_eq!(percent(&dec!(100), &dec!(100)), dec!(0));
+    assert_eq!(percent(&dec!(90), &dec!(100)), dec!(-10));
 }
 
 impl FlowRegister {
