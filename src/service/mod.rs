@@ -6,3 +6,4 @@ pub mod script;
 pub mod strategy;
 pub mod streamer;
 pub mod technicals;
+pub mod trade_history_provider;

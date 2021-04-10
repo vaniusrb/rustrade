@@ -14,15 +14,19 @@ impl RepositoryTradeHistory {
         Self { pool }
     }
 
-    pub fn last_trade_id(&self) -> i32 {
-        let future = sqlx::query_as("SELECT MAX(id) FROM trade").fetch_one(&self.pool);
-        let result: (Option<i32>,) = async_std::task::block_on(future).unwrap();
+    pub fn last_trade_id(&self) -> i64 {
+        let future = sqlx::query_as("SELECT MAX(id) FROM trade_history").fetch_one(&self.pool);
+        let result: (Option<i64>,) = async_std::task::block_on(future).unwrap();
         result.0.unwrap_or_default()
     }
 
-    pub fn read_by_id(&self, id: i32) -> eyre::Result<Option<TradeHistory>> {
-        let future = sqlx::query_as!(TradeHistory, "SELECT * FROM trade WHERE id = $1", id)
-            .fetch_optional(&self.pool);
+    pub fn read_by_id(&self, id: i64) -> eyre::Result<Option<TradeHistory>> {
+        let future = sqlx::query_as!(
+            TradeHistory,
+            "SELECT * FROM trade_history WHERE id = $1",
+            id
+        )
+        .fetch_optional(&self.pool);
         let result = async_std::task::block_on(future)?;
         Ok(result)
     }
@@ -64,9 +68,9 @@ impl RepositoryTradeHistory {
         Ok(())
     }
 
-    pub fn insert_trade(&self, trade: &TradeHistory) -> eyre::Result<i32> {
+    pub fn insert_trade(&self, trade: &TradeHistory) -> eyre::Result<i64> {
         let future = sqlx::query!(
-            "INSERT INTO trade ( \
+            "INSERT INTO trade_history ( \
                 id, \
                 symbol, \
                 quantity, \

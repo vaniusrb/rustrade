@@ -114,9 +114,9 @@ pub fn is_sold() -> bool {
     !is_bought()
 }
 
-pub fn buy(quantity: f64) {}
+pub fn buy(_quantity: f64) {}
 
-pub fn sell(quantity: f64) {}
+pub fn sell(_quantity: f64) {}
 
 pub fn balance_fiat() -> f64 {
     let singleton = PositionRegisterSingleton::current();

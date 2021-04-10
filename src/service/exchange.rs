@@ -1,5 +1,5 @@
 use crate::{
-    candles_utils::{datetime_to_timestamp, kline_to_candle},
+    candles_utils::{datetime_to_timestamp, fdec, kline_to_candle, timestamp_to_datetime},
     config::symbol_minutes::SymbolMinutes,
     model::{candle::Candle, trade_history::TradeHistory},
     repository::repository_symbol::RepositorySymbol,
@@ -34,39 +34,43 @@ impl Exchange {
     }
 
     // TODO historical trades
-    pub fn historical_trades(&self, symbol: i32, from_id: Option<u64>) -> eyre::Result<()> {
-        let symbol = self.repository_symbol.symbol_by_id(symbol).unwrap().symbol;
+    pub fn historical_trades(
+        &self,
+        symbol: i32,
+        from_id: Option<u64>,
+    ) -> eyre::Result<Vec<TradeHistory>> {
+        let symbol_s = self.repository_symbol.symbol_by_id(symbol).unwrap().symbol;
         let market = self.futures_market();
+        let mut trade_histories = Vec::new();
 
         // symbol	STRING	YES
         // limit	INT	NO	Default 500; max 1000.
         // fromId	LONG	NO	TradeId to fetch from. Default gets most recent trades.
 
-        match market.get_historical_trades(symbol, from_id, 1000) {
+        match market.get_historical_trades(symbol_s, from_id, 1000) {
             Ok(trades) => {
-                if let binance::futures::model::Trades::AllTrades(trades) = trades {
-                    for trade in trades.iter() {
-                        let trade_history = TradeHistory {
-                            id: trade.id,
-                            symbol,
-                            quantity: trade.qty,
-                            price: dec!(trade.price),
-                            time: timestamp_to_datetime(trade.time),
-                            is_buyer_maker: trade.is_buyer_maker,
-                        };
-                        // trade.is_buyer_maker
-                        // trade.qty
-                        // trade.time
-                        // trade.price
-                        // trade.id
+                match trades {
+                    binance::futures::model::Trades::AllTrades(trades) => {
+                        for trade in trades.iter() {
+                            let trade_history = TradeHistory {
+                                id: trade.id as i64,
+                                symbol,
+                                quantity: fdec(trade.qty),
+                                price: fdec(trade.price),
+                                time: timestamp_to_datetime(&trade.time),
+                                is_buyer_maker: trade.is_buyer_maker,
+                            };
+                            trade_histories.push(trade_history);
+                        }
                     }
-                }
+                };
             }
             Err(e) => {
-                bail!("{}", e)
+                bail!("{}", e);
             }
         };
-        Ok(())
+
+        Ok(trade_histories)
     }
 
     pub fn candles(

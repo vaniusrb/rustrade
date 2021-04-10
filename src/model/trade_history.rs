@@ -6,7 +6,7 @@ use std::fmt::Display;
 
 #[derive(sqlx::FromRow)]
 pub struct TradeHistory {
-    pub id: i32,
+    pub id: i64,
     pub symbol: i32,
     pub quantity: Decimal,
     pub price: Decimal,

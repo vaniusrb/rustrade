@@ -48,6 +48,10 @@
 ✔ How allow gain to start/stop gain? Should have a "trend" function to trigger a "change direction" @done(21-04-09 22:35)
 
 High
+☐ Download tickets/trade/bid
+    https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md
+    GET /api/v3/historicalTrades
+    I think candles are ok
 ☐ top bottom tac plotter does not implements TechnicalIndicators (see todo!)
 ☐ Do not allow buy or seel behind the max
 ☐ Plot text (information) of made trades bellow the triangles
@@ -56,6 +60,7 @@ High
 ☐ TrendProvider.trend() should be something like ".script_state()"
 
 Medium
+☐ Imperative order to buy() or sell()
 ☐ Is RefCell clone_provider effective? Check if is creating heavy structs. Add log
 ☐ Is indicators caching working? Add log
 ☐ Apply candles selection in all commands?
@@ -64,10 +69,6 @@ Medium
 ☐ Live download candle/tickets/trade
 ☐ Not working minutes 60 from Exchange, fn for h, m, d
 ☐ Parametrize output filename plot image
-☐ Download tickets/trade/bid
-    https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md
-    GET /api/v3/historicalTrades
-    I think candles are ok
 
 Low priority
 ☐ Create load command (load from database without read from expo) ?
