@@ -1,7 +1,7 @@
 use crate::{
     candles_utils::{datetime_to_timestamp, kline_to_candle},
     config::symbol_minutes::SymbolMinutes,
-    model::candle::Candle,
+    model::{candle::Candle, trade_history::TradeHistory},
     repository::repository_symbol::RepositorySymbol,
 };
 use binance::{api::Binance, futures::market::FuturesMarket};
@@ -46,6 +46,14 @@ impl Exchange {
             Ok(trades) => {
                 if let binance::futures::model::Trades::AllTrades(trades) = trades {
                     for trade in trades.iter() {
+                        let trade_history = TradeHistory {
+                            id: trade.id,
+                            symbol,
+                            quantity: trade.qty,
+                            price: dec!(trade.price),
+                            time: timestamp_to_datetime(trade.time),
+                            is_buyer_maker: trade.is_buyer_maker,
+                        };
                         // trade.is_buyer_maker
                         // trade.qty
                         // trade.time
@@ -82,7 +90,7 @@ impl Exchange {
 
     pub fn last_candle(&self, symbol_minutes: &SymbolMinutes) -> eyre::Result<Option<Candle>> {
         self.internal_candles(symbol_minutes, &None, &None, 1)
-            .map(|cs| cs.last().map(|c| c.clone()))
+            .map(|cs| cs.last().copied())
     }
 
     pub fn internal_candles(
