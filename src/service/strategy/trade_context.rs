@@ -8,7 +8,6 @@ use crate::{config::candles_selection::CandlesSelection, model::candle::Candle};
 use crate::{model::price::Price, service::technicals::ind_type::IndicatorType};
 use chrono::{DateTime, Utc};
 
-//#[derive(Clone)]
 pub struct TradeContext {
     symbol: i32,
     indicator_provider: IndicatorProvider,
