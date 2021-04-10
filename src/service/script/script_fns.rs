@@ -25,13 +25,11 @@ pub fn gain_perc() -> f64 {
     let position_register = singleton.position_opt.as_ref().unwrap();
     let old = position_register.position.real_balance_fiat_r();
     let new = price_dec() * position_register.position.balance_asset_r();
-    let gain = percent(&new, &old).to_f64().unwrap();
-    //    info!("gain = {}", gain.to_string().blue());
-    gain
+    percent(&new, &old).to_f64().unwrap()
 }
 
 pub fn log(text: String) {
-    info!("{} script", text.blue());
+    info!("{} {}", "[SCRIPT]".bright_yellow(), text.yellow());
 }
 
 pub fn macd(min: i64, a: i64, b: i64, c: i64) -> f64 {

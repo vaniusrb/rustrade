@@ -11,15 +11,14 @@ fn trend() {
 }
 
 fn run() {
-    log("run");
     let g = gain_perc();
     if g > 2.0 {
         log("stop gain: " + g);
-        return balance_asset();
+        return balance_asset() * -1;
     }
     if g < -3.0 {
         log("stop loss: " + g);
-        return balance_asset();
+        return balance_asset() * -1;
     }
     0.0
 }

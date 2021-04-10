@@ -12,7 +12,7 @@ CREATE TABLE flow
     total numeric(20,8) NOT NULL,
     real_balance_fiat_old numeric(20,8) NOT NULL,
     real_balance_fiat_new numeric(20,8) NOT NULL,
-    gain_perc numeric(5,2) NOT NULL,
+    gain_perc numeric(7,2) NOT NULL,
     CONSTRAINT flow_pkey PRIMARY KEY (id)
 )
 ;
