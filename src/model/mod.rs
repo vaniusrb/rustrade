@@ -7,4 +7,4 @@ pub mod price;
 pub mod quantity;
 pub mod side;
 pub mod symbol;
-pub mod trade_history;
+pub mod trade_agg;

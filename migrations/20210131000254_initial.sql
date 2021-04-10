@@ -25,15 +25,3 @@ CREATE TABLE candle
     CONSTRAINT start_time UNIQUE (symbol, minutes, open_time)
 )
 ;
-DROP TABLE IF EXISTS trade_history
-;
-CREATE TABLE trade_history
-(
-    id bigint NOT NULL,
-    symbol integer NOT NULL,
-    quantity numeric(20,8) NOT NULL,
-    price numeric(20,8) NOT NULL,
-    time timestamp with time zone NOT NULL,
-    is_buyer_maker boolean NOT NULL,
-    CONSTRAINT trade_history_pkey PRIMARY KEY (id)
-)

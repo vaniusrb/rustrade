@@ -37,35 +37,6 @@ use std::{
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
-#[structopt(about = "Commands")]
-enum Command {
-    /// Check content
-    Check {},
-    /// Synchronize
-    Sync {},
-    /// Fix records
-    Fix {},
-    /// Delete all candles'
-    DeleteAll,
-    /// List
-    List {},
-    /// Import from exchange
-    Import {},
-    /// Plot graph
-    Plot {},
-    /// Triangle
-    Triangle {},
-    /// Interactive stream
-    Stream {},
-    /// Run script trader bot back test
-    ScriptBackTest {
-        /// Rhai script file
-        #[structopt(short, long)]
-        file: String,
-    },
-}
-
-#[derive(Debug, StructOpt)]
 #[structopt(name = "rustrade", about = "A Rust Bot Trade")]
 struct Args {
     /// Enabled debug level
@@ -84,7 +55,42 @@ struct Args {
     #[structopt(short, long, default_value = "2020-12-01 00:00:00")]
     end_time: String,
     #[structopt(subcommand)]
-    command: Command,
+    command: Commands,
+}
+
+#[derive(Debug, StructOpt)]
+#[structopt(about = "Commands")]
+enum Commands {
+    /// Candle commands
+    Candle(Candle),
+    /// Plot graph
+    Plot {},
+    /// Triangle
+    Triangle {},
+    /// Interactive stream
+    Stream {},
+    /// Run script trader bot back test
+    ScriptBackTest {
+        /// Rhai script file
+        #[structopt(short, long)]
+        file: String,
+    },
+}
+
+#[derive(Debug, StructOpt)]
+#[structopt(about = "Commands")]
+enum Candle {
+    List {},
+    /// Fix records
+    Fix {},
+    /// Delete all candles'
+    DeleteAll,
+    /// Import from exchange
+    Import {},
+    /// Check content
+    Check {},
+    /// Synchronize
+    Sync {},
 }
 
 pub fn selection_default(candles_selection: CandlesSelection) -> Selection {
@@ -173,37 +179,40 @@ async fn main(args: Args) -> color_eyre::eyre::Result<()> {
     let mut app = create_app(pool.clone(), repository_symbol.clone(), candles_selection)?;
 
     match args.command {
-        Command::Check {} => {
-            let checker = create_checker(pool, repository_symbol, candles_selection)?;
-            checker.check_inconsist();
-        }
-        Command::Sync {} => {
-            let checker = create_checker(pool, repository_symbol, candles_selection)?;
-            checker.synchronize()?;
-        }
-        Command::Fix {} => {
-            let checker = create_checker(pool, repository_symbol, candles_selection)?;
-            checker.delete_inconsist();
-        }
-        Command::DeleteAll {} => {
-            let repo = create_repo_candle(pool);
-            repo.delete_all_candles()?;
-        }
-        Command::List {} => {
-            let repo = create_repo_candle(pool);
-            let symbol = repository_symbol.symbol_by_pair(&args.symbol).unwrap().id;
-            repo.list_candles(symbol, args.minutes as i32, 10);
-        }
-        Command::Plot {} => app.plot_selection()?,
-        Command::Stream {} => {
+        Commands::Candle(candle) => match candle {
+            Candle::List {} => {
+                let repo = create_repo_candle(pool);
+                let symbol = repository_symbol.symbol_by_pair(&args.symbol).unwrap().id;
+                repo.list_candles(symbol, args.minutes as i32, 10);
+            }
+            Candle::Fix {} => {
+                let checker = create_checker(pool, repository_symbol, candles_selection)?;
+                checker.delete_inconsist();
+            }
+            Candle::DeleteAll => {
+                let repo = create_repo_candle(pool);
+                repo.delete_all_candles()?;
+            }
+            Candle::Import {} => {}
+            Candle::Check {} => {
+                let checker = create_checker(pool, repository_symbol, candles_selection)?;
+                checker.check_inconsist();
+            }
+            Candle::Sync {} => {
+                let checker = create_checker(pool, repository_symbol, candles_selection)?;
+                checker.synchronize()?;
+            }
+        },
+
+        Commands::Plot {} => app.plot_selection()?,
+        Commands::Stream {} => {
             let mut streamer = Streamer::new(&mut app);
             streamer.run()?;
         }
-        Command::Import {} => {}
-        Command::Triangle {} => {
+        Commands::Triangle {} => {
             app.plot_triangles()?;
         }
-        Command::ScriptBackTest { file } => app.run_script_test(pool, &file)?,
+        Commands::ScriptBackTest { file } => app.run_script_test(pool, &file)?,
     };
     info!("Exiting program");
     Ok(())

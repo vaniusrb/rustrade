@@ -1,46 +1,38 @@
-use crate::model::trade_history::TradeHistory;
+use crate::model::trade_agg::TradeAgg;
 use colored::Colorize;
 use eyre::bail;
 use ifmt::iformat;
-use log::error;
+use log::{error, info};
 use sqlx::PgPool;
+use std::sync::{Arc, RwLock};
 
-struct RepositoryTradeHistory {
-    pool: PgPool,
+pub struct RepositoryTradeAgg {
+    pool: Arc<RwLock<PgPool>>,
 }
 
-impl RepositoryTradeHistory {
-    pub fn new(pool: PgPool) -> Self {
+impl RepositoryTradeAgg {
+    pub fn new(pool: Arc<RwLock<PgPool>>) -> Self {
         Self { pool }
     }
 
-    pub fn last_trade_id(&self) -> i64 {
-        let future = sqlx::query_as("SELECT MAX(id) FROM trade_history").fetch_one(&self.pool);
-        let result: (Option<i64>,) = async_std::task::block_on(future).unwrap();
-        result.0.unwrap_or_default()
+    pub fn last_trade_history_id(&self, symbol: i32) -> i64 {
+        let pool = self.pool.read().unwrap();
+        let future = sqlx::query_scalar!("SELECT MAX(id) FROM trade_agg WHERE symbol = $1", symbol)
+            .fetch_one(&*pool);
+        let result: Option<i64> = async_std::task::block_on(future).unwrap();
+        result.unwrap_or_default()
     }
 
-    pub fn read_by_id(&self, id: i64) -> eyre::Result<Option<TradeHistory>> {
-        let future = sqlx::query_as!(
-            TradeHistory,
-            "SELECT * FROM trade_history WHERE id = $1",
-            id
-        )
-        .fetch_optional(&self.pool);
+    pub fn read_by_id(&self, id: i64) -> eyre::Result<Option<TradeAgg>> {
+        let pool = self.pool.read().unwrap();
+        let future = sqlx::query_as!(TradeAgg, "SELECT * FROM trade_agg WHERE id = $1", id)
+            .fetch_optional(&*pool);
         let result = async_std::task::block_on(future)?;
         Ok(result)
     }
 
     /// Insert trades
-    pub fn insert_trades(&self, trades: &mut [TradeHistory]) -> eyre::Result<()> {
-        let mut trade_id = self.last_trade_id();
-        trades.iter_mut().for_each(|c| {
-            c.id = {
-                trade_id += 1;
-                trade_id
-            }
-        });
-
+    pub fn insert_trades(&self, trades: &[TradeAgg]) -> eyre::Result<()> {
         // Insert trade calling method insert_trade, that returns Result<id>
         // It's convenient collect the errors for raising the error bellow with details
         let trades_errors = trades
@@ -62,20 +54,22 @@ impl RepositoryTradeHistory {
             error!("{}", iformat!("First error: {context}"));
             error!("{}", iformat!("Details error: {context_details:?}"));
 
-            bail!("Trades insert error!");
+            bail!("Trades insert error! {}", context);
         }
 
         Ok(())
     }
 
-    pub fn insert_trade(&self, trade: &TradeHistory) -> eyre::Result<i64> {
+    pub fn insert_trade(&self, trade: &TradeAgg) -> eyre::Result<i64> {
+        info!("{}", format!("Inserindo trade {}", trade));
+        let pool = self.pool.read().unwrap();
         let future = sqlx::query!(
-            "INSERT INTO trade_history ( \
+            "INSERT INTO trade_agg ( \
                 id, \
                 symbol, \
                 quantity, \
                 time, \
-                is_buyer_maker ) \
+                price ) \
             VALUES ( $1, $2, $3, $4, $5 ) \
             RETURNING id \
             ",
@@ -83,9 +77,9 @@ impl RepositoryTradeHistory {
             trade.symbol,
             trade.quantity,
             trade.time,
-            trade.is_buyer_maker
+            trade.price,
         )
-        .fetch_one(&self.pool);
+        .fetch_one(&*pool);
         let rec = async_std::task::block_on(future)?;
         Ok(rec.id)
     }

@@ -2,27 +2,56 @@ pub struct TradeHistoryProvider {}
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+
     use crate::{
-        config::symbol_minutes::SymbolMinutes,
-        repository::{repository_candle::RepositoryCandle, repository_factory::create_pool},
+        model::trade_agg::TradeAgg,
+        repository::{
+            repository_factory::create_pool, repository_symbol::RepositorySymbol,
+            repository_trade_agg::RepositoryTradeAgg,
+        },
+        service::exchange::Exchange,
     };
     use chrono::{Duration, Utc};
+    use log::Level;
 
     #[test]
-    fn trade_history_test() {
+    fn trade_history_test() -> color_eyre::eyre::Result<()> {
+        color_eyre::install()?;
+        dotenv::dotenv().unwrap();
+
         let pool = create_pool(log::LevelFilter::Debug).unwrap();
-        let end_time = Utc::now();
-        let start_time = end_time - Duration::days(30);
-        let repo = RepositoryCandle::new(pool);
-        let symbol_minutes = SymbolMinutes::new(1, 15);
 
-        let candles = repo
-            .candles_by_time(&symbol_minutes, &start_time, &end_time)
-            .unwrap_or_default();
+        let repository_trade_history = RepositoryTradeAgg::new(pool.clone());
+        let symbol = 1;
 
-        let repository_symbol = RepositorySymbol::new(pool.clone());
+        let exchange: Exchange = Exchange::new(RepositorySymbol::new(pool), Level::Debug)?;
 
-        let exchange: Exchange = Exchange::new(repository_symbol, Level::Debug)?;
+        let id_last_trade = repository_trade_history.last_trade_history_id(symbol);
+
+        let now = Utc::now();
+        let start = now - Duration::hours(1);
+
+        let mut from_id = Option::<u64>::None;
+        loop {
+            let trade_histories = exchange.historical_trades(symbol, from_id)?;
+
+            let (to_discard, to_import): (_, Vec<TradeAgg>) = trade_histories
+                .iter()
+                .partition(|t| t.time <= start || t.id <= id_last_trade);
+
+            let to_import: Vec<TradeAgg> = to_import.iter().copied().collect();
+
+            repository_trade_history.insert_trades(&to_import)?;
+            if !to_discard.is_empty() {
+                break;
+            }
+            from_id = to_import
+                .iter()
+                .min_by(|t1, t2| t1.id.cmp(&t2.id))
+                .map(|t| t.id as u64)
+                .or(from_id);
+        }
+
+        Ok(())
     }
 }

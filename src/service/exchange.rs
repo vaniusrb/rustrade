@@ -1,16 +1,19 @@
 use crate::{
     candles_utils::{datetime_to_timestamp, fdec, kline_to_candle, timestamp_to_datetime},
     config::symbol_minutes::SymbolMinutes,
-    model::{candle::Candle, trade_history::TradeHistory},
+    model::{candle::Candle, trade_agg::TradeAgg},
     repository::repository_symbol::RepositorySymbol,
 };
-use binance::{api::Binance, futures::market::FuturesMarket};
+use binance::{
+    api::Binance,
+    futures::{market::FuturesMarket, model::AggTrades},
+};
 use chrono::{DateTime, Duration, Utc};
 use eyre::{bail, Result};
 use ifmt::iformat;
 use log::error;
 use log::{log, Level};
-use std::env;
+use std::{env, error::Error};
 
 pub struct Exchange {
     api_key: String,
@@ -38,7 +41,7 @@ impl Exchange {
         &self,
         symbol: i32,
         from_id: Option<u64>,
-    ) -> eyre::Result<Vec<TradeHistory>> {
+    ) -> eyre::Result<Vec<TradeAgg>> {
         let symbol_s = self.repository_symbol.symbol_by_id(symbol).unwrap().symbol;
         let market = self.futures_market();
         let mut trade_histories = Vec::new();
@@ -47,18 +50,27 @@ impl Exchange {
         // limit	INT	NO	Default 500; max 1000.
         // fromId	LONG	NO	TradeId to fetch from. Default gets most recent trades.
 
-        match market.get_historical_trades(symbol_s, from_id, 1000) {
+        // https://binance-docs.github.io/apidocs/spot/en/#old-trade-lookup
+        // Compressed/Aggregate Trades List
+        // GET /api/v3/aggTrades
+
+        // symbol	STRING	YES
+        // fromId	LONG	NO	id to get aggregate trades from INCLUSIVE.
+        // startTime	LONG	NO	Timestamp in ms to get aggregate trades from INCLUSIVE.
+        // endTime	LONG	NO	Timestamp in ms to get aggregate trades until INCLUSIVE.
+        // limit	INT	NO	Default 500; max 1000.
+
+        match market.get_agg_trades(symbol_s, from_id, None, None, 1000) {
             Ok(trades) => {
                 match trades {
-                    binance::futures::model::Trades::AllTrades(trades) => {
+                    AggTrades::AllAggTrades(trades) => {
                         for trade in trades.iter() {
-                            let trade_history = TradeHistory {
-                                id: trade.id as i64,
+                            let trade_history = TradeAgg {
+                                id: trade.last_id as i64,
                                 symbol,
                                 quantity: fdec(trade.qty),
                                 price: fdec(trade.price),
                                 time: timestamp_to_datetime(&trade.time),
-                                is_buyer_maker: trade.is_buyer_maker,
                             };
                             trade_histories.push(trade_history);
                         }
@@ -66,7 +78,7 @@ impl Exchange {
                 };
             }
             Err(e) => {
-                bail!("{}", e);
+                bail!("{}", e,);
             }
         };
 
