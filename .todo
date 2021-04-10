@@ -41,38 +41,19 @@
 ✔ testins is falling @done(21-04-03 17:38)
 ✔ Fix tons of warnings @done(21-04-03 17:38)
 ✔ Register positions and flow @done(21-04-05 15:59)
-✔ test is break @done(21-04-05 16:05)
+✔ test is breaking @done(21-04-05 16:05)
 ✔ Organize sources in modules @done(21-04-05 15:58)
 ✔ Add RSI tac @done(21-04-06 19:58)
 ✔ RSI plot @done(21-04-06 23:12)
+✔ How allow gain to start/stop gain? Should have a "trend" function to trigger a "change direction" @done(21-04-09 22:35)
 
 High
 ☐ top bottom tac plotter does not implements TechnicalIndicators (see todo!)
-☐ How allow gain to start/stop gain? Should have a "trend" function to trigger a "change direction"
 ☐ Do not allow buy or seel behind the max
-
-    // Must return only if is a thrend to sell -1, none 0 or buy +1
-    trend() {
-        return +1 or -1
-    }
-
-    // When detect invert trend to buy then this function is called
-    // Must return how much asset should to buy
-    trigger_buy() {
-        100
-    }
-
-    // When detect invert trend to sell then this function is called
-    // Must return how much asset should to sell
-    trigger_sell() {
-        100
-    }
-
-
-
-
+☐ Plot text (information) of made trades bellow the triangles
 ☐ All indiciators should have a parameter for "previous" nth candle
 ☐ How easy turn same previows candle
+☐ TrendProvider.trend() should be something like ".script_state()"
 
 Medium
 ☐ Is RefCell clone_provider effective? Check if is creating heavy structs. Add log
@@ -83,6 +64,10 @@ Medium
 ☐ Live download candle/tickets/trade
 ☐ Not working minutes 60 from Exchange, fn for h, m, d
 ☐ Parametrize output filename plot image
+☐ Download tickets/trade/bid
+    https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md
+    GET /api/v3/historicalTrades
+    I think candles are ok
 
 Low priority
 ☐ Create load command (load from database without read from expo) ?
@@ -94,10 +79,6 @@ Low priority
 ☐ See video Heikin Aishi
 ☐ Add new candle to indicators (or replace last) => LIVE UPDATE
 ☐ Indicator process only last period candles, but on plotting need process all (live update?)
-☐ Download tickets/trade/bid
-    https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md
-    GET /api/v3/historicalTrades
-    I think candles are ok
 ☐ Use close time or open time ? ema / macd must use same
     I think should use the close because last candle update close (to confirm...)
 ☐ Create docker compose

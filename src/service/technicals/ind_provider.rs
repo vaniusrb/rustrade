@@ -75,7 +75,7 @@ impl IndicatorProvider {
         slow_period: usize,
         signal_period: usize,
     ) -> eyre::Result<&Indicator> {
-        // Try to reuse the same tiple macd/signal/divergence
+        // Try to reuse the same triple macd/signal/divergence
         self.macds_opt = self.macds_opt.take().filter(|e| {
             e.0 == now && e.1 == fast_period && e.2 == slow_period && e.3 == signal_period
         });
