@@ -65,7 +65,6 @@ pub fn run_script<P: AsRef<Path>>(
     let callback_trend_provider =
         CallBackTrendProvider::from(|position_register, trade_context_provider| {
             let changed_trend = trade_context_provider.changed_trend();
-            let date_time = trade_context_provider.now();
 
             // Set current static trade_context_provider and position
             ContextSingleton::set_current(trade_context_provider);

@@ -49,6 +49,7 @@
 High
 ☐ top bottom tac plotter does not implements TechnicalIndicators (see todo!)
 ☐ How allow gain to start/stop gain? Should have a "trend" function to trigger a "change direction"
+☐ Do not allow buy or seel behind the max
 
     // Must return only if is a thrend to sell -1, none 0 or buy +1
     trend() {
