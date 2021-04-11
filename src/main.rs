@@ -230,12 +230,8 @@ async fn main(args: Args) -> color_eyre::eyre::Result<()> {
         Commands::ScriptBackTest { file } => app.run_script_test(pool, &file)?,
         Commands::Trade(trade) => match trade {
             Trade::List {} => {}
-            Trade::Import {} => {
-                TradeAggsChecker::new(pool, repository_symbol, candles_selection).import()?
-            }
-            Trade::Check {} => {
-                TradeAggsChecker::new(pool, repository_symbol, candles_selection).check()?
-            }
+            Trade::Import {} => TradeAggsChecker::new(pool, candles_selection).import()?,
+            Trade::Check {} => TradeAggsChecker::new(pool, candles_selection).check()?,
         },
     };
     info!("Exiting program, elapsed {:?}", start.elapsed());

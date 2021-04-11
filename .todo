@@ -48,7 +48,8 @@
 ✔ How allow gain to start/stop gain? Should have a "trend" function to trigger a "change direction" @done(21-04-09 22:35)
 
 High
-☐ Discount tax/fee from Exchane
+☐ Create range missing trades
+☐ Considerer exchange tax/fee in trade orders
 ☐ Add command line to import/list trades_agg
 ☐ Download tickets/trade/bid
     https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md

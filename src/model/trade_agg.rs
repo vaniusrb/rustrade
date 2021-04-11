@@ -13,6 +13,24 @@ pub struct TradeAgg {
     pub time: DateTime<Utc>,
 }
 
+impl TradeAgg {
+    pub fn new(
+        id: i64,
+        symbol: i32,
+        quantity: Decimal,
+        price: Decimal,
+        time: DateTime<Utc>,
+    ) -> Self {
+        Self {
+            id,
+            symbol,
+            quantity,
+            price,
+            time,
+        }
+    }
+}
+
 impl Display for TradeAgg {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let time_fmt = time_to_str(&self.time);

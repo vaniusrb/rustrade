@@ -8,3 +8,16 @@ pub enum IndicatorType {
     Rsi(usize),
     //TopBottom(usize),
 }
+
+impl IndicatorType {
+    pub fn period(&self) -> i32 {
+        match self {
+            IndicatorType::Macd(period, _, _) => *period as i32,
+            IndicatorType::MacdSignal(period, _, _) => *period as i32,
+            IndicatorType::MacdDivergence(period, _, _) => *period as i32,
+            IndicatorType::Ema(period) => *period as i32,
+            IndicatorType::Sma(period) => *period as i32,
+            IndicatorType::Rsi(period) => *period as i32,
+        }
+    }
+}

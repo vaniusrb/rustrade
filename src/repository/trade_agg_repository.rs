@@ -25,6 +25,14 @@ impl TradeAggRepository {
         result.unwrap_or_default()
     }
 
+    pub fn last_trade_agg_time(&self, symbol: i32) -> Option<DateTime<Utc>> {
+        let pool = self.pool.read().unwrap();
+        let future =
+            sqlx::query_scalar!("SELECT MAX(time) FROM trade_agg WHERE symbol = $1", symbol)
+                .fetch_one(&*pool);
+        async_std::task::block_on(future).unwrap()
+    }
+
     pub fn read_trade_agg_by_id(&self, id: i64) -> eyre::Result<Option<TradeAgg>> {
         let pool = self.pool.read().unwrap();
         let future = sqlx::query_as!(TradeAgg, "SELECT * FROM trade_agg WHERE id = $1", id)

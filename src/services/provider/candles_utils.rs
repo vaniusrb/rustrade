@@ -67,6 +67,7 @@ pub fn time_to_str(date_time: &DateTime<Utc>) -> String {
     date_time.format("%H:%M:%S").to_string()
 }
 
+/// Convert string in format YYYY-MM-DD HH:MM:SS to DateTime<Utc>
 pub fn str_to_datetime(string: &str) -> DateTime<Utc> {
     Utc.datetime_from_str(string, "%Y-%m-%d %H:%M:%S").unwrap()
 }

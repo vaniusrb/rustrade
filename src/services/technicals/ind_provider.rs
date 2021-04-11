@@ -100,9 +100,9 @@ impl IndicatorProvider {
         &mut self,
         now: DateTime<Utc>,
         candles: &[Candle],
-        i_type: &IndicatorType,
+        indicator_type: &IndicatorType,
     ) -> eyre::Result<&Indicator> {
-        let ind = match i_type {
+        let indicator = match indicator_type {
             IndicatorType::Macd(fast_period, slow_period, signal_period) => self.macd(
                 now,
                 candles,
@@ -132,6 +132,6 @@ impl IndicatorProvider {
             IndicatorType::Rsi(period) => self.tec_indicator(candles, IND_RSI, *period)?,
             //IndicatorType::TopBottom(period) => self.tec_indicator(candles, TOP_BOTTOM_IND, *period)?,
         };
-        Ok(ind)
+        Ok(indicator)
     }
 }

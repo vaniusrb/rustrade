@@ -6,12 +6,13 @@ use crate::services::technicals::indicator::Indicator;
 use crate::{config::candles_selection::CandlesSelection, model::candle::Candle};
 use crate::{model::price::Price, services::technicals::ind_type::IndicatorType};
 use chrono::{DateTime, Utc};
+use log::info;
 
 pub struct TradeContext {
     symbol: i32,
     indicator_provider: IndicatorProvider,
     candles_provider: CandlesProviderBuffer,
-    candles_opt: Option<(DateTime<Utc>, i32, Vec<Candle>)>,
+    candles_opt: Option<(DateTime<Utc>, i32, i32, Vec<Candle>)>,
     now: Option<DateTime<Utc>>,
     price: Option<Price>,
     current_trend_direction_opt: Option<TrendDirection>,
@@ -93,28 +94,30 @@ impl TradeContext {
         self.changed_trend.take()
     }
 
-    // TODO Should use max period from indicator
-    const LAST_CANDLES_INDICATOR: i32 = 100;
-
-    pub fn indicator(&mut self, minutes: i32, i_type: &IndicatorType) -> eyre::Result<&Indicator> {
+    pub fn indicator(
+        &mut self,
+        minutes: i32,
+        indicator_type: &IndicatorType,
+    ) -> eyre::Result<&Indicator> {
         let now = self.now();
+        let period = indicator_type.period();
+        // This caching is working ok
         self.candles_opt = self
             .candles_opt
             .take()
-            .filter(|e| e.0 == now && e.1 == minutes);
+            .filter(|e| e.0 == now && e.1 == minutes && e.2 == period);
 
         let candles_provider = &self.candles_provider;
-        let symbol = &self.symbol;
+        let symbol = self.symbol;
 
         let now_candles = self.candles_opt.get_or_insert_with(|| {
-            let candles_selection =
-                CandlesSelection::last_n(*symbol, minutes, Self::LAST_CANDLES_INDICATOR, now);
+            let candles_selection = CandlesSelection::last_n(symbol, minutes, period, now);
             let mut candles_provider_selection =
                 CandlesProviderSelection::new(candles_provider.clone(), candles_selection);
             let candles = candles_provider_selection.candles().unwrap();
-            (now, minutes, candles)
+            (now, minutes, period, candles)
         });
         self.indicator_provider
-            .indicator(now, &now_candles.2, i_type)
+            .indicator(now, &now_candles.3, indicator_type)
     }
 }
