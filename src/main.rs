@@ -10,13 +10,14 @@ pub mod services;
 pub mod utils;
 use crate::app::Application;
 use crate::repository::candle_repository::CandleRepository;
-use crate::repository::pool_factory::pool_factory;
+use crate::repository::pool_factory::create_pool;
 use crate::repository::symbol_repository::SymbolRepository;
 use crate::services::candles_checker::CandlesChecker;
 use crate::services::provider::candles_utils::str_to_datetime;
 use crate::services::streamer::Streamer;
 use crate::services::technicals::ema_tac::EmaTac;
 use crate::services::technicals::macd_tac::MacdTac;
+use crate::services::trade_aggs_checker::TradeAggsChecker;
 use config::{candles_selection::CandlesSelection, selection::Selection};
 use eyre::Result;
 use log::{info, Level, LevelFilter};
@@ -27,6 +28,7 @@ use services::{
 use sqlx::PgPool;
 #[cfg(debug_assertions)]
 use std::env;
+use std::time::Instant;
 use std::{
     collections::HashMap,
     sync::{Arc, RwLock},
@@ -60,6 +62,8 @@ struct Args {
 enum Commands {
     /// Candle commands
     Candle(Candle),
+    /// Trade commands
+    Trade(Trade),
     /// Plot graph
     Plot {},
     /// Triangle
@@ -75,12 +79,13 @@ enum Commands {
 }
 
 #[derive(Debug, StructOpt)]
-#[structopt(about = "Commands")]
+#[structopt(about = "Candles commands")]
 enum Candle {
+    /// List candles
     List {},
     /// Fix records
     Fix {},
-    /// Delete all candles'
+    /// Delete all candles
     DeleteAll,
     /// Import from exchange
     Import {},
@@ -88,6 +93,17 @@ enum Candle {
     Check {},
     /// Synchronize
     Sync {},
+}
+
+#[derive(Debug, StructOpt)]
+#[structopt(about = "Trade history commands")]
+enum Trade {
+    /// List candles
+    List {},
+    /// Import from exchange
+    Import {},
+    /// Check record integrity
+    Check {},
 }
 
 pub fn selection_default(candles_selection: CandlesSelection) -> Selection {
@@ -151,6 +167,8 @@ fn create_checker(
 #[async_std::main]
 #[paw::main]
 async fn main(args: Args) -> color_eyre::eyre::Result<()> {
+    let start = Instant::now();
+
     color_eyre::install()?;
 
     let level = if args.debug {
@@ -168,7 +186,7 @@ async fn main(args: Args) -> color_eyre::eyre::Result<()> {
 
     dotenv::dotenv()?;
 
-    let pool = pool_factory(LevelFilter::Debug)?;
+    let pool = create_pool(LevelFilter::Debug)?;
     let repository_symbol = SymbolRepository::new(pool.clone());
 
     let candles_selection = candles_selection_from_arg(repository_symbol.clone(), &args);
@@ -187,8 +205,8 @@ async fn main(args: Args) -> color_eyre::eyre::Result<()> {
                 checker.delete_inconsist();
             }
             Candle::DeleteAll => {
-                let candle_repostiory = create_repository_candle(pool);
-                candle_repostiory.delete_all_candles()?;
+                let candle_repository = create_repository_candle(pool);
+                candle_repository.delete_all_candles()?;
             }
             Candle::Import {} => {}
             Candle::Check {} => {
@@ -210,7 +228,16 @@ async fn main(args: Args) -> color_eyre::eyre::Result<()> {
             app.plot_triangles()?;
         }
         Commands::ScriptBackTest { file } => app.run_script_test(pool, &file)?,
+        Commands::Trade(trade) => match trade {
+            Trade::List {} => {}
+            Trade::Import {} => {
+                TradeAggsChecker::new(pool, repository_symbol, candles_selection).import()?
+            }
+            Trade::Check {} => {
+                TradeAggsChecker::new(pool, repository_symbol, candles_selection).check()?
+            }
+        },
     };
-    info!("Exiting program");
+    info!("Exiting program, elapsed {:?}", start.elapsed());
     Ok(())
 }

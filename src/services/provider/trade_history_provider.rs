@@ -6,7 +6,7 @@ mod tests {
     use crate::{
         model::trade_agg::TradeAgg,
         repository::{
-            pool_factory::pool_factory, symbol_repository::SymbolRepository,
+            pool_factory::create_pool, symbol_repository::SymbolRepository,
             trade_agg_repository::TradeAggRepository,
         },
         services::exchange::Exchange,
@@ -19,14 +19,14 @@ mod tests {
         color_eyre::install()?;
         dotenv::dotenv().unwrap();
 
-        let pool = pool_factory(log::LevelFilter::Debug).unwrap();
+        let pool = create_pool(log::LevelFilter::Debug).unwrap();
 
         let repository_trade_history = TradeAggRepository::new(pool.clone());
         let symbol = 1;
 
         let exchange: Exchange = Exchange::new(SymbolRepository::new(pool), Level::Debug)?;
 
-        let id_last_trade = repository_trade_history.last_trade_history_id(symbol);
+        let id_last_trade = repository_trade_history.last_trade_agg_id(symbol);
 
         let now = Utc::now();
         let start = now - Duration::hours(1);
@@ -41,7 +41,7 @@ mod tests {
 
             let to_import: Vec<TradeAgg> = to_import.iter().copied().collect();
 
-            repository_trade_history.insert_trades(&to_import)?;
+            repository_trade_history.insert_trades_agg(&to_import)?;
             if !to_discard.is_empty() {
                 break;
             }

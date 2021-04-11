@@ -1,4 +1,6 @@
 use crate::model::trade_agg::TradeAgg;
+use chrono::DateTime;
+use chrono::Utc;
 use colored::Colorize;
 use eyre::bail;
 use ifmt::iformat;
@@ -15,7 +17,7 @@ impl TradeAggRepository {
         Self { pool }
     }
 
-    pub fn last_trade_history_id(&self, symbol: i32) -> i64 {
+    pub fn last_trade_agg_id(&self, symbol: i32) -> i64 {
         let pool = self.pool.read().unwrap();
         let future = sqlx::query_scalar!("SELECT MAX(id) FROM trade_agg WHERE symbol = $1", symbol)
             .fetch_one(&*pool);
@@ -23,7 +25,7 @@ impl TradeAggRepository {
         result.unwrap_or_default()
     }
 
-    pub fn read_by_id(&self, id: i64) -> eyre::Result<Option<TradeAgg>> {
+    pub fn read_trade_agg_by_id(&self, id: i64) -> eyre::Result<Option<TradeAgg>> {
         let pool = self.pool.read().unwrap();
         let future = sqlx::query_as!(TradeAgg, "SELECT * FROM trade_agg WHERE id = $1", id)
             .fetch_optional(&*pool);
@@ -31,13 +33,30 @@ impl TradeAggRepository {
         Ok(result)
     }
 
+    pub fn read_trades_agg_by_time(
+        &self,
+        start_time: DateTime<Utc>,
+        end_time: DateTime<Utc>,
+    ) -> eyre::Result<Vec<TradeAgg>> {
+        let pool = self.pool.read().unwrap();
+        let future = sqlx::query_as!(
+            TradeAgg,
+            "SELECT * FROM trade_agg WHERE time BETWEEN $1 AND $2 ORDER BY time",
+            start_time,
+            end_time
+        )
+        .fetch_all(&*pool);
+        let result = async_std::task::block_on(future)?;
+        Ok(result)
+    }
+
     /// Insert trades
-    pub fn insert_trades(&self, trades: &[TradeAgg]) -> eyre::Result<()> {
+    pub fn insert_trades_agg(&self, trades: &[TradeAgg]) -> eyre::Result<()> {
         // Insert trade calling method insert_trade, that returns Result<id>
         // It's convenient collect the errors for raising the error bellow with details
         let trades_errors = trades
             .iter()
-            .map(|c| (c, self.insert_trade(c)))
+            .map(|c| (c, self.insert_trade_agg(c)))
             .filter_map(|cr| match cr.1 {
                 Ok(_) => None,
                 Err(e) => Some((cr.0, e)),
@@ -60,8 +79,8 @@ impl TradeAggRepository {
         Ok(())
     }
 
-    pub fn insert_trade(&self, trade: &TradeAgg) -> eyre::Result<i64> {
-        info!("{}", format!("Inserindo trade {}", trade));
+    pub fn insert_trade_agg(&self, trade: &TradeAgg) -> eyre::Result<i64> {
+        info!("Inserting trade {}", trade);
         let pool = self.pool.read().unwrap();
         let future = sqlx::query!(
             "INSERT INTO trade_agg ( \
@@ -81,6 +100,7 @@ impl TradeAggRepository {
         )
         .fetch_one(&*pool);
         let rec = async_std::task::block_on(future)?;
+        info!("Inserted trade");
         Ok(rec.id)
     }
 }

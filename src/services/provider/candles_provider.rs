@@ -308,7 +308,7 @@ where
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::repository::pool_factory::pool_factory;
+    use crate::repository::pool_factory::create_pool;
     use crate::repository::symbol_repository::SymbolRepository;
     use crate::str_to_datetime;
     use crate::utils;
@@ -320,7 +320,7 @@ pub mod tests {
         utils::log_utils::setup_log(LevelFilter::Debug, module_path!());
 
         dotenv::dotenv()?;
-        let pool = pool_factory(log::LevelFilter::Debug).unwrap();
+        let pool = create_pool(log::LevelFilter::Debug).unwrap();
 
         let repository_symbol = SymbolRepository::new(pool.clone());
 

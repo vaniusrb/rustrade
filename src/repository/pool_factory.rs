@@ -9,7 +9,7 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-pub fn pool_factory(level_filter: LevelFilter) -> Result<Arc<RwLock<PgPool>>> {
+pub fn create_pool(level_filter: LevelFilter) -> Result<Arc<RwLock<PgPool>>> {
     let mut options: PgConnectOptions = env::var("DATABASE_URL")?.parse().unwrap();
     options = options.application_name("rustrade");
     options.log_statements(level_filter);

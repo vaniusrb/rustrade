@@ -178,7 +178,7 @@ mod tests {
     use std::thread;
 
     use super::*;
-    use crate::repository::pool_factory::pool_factory;
+    use crate::repository::pool_factory::create_pool;
     use chrono::Duration;
     use ifmt::iprintln;
     use log::LevelFilter;
@@ -186,7 +186,7 @@ mod tests {
     #[test]
     fn candles_test() {
         dotenv::dotenv().unwrap();
-        let pool = pool_factory(LevelFilter::Debug).unwrap();
+        let pool = create_pool(LevelFilter::Debug).unwrap();
         let repository_symbol = SymbolRepository::new(pool);
 
         let exchange = Exchange::new(repository_symbol, Level::Info).unwrap();
@@ -203,7 +203,7 @@ mod tests {
     #[test]
     fn last_candle_test() {
         dotenv::dotenv().unwrap();
-        let pool = pool_factory(LevelFilter::Debug).unwrap();
+        let pool = create_pool(LevelFilter::Debug).unwrap();
         let repository_symbol = SymbolRepository::new(pool);
 
         let exchange = Exchange::new(repository_symbol, Level::Info).unwrap();

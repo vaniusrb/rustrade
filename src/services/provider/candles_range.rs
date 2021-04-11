@@ -222,6 +222,8 @@ pub fn candles_to_ranges_missing(
     if candles.is_empty() {
         return Ok(vec![(*start_time, *end_time)]);
     }
+
+    // TODO protect with debug assert
     // const limit_date: OpenClose = str_open("2010-01-01 00:00:00");
     // if start_time < &limit_date {
     //     return Err(eyre!("Start time {:?} is less than allowed!", start_time));

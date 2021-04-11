@@ -256,7 +256,7 @@ impl CandleRepository {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::repository::pool_factory::pool_factory;
+    use crate::repository::pool_factory::create_pool;
     use crate::services::provider::candles_utils::inconsistent_candles;
     use chrono::Duration;
     use ifmt::iprintln;
@@ -264,7 +264,7 @@ pub mod tests {
     #[test]
     fn candles_test() {
         dotenv::dotenv().unwrap();
-        let pool = pool_factory(log::LevelFilter::Debug).unwrap();
+        let pool = create_pool(log::LevelFilter::Debug).unwrap();
         let end_time = Utc::now();
         let start_time = end_time - Duration::days(30);
         let repo = CandleRepository::new(pool);
@@ -290,7 +290,7 @@ pub mod tests {
     #[test]
     fn symbols_minutes_test() {
         dotenv::dotenv().unwrap();
-        let pool = pool_factory(log::LevelFilter::Debug).unwrap();
+        let pool = create_pool(log::LevelFilter::Debug).unwrap();
         let repo = CandleRepository::new(pool);
         let symbols_minutes = repo.symbols_minutes();
 

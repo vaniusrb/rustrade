@@ -16,9 +16,6 @@ pub struct TradeAgg {
 impl Display for TradeAgg {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let time_fmt = time_to_str(&self.time);
-        iwrite!(
-            f,
-            "[{time_fmt} {&self.symbol}] {self.quantity} {self.price}"
-        )
+        iwrite!(f, "[{self.id}] {time_fmt} {self.quantity} USD {self.price}")
     }
 }
