@@ -48,6 +48,7 @@
 ✔ How allow gain to start/stop gain? Should have a "trend" function to trigger a "change direction" @done(21-04-09 22:35)
 
 High
+☐ Add command line to import/list trades_agg
 ☐ Download tickets/trade/bid
     https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md
     GET /api/v3/historicalTrades
@@ -78,7 +79,7 @@ Low priority
 ☐ Black theme (white grid lines)
 ☐ More days to split column
 ☐ See video Heikin Aishi
-☐ Add new candle to indicators (or replace last) => LIVE UPDATE
+☐ Add new candle to indicators (replace last candle with last trade) => LIVE TRADE
 ☐ Indicator process only last period candles, but on plotting need process all (live update?)
 ☐ Use close time or open time ? ema / macd must use same
     I think should use the close because last candle update close (to confirm...)
