@@ -6,7 +6,6 @@ use crate::CandlesSelection;
 use chrono::DateTime;
 use chrono::Duration;
 use chrono::Utc;
-use eyre::eyre;
 use log::info;
 use log::warn;
 use log::Level;
@@ -122,9 +121,9 @@ pub fn missing_ranges_trades_agg(
 #[cfg(test)]
 mod tests {
     use crate::model::trade_agg::TradeAgg;
-    use crate::services::provider::candles_utils::fdec;
-    use crate::services::provider::candles_utils::str_to_datetime;
     use crate::services::trade_aggs_checker::missing_ranges_trades_agg;
+    use crate::utils::date_utils::str_to_datetime;
+    use crate::utils::dec_utils::fdec;
     use chrono::DateTime;
     use chrono::Duration;
     use chrono::Utc;

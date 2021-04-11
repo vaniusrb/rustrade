@@ -268,12 +268,11 @@ pub fn candles_to_ranges_missing(
 #[cfg(test)]
 pub mod testes {
     use super::*;
-    use crate::services::provider::candles_utils::_datetime_to_str;
-    use crate::services::provider::candles_utils::fdec;
-    use crate::services::provider::candles_utils::str_d;
-    use crate::{
-        model::open_close::_str_close, services::provider::candles_utils::str_to_datetime,
-    };
+    use crate::model::open_close::_str_close;
+    use crate::utils::date_utils::_datetime_to_str;
+    use crate::utils::date_utils::str_d;
+    use crate::utils::date_utils::str_to_datetime;
+    use crate::utils::dec_utils::fdec;
     use std::println;
 
     pub fn str_open(date_time: &str) -> OpenClose {

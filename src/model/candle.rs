@@ -1,6 +1,6 @@
 use super::open_close::OpenClose;
-use crate::services::provider::candles_utils::time_to_str;
 use crate::str_to_datetime;
+use crate::utils::date_utils::time_to_str;
 use chrono::{DateTime, Utc};
 use ifmt::iwrite;
 use rust_decimal::Decimal;

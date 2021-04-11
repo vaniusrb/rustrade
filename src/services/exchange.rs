@@ -1,7 +1,7 @@
-use crate::services::provider::candles_utils::datetime_to_timestamp;
-use crate::services::provider::candles_utils::fdec;
 use crate::services::provider::candles_utils::kline_to_candle;
-use crate::services::provider::candles_utils::timestamp_to_datetime;
+use crate::utils::date_utils::datetime_to_timestamp;
+use crate::utils::date_utils::timestamp_to_datetime;
+use crate::utils::dec_utils::fdec;
 use crate::{
     config::symbol_minutes::SymbolMinutes,
     model::{candle::Candle, trade_agg::TradeAgg},

@@ -1,6 +1,6 @@
 use crate::services::provider::candles_range::minutes_open_trunc;
-use crate::services::provider::candles_utils::str_d;
-use crate::services::provider::candles_utils::str_to_datetime;
+use crate::str_to_datetime;
+use crate::utils::date_utils::str_d;
 use chrono::{DateTime, Duration, Timelike, Utc};
 use eyre::bail;
 use std::{cmp::Ordering, convert::TryFrom, fmt, ops::Add, ops::Sub};

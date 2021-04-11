@@ -3,6 +3,8 @@ use crate::model::operation::Operation;
 use crate::model::position::Position;
 use crate::repository::flow_repository::FlowRepository;
 use crate::services::trader::trade_operation::TradeOperation;
+use crate::utils::dec_utils::DEC_1;
+use crate::utils::dec_utils::DEC_100;
 use colored::Colorize;
 use ifmt::iformat;
 use log::info;
@@ -16,9 +18,6 @@ pub struct FlowRegister {
     flow_repository: FlowRepository,
     old_real_balance_usd: Decimal,
 }
-
-const DEC_1: Decimal = dec!(1);
-const DEC_100: Decimal = dec!(100);
 
 #[inline]
 pub fn percent(new: &Decimal, old: &Decimal) -> Decimal {

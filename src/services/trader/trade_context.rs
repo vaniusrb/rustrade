@@ -6,7 +6,6 @@ use crate::services::technicals::indicator::Indicator;
 use crate::{config::candles_selection::CandlesSelection, model::candle::Candle};
 use crate::{model::price::Price, services::technicals::ind_type::IndicatorType};
 use chrono::{DateTime, Utc};
-use log::info;
 
 pub struct TradeContext {
     symbol: i32,
