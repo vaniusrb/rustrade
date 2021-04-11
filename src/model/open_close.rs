@@ -1,12 +1,9 @@
-use std::{cmp::Ordering, convert::TryFrom, fmt, ops::Add, ops::Sub};
-
+use crate::services::provider::candles_range::minutes_open_trunc;
+use crate::services::provider::candles_utils::str_d;
+use crate::services::provider::candles_utils::str_to_datetime;
 use chrono::{DateTime, Duration, Timelike, Utc};
 use eyre::bail;
-
-use crate::{
-    candles_range::minutes_open_trunc,
-    candles_utils::{str_d, str_to_datetime},
-};
+use std::{cmp::Ordering, convert::TryFrom, fmt, ops::Add, ops::Sub};
 
 #[derive(Debug, Eq, Copy, Clone)]
 pub enum OpenClose {

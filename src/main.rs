@@ -3,27 +3,24 @@
 #[macro_use]
 extern crate enum_display_derive;
 pub mod app;
-pub mod candles_range;
-pub mod candles_utils;
 pub mod config;
 pub mod model;
 pub mod repository;
-pub mod service;
-pub mod tac_plotters;
+pub mod services;
 pub mod utils;
 use crate::app::Application;
-use crate::repository::repository_candle::RepositoryCandle;
-use crate::repository::repository_factory::create_pool;
-use crate::repository::repository_symbol::RepositorySymbol;
-use crate::service::checker::Checker;
-use crate::service::streamer::Streamer;
-use crate::service::technicals::ema_tac::EmaTac;
-use crate::service::technicals::macd_tac::MacdTac;
-use candles_utils::str_to_datetime;
+use crate::repository::candle_repository::CandleRepository;
+use crate::repository::pool_factory::pool_factory;
+use crate::repository::symbol_repository::SymbolRepository;
+use crate::services::candles_checker::CandlesChecker;
+use crate::services::provider::candles_utils::str_to_datetime;
+use crate::services::streamer::Streamer;
+use crate::services::technicals::ema_tac::EmaTac;
+use crate::services::technicals::macd_tac::MacdTac;
 use config::{candles_selection::CandlesSelection, selection::Selection};
 use eyre::Result;
 use log::{info, Level, LevelFilter};
-use service::{
+use services::{
     exchange::Exchange,
     technicals::{rsi_tac::RsiTac, technical::TechnicalDefinition},
 };
@@ -109,15 +106,15 @@ pub fn selection_default(candles_selection: CandlesSelection) -> Selection {
     }
 }
 
-fn create_repo_candle(pool: Arc<RwLock<PgPool>>) -> RepositoryCandle {
-    RepositoryCandle::new(pool)
+fn create_repository_candle(pool: Arc<RwLock<PgPool>>) -> CandleRepository {
+    CandleRepository::new(pool)
 }
 
-fn create_exchange(repository_symbol: RepositorySymbol) -> Result<Exchange> {
+fn create_exchange(repository_symbol: SymbolRepository) -> Result<Exchange> {
     Exchange::new(repository_symbol, Level::Debug)
 }
 
-fn candles_selection_from_arg(repository_symbol: RepositorySymbol, opt: &Args) -> CandlesSelection {
+fn candles_selection_from_arg(repository_symbol: SymbolRepository, opt: &Args) -> CandlesSelection {
     let symbol = repository_symbol.symbol_by_pair(&opt.symbol).unwrap().id;
     CandlesSelection::from(
         symbol,
@@ -129,12 +126,12 @@ fn candles_selection_from_arg(repository_symbol: RepositorySymbol, opt: &Args) -
 
 fn create_app(
     pool: Arc<RwLock<PgPool>>,
-    repository_symbol: RepositorySymbol,
+    repository_symbol: SymbolRepository,
     candles_selection: CandlesSelection,
 ) -> Result<Application> {
     let selection = selection_default(candles_selection);
     Ok(Application::new(
-        create_repo_candle(pool),
+        create_repository_candle(pool),
         create_exchange(repository_symbol)?,
         selection,
     ))
@@ -142,12 +139,12 @@ fn create_app(
 
 fn create_checker(
     pool: Arc<RwLock<PgPool>>,
-    repository_symbol: RepositorySymbol,
+    repository_symbol: SymbolRepository,
     candles_selection: CandlesSelection,
-) -> Result<Checker> {
+) -> Result<CandlesChecker> {
     let exchange = create_exchange(repository_symbol)?;
-    let repo = create_repo_candle(pool.clone());
-    let checker = Checker::new(pool, candles_selection, repo, exchange);
+    let repository = create_repository_candle(pool.clone());
+    let checker = CandlesChecker::new(pool, candles_selection, repository, exchange);
     Ok(checker)
 }
 
@@ -171,8 +168,8 @@ async fn main(args: Args) -> color_eyre::eyre::Result<()> {
 
     dotenv::dotenv()?;
 
-    let pool = create_pool(LevelFilter::Debug)?;
-    let repository_symbol = RepositorySymbol::new(pool.clone());
+    let pool = pool_factory(LevelFilter::Debug)?;
+    let repository_symbol = SymbolRepository::new(pool.clone());
 
     let candles_selection = candles_selection_from_arg(repository_symbol.clone(), &args);
 
@@ -181,7 +178,7 @@ async fn main(args: Args) -> color_eyre::eyre::Result<()> {
     match args.command {
         Commands::Candle(candle) => match candle {
             Candle::List {} => {
-                let repo = create_repo_candle(pool);
+                let repo = create_repository_candle(pool);
                 let symbol = repository_symbol.symbol_by_pair(&args.symbol).unwrap().id;
                 repo.list_candles(symbol, args.minutes as i32, 10);
             }
@@ -190,8 +187,8 @@ async fn main(args: Args) -> color_eyre::eyre::Result<()> {
                 checker.delete_inconsist();
             }
             Candle::DeleteAll => {
-                let repo = create_repo_candle(pool);
-                repo.delete_all_candles()?;
+                let candle_repostiory = create_repository_candle(pool);
+                candle_repostiory.delete_all_candles()?;
             }
             Candle::Import {} => {}
             Candle::Check {} => {

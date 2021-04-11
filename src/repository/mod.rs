@@ -1,6 +1,6 @@
-pub mod repository_candle;
-pub mod repository_factory;
-pub mod repository_flow;
-pub mod repository_position;
-pub mod repository_symbol;
-pub mod repository_trade_agg;
+pub mod candle_repository;
+pub mod flow_repository;
+pub mod pool_factory;
+pub mod position_repository;
+pub mod symbol_repository;
+pub mod trade_agg_repository;

@@ -1,4 +1,4 @@
-use crate::candles_utils::time_to_str;
+use crate::services::provider::candles_utils::time_to_str;
 use chrono::{DateTime, Utc};
 use ifmt::iwrite;
 use rust_decimal::Decimal;
