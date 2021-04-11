@@ -3,8 +3,7 @@ use crate::model::operation::Operation;
 use crate::model::position::Position;
 use crate::repository::flow_repository::FlowRepository;
 use crate::services::trader::trade_operation::TradeOperation;
-use crate::utils::dec_utils::DEC_1;
-use crate::utils::dec_utils::DEC_100;
+use crate::utils::dec_utils::percent;
 use colored::Colorize;
 use ifmt::iformat;
 use log::info;
@@ -17,18 +16,6 @@ use rust_decimal_macros::dec;
 pub struct FlowRegister {
     flow_repository: FlowRepository,
     old_real_balance_usd: Decimal,
-}
-
-#[inline]
-pub fn percent(new: &Decimal, old: &Decimal) -> Decimal {
-    ((new / old - DEC_1) * DEC_100).round_dp_with_strategy(2, RoundingStrategy::RoundDown)
-}
-
-#[test]
-fn percent_test() {
-    assert_eq!(percent(&dec!(150), &dec!(100)), dec!(50));
-    assert_eq!(percent(&dec!(100), &dec!(100)), dec!(0));
-    assert_eq!(percent(&dec!(90), &dec!(100)), dec!(-10));
 }
 
 impl FlowRegister {

@@ -131,7 +131,6 @@ mod tests {
 
     #[test]
     fn missing_ranges_trades_agg_test() -> color_eyre::eyre::Result<()> {
-        color_eyre::install()?;
         let trades_agg = vec![
             TradeAgg::new(
                 1,
@@ -209,7 +208,6 @@ mod tests {
 
     #[test]
     fn no_missing_ranges_trades_agg_test() -> color_eyre::eyre::Result<()> {
-        color_eyre::install()?;
         let trades_agg = vec![
             TradeAgg::new(
                 1,

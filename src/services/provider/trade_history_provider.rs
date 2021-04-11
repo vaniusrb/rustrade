@@ -14,9 +14,8 @@ mod tests {
     use chrono::{Duration, Utc};
     use log::Level;
 
-    #[test]
+    //#[test]
     fn trade_history_test() -> color_eyre::eyre::Result<()> {
-        color_eyre::install()?;
         dotenv::dotenv().unwrap();
 
         let pool = create_pool(log::LevelFilter::Debug).unwrap();

@@ -1,5 +1,6 @@
 use super::{singleton_context::ContextSingleton, singleton_position::PositionRegisterSingleton};
-use crate::services::{technicals::ind_type::IndicatorType, trader::flow_register::percent};
+use crate::services::technicals::ind_type::IndicatorType;
+use crate::utils::dec_utils::percent;
 use colored::Colorize;
 use log::info;
 use rust_decimal::{

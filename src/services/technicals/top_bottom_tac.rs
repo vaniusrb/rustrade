@@ -199,8 +199,6 @@ pub mod tests {
 
     #[test]
     fn topbottom_test() -> color_eyre::eyre::Result<()> {
-        color_eyre::install()?;
-
         let c1 = Candle {
             id: 0,
             open_time: str_to_datetime("2020-01-12 12:00:00"),

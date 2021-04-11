@@ -237,3 +237,9 @@ async fn main(args: Args) -> color_eyre::eyre::Result<()> {
     info!("Exiting program, elapsed {:?}", start.elapsed());
     Ok(())
 }
+
+#[cfg(test)]
+#[ctor::ctor]
+fn init() {
+    color_eyre::install().unwrap();
+}

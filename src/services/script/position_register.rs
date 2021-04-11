@@ -2,7 +2,7 @@ use crate::model::position::Position;
 use crate::model::quantity::Quantity;
 use crate::services::trader::trade_operation::TradeOperation;
 use crate::{model::operation::Operation, services::trader::flow_register::FlowRegister};
-use log::error;
+use log::warn;
 use rust_decimal::prelude::Zero;
 use rust_decimal::Decimal;
 
@@ -31,7 +31,7 @@ impl PositionRegister {
                     let diff = self.position.balance_fiat - buy_total;
 
                     if diff < Decimal::zero() {
-                        error!("Fixing quantity to buy!");
+                        warn!("Fixing quantity to buy!");
                         quantity_asset =
                             Quantity(self.position.balance_fiat / trade_operation.price.0);
                         buy_total = quantity_asset.0 * trade_operation.price.0;
@@ -48,7 +48,7 @@ impl PositionRegister {
                     let diff = self.position.balance_asset - quantity_asset.0;
 
                     if diff < Decimal::zero() {
-                        error!("Fixing quantity to sell!");
+                        warn!("Fixing quantity to sell!");
                         quantity_asset = Quantity(self.position.balance_asset);
                         sell_total = quantity_asset.0 * trade_operation.price.0;
                     }
