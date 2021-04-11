@@ -122,8 +122,8 @@ pub fn missing_ranges_trades_agg(
         }
         last_time = trade.time;
     }
-    if let Some(start_range) = start_range_opt {
-        missing.push((start_range + max_min, trade.time - max_min))
-    }
+    // if let Some(start_range) = start_range_opt {
+    //     missing.push((start_range + max_min, trade.time - max_min))
+    // }
     Ok(())
 }
