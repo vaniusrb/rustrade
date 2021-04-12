@@ -236,7 +236,7 @@ impl<'a> CandlesProviderSelection {
 
 impl<'a> CandlesProvider for CandlesProviderSelection {
     fn candles(&mut self) -> eyre::Result<Vec<Candle>> {
-        // TODO HERE SHOULD FILTER
+        // TODO HERE SHOULD FILTER?
         self.candles_provider
             .set_candles_selection(self.candles_selection);
         self.candles_provider.candles()

@@ -20,6 +20,7 @@ use crate::services::trader::trend::callback_trend_provider::CallBackTrendProvid
 use crate::services::trader::trend::trend_direction::TrendDirection;
 use crate::services::trader::trend::trend_provider::TrendProvider;
 use crate::{app::Application, model::price::Price};
+use colored::Colorize;
 use eyre::eyre;
 use ifmt::iformat;
 use log::info;
@@ -158,7 +159,11 @@ pub fn run_script<P: AsRef<Path>>(
 
     info!(
         "{}",
-        iformat!("Finished back test, elapsed: {start.elapsed():?}")
+        iformat!(
+            "Finished back test, total read candles: {candles.len()} elapsed: {start.elapsed():?}"
+        )
+        .to_string()
+        .bright_cyan()
     );
 
     // Get realized trades

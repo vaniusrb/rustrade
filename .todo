@@ -48,6 +48,8 @@
 ✔ How allow gain to start/stop gain? Should have a "trend" function to trigger a "change direction" @done(21-04-09 22:35)
 
 High
+☐ Create index for candle: symbol+minutes+open_time
+
 ☐ Create range missing trades
 ☐ Considerer exchange tax/fee in trade orders
 ☐ Add command line to import/list trades_agg
@@ -88,3 +90,4 @@ Low priority
 ☐ Create docker compose
 ☐ Gui interface
 ☐ Create unity test for scripting (mock candles buffer and check out trades result)
+☐ Study https://docs.rs/crossbeam/0.8.0/crossbeam/epoch/index.html to remove old candles/trades

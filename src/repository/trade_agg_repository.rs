@@ -4,7 +4,7 @@ use chrono::Utc;
 use colored::Colorize;
 use eyre::bail;
 use ifmt::iformat;
-use log::{error, info};
+use log::error;
 use sqlx::PgPool;
 use std::sync::{Arc, RwLock};
 
@@ -88,7 +88,6 @@ impl TradeAggRepository {
     }
 
     pub fn insert_trade_agg(&self, trade: &TradeAgg) -> eyre::Result<i64> {
-        info!("Inserting trade {}", trade);
         let pool = self.pool.read().unwrap();
         let future = sqlx::query!(
             "INSERT INTO trade_agg ( \
@@ -108,7 +107,6 @@ impl TradeAggRepository {
         )
         .fetch_one(&*pool);
         let rec = async_std::task::block_on(future)?;
-        info!("Inserted trade");
         Ok(rec.id)
     }
 }

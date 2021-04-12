@@ -21,6 +21,7 @@ use crate::utils::date_utils::str_to_datetime;
 use config::{candles_selection::CandlesSelection, selection::Selection};
 use eyre::Result;
 use log::{info, Level, LevelFilter};
+use services::provider::trade_history_provider::TradeHistoryProvider;
 use services::{
     exchange::Exchange,
     technicals::{rsi_tac::RsiTac, technical::TechnicalDefinition},
@@ -98,11 +99,13 @@ enum Candle {
 #[derive(Debug, StructOpt)]
 #[structopt(about = "Trade history commands")]
 enum Trade {
-    /// List candles
+    /// Synchronize missing trades from exchange into database
+    Sync {},
+    /// List trades
     List {},
-    /// Import from exchange
+    /// Import trades from exchange
     Import {},
-    /// Check record integrity
+    /// Check trades record integrity
     Check {},
 }
 
@@ -229,6 +232,9 @@ async fn main(args: Args) -> color_eyre::eyre::Result<()> {
         }
         Commands::ScriptBackTest { file } => app.run_script_test(pool, &file)?,
         Commands::Trade(trade) => match trade {
+            Trade::Sync {} => {
+                TradeHistoryProvider::new(pool, create_exchange(repository_symbol)?).sync()?
+            }
             Trade::List {} => {}
             Trade::Import {} => TradeAggsChecker::new(pool, candles_selection).import()?,
             Trade::Check {} => TradeAggsChecker::new(pool, candles_selection).check()?,

@@ -54,6 +54,7 @@ impl TradeAggsChecker {
         Ok(())
     }
 
+    /// Import last 1 hour of trades
     pub fn import(&self) -> eyre::Result<()> {
         let repository_trade_history = TradeAggRepository::new(self.pool.clone());
         let symbol = self.candles_selection.symbol_minutes.symbol;
@@ -82,7 +83,18 @@ impl TradeAggsChecker {
 
             let to_import: Vec<TradeAgg> = to_import.iter().copied().collect();
 
-            repository_trade_history.insert_trades_agg(&to_import)?;
+            info!("Inserting trades {}...", to_import.len());
+            for trade in to_import.iter() {
+                match repository_trade_history.insert_trade_agg(trade) {
+                    Ok(_) => {}
+                    Err(e) => warn!(
+                        "Error {} on insert trade id {} time {}",
+                        e, trade.id, trade.time
+                    ),
+                };
+            }
+            info!("Inserted trades");
+
             if !to_discard.is_empty() {
                 info!("No trades to discard");
                 break;

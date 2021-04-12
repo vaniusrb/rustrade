@@ -1,29 +1,27 @@
-pub struct TradeHistoryProvider {}
+use std::sync::Arc;
+use std::sync::RwLock;
 
-#[cfg(test)]
-mod tests {
+use crate::{
+    model::trade_agg::TradeAgg, repository::trade_agg_repository::TradeAggRepository,
+    services::exchange::Exchange,
+};
+use chrono::{Duration, Utc};
+use sqlx::Pool;
+use sqlx::Postgres;
 
-    use crate::{
-        model::trade_agg::TradeAgg,
-        repository::{
-            pool_factory::create_pool, symbol_repository::SymbolRepository,
-            trade_agg_repository::TradeAggRepository,
-        },
-        services::exchange::Exchange,
-    };
-    use chrono::{Duration, Utc};
-    use log::Level;
+pub struct TradeHistoryProvider {
+    pool: Arc<RwLock<Pool<Postgres>>>,
+    exchange: Exchange,
+}
 
-    //#[test]
-    fn trade_history_test() -> color_eyre::eyre::Result<()> {
-        dotenv::dotenv().unwrap();
+impl TradeHistoryProvider {
+    pub fn new(pool: Arc<RwLock<Pool<Postgres>>>, exchange: Exchange) -> Self {
+        Self { pool, exchange }
+    }
 
-        let pool = create_pool(log::LevelFilter::Debug).unwrap();
-
-        let repository_trade_history = TradeAggRepository::new(pool.clone());
+    pub fn sync(&self) -> eyre::Result<()> {
+        let repository_trade_history = TradeAggRepository::new(self.pool.clone());
         let symbol = 1;
-
-        let exchange: Exchange = Exchange::new(SymbolRepository::new(pool), Level::Debug)?;
 
         let id_last_trade = repository_trade_history.last_trade_agg_id(symbol);
 
@@ -32,7 +30,7 @@ mod tests {
 
         let mut from_id = Option::<u64>::None;
         loop {
-            let trade_histories = exchange.historical_trades(symbol, from_id)?;
+            let trade_histories = self.exchange.historical_trades(symbol, from_id)?;
 
             let (to_discard, to_import): (_, Vec<TradeAgg>) = trade_histories
                 .iter()
@@ -53,4 +51,13 @@ mod tests {
 
         Ok(())
     }
+}
+
+#[cfg(test)]
+mod tests {
+
+    //#[test]
+    // fn trade_history_test() -> color_eyre::eyre::Result<()> {
+    //     dotenv::dotenv().unwrap();
+    // }
 }
