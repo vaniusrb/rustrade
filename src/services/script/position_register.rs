@@ -71,13 +71,13 @@ impl PositionRegister {
 
 #[cfg(test)]
 mod tests {
-    use crate::repository::flow_repository::FlowRepository;
+    // use crate::repository::flow_repository::FlowRepository;
 
-    use super::PositionRegister;
+    // use super::PositionRegister;
 
-    fn position_register_test() {
-        // TODO Create FlowRepository Trait and struct FlowRepositoryDB
-        // FlowRepository
-        // PositionRegister::new();
-    }
+    // fn position_register_test() {
+    // TODO Create FlowRepository Trait and struct FlowRepositoryDB
+    // FlowRepository
+    // PositionRegister::new();
+    //}
 }

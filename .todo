@@ -48,9 +48,10 @@
 ✔ How allow gain to start/stop gain? Should have a "trend" function to trigger a "change direction" @done(21-04-09 22:35)
 
 High
+☐ Do not allow buy or seel behind the max
+☐ Regiter script log operion on flow record
 ☐ Create index for candle: symbol+minutes+open_time
-
-☐ Create range missing trades
+✔ Create range missing trades @done(21-04-13 21:18)
 ☐ Considerer exchange tax/fee in trade orders
 ☐ Add command line to import/list trades_agg
 ☐ Download tickets/trade/bid
@@ -58,7 +59,6 @@ High
     GET /api/v3/historicalTrades
     I think candles are ok
 ☐ top bottom tac plotter does not implements TechnicalIndicators (see todo!)
-☐ Do not allow buy or seel behind the max
 ☐ Plot text (information) of made trades bellow the triangles
 ☐ All indiciators should have a parameter for "previous" nth candle
 ☐ How easy turn same previows candle

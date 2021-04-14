@@ -16,7 +16,6 @@ use colored::Colorize;
 use ifmt::iformat;
 use log::info;
 use plotters::style::RGBColor;
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::time::Instant;
 
 pub struct PlotterSelection<'a> {
@@ -51,7 +50,7 @@ impl<'a> PlotterSelection<'a> {
         // TODO Is possible there is any candle out of range? Is this necessary?
         // check with debug_assert!
         let candles = candles
-            .into_par_iter()
+            .into_iter()
             .filter(|c| c.open_time >= start_time && c.open_time <= end_time)
             .collect::<Vec<_>>();
 

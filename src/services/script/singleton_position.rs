@@ -11,9 +11,11 @@ impl PositionRegisterSingleton {
     pub fn current() -> Arc<PositionRegisterSingleton> {
         CURRENT_POSITION.with(|c| c.read().unwrap().clone())
     }
+
     pub fn make_current(self) {
         CURRENT_POSITION.with(|c| *c.write().unwrap() = Arc::new(self))
     }
+
     pub fn set_current(position: PositionRegister) {
         Self {
             position_opt: Some(position),

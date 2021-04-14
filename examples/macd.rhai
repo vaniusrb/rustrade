@@ -1,9 +1,9 @@
 fn trend() {
-    if rsi(15, 14) < 30 // && macd(15, 34, 72, 17) > macd_signal(15, 34, 72, 17)
+    if rsi(15, 14) < 30 && macd(15, 34, 72, 17) > macd_signal(15, 34, 72, 17)
     {
         return 1;
     }
-    if rsi(15, 14) > 70 // && macd(15, 34, 72, 17) <= macd_signal(15, 34, 72, 17)
+    if rsi(15, 14) > 70 && macd(15, 34, 72, 17) <= macd_signal(15, 34, 72, 17)
     {
         return -1;
     }

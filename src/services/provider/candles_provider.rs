@@ -9,7 +9,6 @@ use crate::{
 use eyre::eyre;
 use ifmt::iformat;
 use log::debug;
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use std::{
     collections::HashMap,
     sync::{Arc, RwLock},
@@ -153,13 +152,11 @@ impl CandlesProviderBufferSingleton {
                 }
             }
         };
-
         let candles = candles_buf
-            .par_iter()
+            .iter()
             .filter(|c| &c.open_time >= start_time && &c.open_time <= end_time)
             .cloned()
             .collect::<Vec<_>>();
-
         debug!(
             "{}",
             iformat!(

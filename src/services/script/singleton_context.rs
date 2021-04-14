@@ -11,9 +11,11 @@ impl ContextSingleton {
     pub fn current() -> Arc<ContextSingleton> {
         CURRENT_CONTEXT.with(|c| c.read().unwrap().clone())
     }
+
     pub fn make_current(self) {
         CURRENT_CONTEXT.with(|c| *c.write().unwrap() = Arc::new(self))
     }
+
     pub fn set_current(trade_context_provider: TradeContextProvider) {
         Self {
             trade_context_provider_opt: Some(trade_context_provider),

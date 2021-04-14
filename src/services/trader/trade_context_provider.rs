@@ -1,7 +1,6 @@
 use super::{trade_context::TradeContext, trend::trend_direction::TrendDirection};
 use crate::services::provider::candles_provider::CandlesProviderBuffer;
 use crate::services::technicals::ind_type::IndicatorType;
-use crate::services::technicals::indicator::Indicator;
 use crate::{model::price::Price, services::technicals::ind_provider::IndicatorProvider};
 use chrono::{DateTime, Utc};
 use std::rc::Rc;
@@ -66,12 +65,13 @@ impl TradeContextProvider {
         self.trade_context.lock().unwrap().get_mut().price()
     }
 
-    pub fn indicator(&self, minutes: i32, i_type: &IndicatorType) -> eyre::Result<Indicator> {
+    pub fn value(&self, minutes: i32, i_type: &IndicatorType) -> eyre::Result<f64> {
         self.trade_context
             .lock()
             .unwrap()
             .get_mut()
             .indicator(minutes, i_type)
-            .map(|i| i.clone())
+            .unwrap()
+            .value()
     }
 }

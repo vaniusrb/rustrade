@@ -67,7 +67,7 @@ pub fn run_script<P: AsRef<Path>>(
         CallBackTrendProvider::from(|position_register, trade_context_provider| {
             let changed_trend = trade_context_provider.changed_trend();
 
-            // Set current static trade_context_provider and position
+            // Set current static trade_context_provider and position to script functions can read this
             ContextSingleton::set_current(trade_context_provider);
             PositionRegisterSingleton::set_current(position_register);
 
@@ -76,38 +76,33 @@ pub fn run_script<P: AsRef<Path>>(
             let (engine, scope, ast) = &engine_arc.engine_scope.as_ref().unwrap();
 
             // Retrieving trend direction
-            let trend: i64 = engine
-                .call_fn(&mut scope.clone(), &ast, "trend", ())
-                .unwrap();
-
-            let trend_direction = match trend.cmp(&0) {
-                Ordering::Greater => TrendDirection::Buy,
-                Ordering::Less => TrendDirection::Sell,
-                Ordering::Equal => TrendDirection::None,
+            let trend_direction = {
+                let trend: i64 = engine
+                    .call_fn(&mut scope.clone(), &ast, "trend", ())
+                    .unwrap();
+                match trend.cmp(&0) {
+                    Ordering::Greater => TrendDirection::Buy,
+                    Ordering::Less => TrendDirection::Sell,
+                    Ordering::Equal => TrendDirection::None,
+                }
             };
 
             // Retrieving quantity to buy or sell
-            let quantity: f64 = if let Some(trend_direction) = changed_trend {
-                let trend = match trend_direction {
-                    TrendDirection::Buy => 1,
-                    TrendDirection::Sell => -1,
-                    TrendDirection::None => 0,
+            let operation_opt = {
+                let quantity: f64 = if let Some(trend_direction) = changed_trend {
+                    let trend = match trend_direction {
+                        TrendDirection::Buy => 1,
+                        TrendDirection::Sell => -1,
+                        TrendDirection::None => 0,
+                    };
+                    engine
+                        .call_fn(&mut scope.clone(), &ast, "change_trend", (trend as i64,))
+                        .unwrap()
+                } else {
+                    engine.call_fn(&mut scope.clone(), &ast, "run", ()).unwrap()
                 };
-                // info!(
-                //     "{} {} {:?}",
-                //     date_time,
-                //     "change_trend app".purple(),
-                //     trend_direction
-                // );
-                engine
-                    .call_fn(&mut scope.clone(), &ast, "change_trend", (trend as i64,))
-                    .unwrap()
-            } else {
-                // info!("{} {}", date_time, "run app".bright_magenta());
-                engine.call_fn(&mut scope.clone(), &ast, "run", ()).unwrap()
+                quantity_to_operation_opt(quantity)
             };
-
-            let operation_opt = quantity_to_operation_opt(quantity);
 
             Ok(TrendState {
                 trend_direction,
@@ -162,7 +157,6 @@ pub fn run_script<P: AsRef<Path>>(
         iformat!(
             "Finished back test, total read candles: {candles.len()} elapsed: {start.elapsed():?}"
         )
-        .to_string()
         .bright_cyan()
     );
 

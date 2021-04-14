@@ -49,9 +49,10 @@ impl FlowRepository {
                 total, \
                 real_balance_fiat_old, \
                 real_balance_fiat_new, \
-                gain_perc
+                gain_perc,
+                log
                 ) \
-                VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10 ) \
+                VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11 ) \
                 RETURNING id \
             ",
             flow.id,
@@ -63,7 +64,8 @@ impl FlowRepository {
             flow.total,
             flow.real_balance_fiat_old,
             flow.real_balance_fiat_new,
-            flow.gain_perc
+            flow.gain_perc,
+            flow.log,
         )
         .fetch_one(&*pool);
         let rec = async_std::task::block_on(future)?;
