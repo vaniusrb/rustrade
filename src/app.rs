@@ -70,7 +70,7 @@ impl Application {
         let selection = self.selection.clone();
         let candles_provider_selection = CandlesProviderSelection::new(
             self.candles_provider.clone(),
-            selection.candles_selection.clone(),
+            selection.candles_selection,
         );
         let candles_provider = Box::new(candles_provider_selection);
         plot_selection(selection, candles_provider, Vec::new())

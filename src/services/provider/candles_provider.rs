@@ -22,7 +22,7 @@ pub trait CandlesProvider {
 
 pub struct CandlesProviderBufferSingleton {
     exchange: Exchange,
-    repository: CandleRepository,
+    candle_repository: CandleRepository,
     buffer: HashMap<SymbolMinutes, Vec<Candle>>,
 }
 
@@ -30,7 +30,7 @@ impl CandlesProviderBufferSingleton {
     pub fn new(repository: CandleRepository, exchange: Exchange) -> Arc<RwLock<Self>> {
         let candles_provider_singleton = Self {
             exchange,
-            repository,
+            candle_repository: repository,
             buffer: HashMap::new(),
         };
         Arc::new(RwLock::new(candles_provider_singleton))
@@ -92,7 +92,7 @@ impl CandlesProviderBufferSingleton {
                     start_time, end_time
                 );
                 let mut candles_repo = self
-                    .repository
+                    .candle_repository
                     .candles_by_time(
                         &candles_selection.symbol_minutes,
                         &start_time.open(minutes),
@@ -141,7 +141,8 @@ impl CandlesProviderBufferSingleton {
                     debug!("Candles exchange count: {}", candles_exchange.len());
 
                     // Save news candles on repository
-                    self.repository.insert_candles(&mut candles_exchange)?;
+                    self.candle_repository
+                        .insert_candles(&mut candles_exchange)?;
 
                     // Insert candles on buffer
                     candles_to_buf(

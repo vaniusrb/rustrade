@@ -1,4 +1,7 @@
-use super::{singleton_context::ContextSingleton, singleton_position::PositionRegisterSingleton};
+use super::{
+    script_state_singleton::ScriptStateSingleton, singleton_context::ContextSingleton,
+    singleton_position::PositionRegisterSingleton,
+};
 use crate::services::technicals::ind_type::IndicatorType;
 use crate::utils::dec_utils::percent;
 use colored::Colorize;
@@ -30,7 +33,14 @@ pub fn gain_perc() -> f64 {
 }
 
 pub fn log(text: String) {
-    info!("{} {}", "[SCRIPT]".bright_yellow(), text.yellow());
+    info!("{} {}", "[SCRIPT]".bright_yellow(), &text.yellow());
+
+    let singleton = ScriptStateSingleton::current();
+    let trade_context_provider = singleton.script_state_opt.as_ref().unwrap();
+
+    let mut trade_context_provider = trade_context_provider.clone();
+    trade_context_provider.log = Some(text);
+    ScriptStateSingleton::set_current(trade_context_provider);
 }
 
 pub fn macd(min: i64, a: i64, b: i64, c: i64) -> f64 {

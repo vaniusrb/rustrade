@@ -8,6 +8,7 @@ use crate::{model::price::Price, services::technicals::ind_provider::IndicatorPr
 use chrono::{DateTime, Utc};
 
 pub struct Trader {
+    // <T: TrendProvider + Send + Sync> TODO implement impl
     trend_provider: Box<dyn TrendProvider + Send + Sync>,
     trade_operations: Vec<TradeOperation>,
     trade_context_provider: TradeContextProvider,
@@ -46,14 +47,13 @@ impl<'a> Trader {
         self.trade_context_provider
             .set_trend_direction(running_script_state.trend_direction);
 
-        let operation = match running_script_state.operation_opt {
-            Some(operation) => operation,
+        // Get the operation, if none then exit routine
+        let trade_operation = match running_script_state.trade_operation_opt {
+            Some(trade_operation) => trade_operation,
             None => return Ok(()),
         };
 
-        let trade_operation = TradeOperation::new(operation, now, price);
-
-        self.trader_register.register(trade_operation)?;
+        self.trader_register.register(trade_operation.clone())?;
 
         self.trade_operations.push(trade_operation);
         Ok(())

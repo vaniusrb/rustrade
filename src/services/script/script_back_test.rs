@@ -1,34 +1,25 @@
-use crate::model::operation::Operation;
 use crate::model::position::Position;
-use crate::model::quantity;
 use crate::repository::flow_repository::FlowRepository;
 use crate::repository::position_repository::PositionRepository;
 use crate::services::provider::candles_provider::CandlesProvider;
 use crate::services::script::position_register::PositionRegister;
-use crate::services::script::singleton_context::ContextSingleton;
+use crate::services::script::script_trend_provider::ScriptTrendProvider;
 use crate::services::script::singleton_engine::EngineSingleton;
-use crate::services::script::singleton_position::PositionRegisterSingleton;
 use crate::services::tec_plotter::plot_selection::PlotterSelection;
 use crate::services::tec_plotter::plotter_indicator_context::PlotterIndicatorContext;
 use crate::services::tec_plotter::trading_plotter::TradingPlotter;
 use crate::services::trader::flow_register::FlowRegister;
-use crate::services::trader::running_script_state::TrendState;
 use crate::services::trader::trade_operation::TradeOperation;
 use crate::services::trader::trader_factory::TraderFactory;
 use crate::services::trader::trader_register::TraderRegister;
-use crate::services::trader::trend::callback_trend_provider::CallBackTrendProvider;
-use crate::services::trader::trend::trend_direction::TrendDirection;
 use crate::services::trader::trend::trend_provider::TrendProvider;
 use crate::{app::Application, model::price::Price};
 use colored::Colorize;
 use eyre::eyre;
 use ifmt::iformat;
 use log::info;
-use quantity::Quantity;
-use rust_decimal::{prelude::FromPrimitive, Decimal};
 use rust_decimal_macros::dec;
 use sqlx::PgPool;
-use std::cmp::Ordering;
 use std::{
     path::Path,
     sync::{Arc, RwLock},
@@ -62,54 +53,6 @@ pub fn run_script<P: AsRef<Path>>(
         .set_candles_selection(app.selection.candles_selection);
     let candles = app.candles_provider.candles()?;
 
-    // Create trend provider with call back
-    let callback_trend_provider =
-        CallBackTrendProvider::from(|position_register, trade_context_provider| {
-            let changed_trend = trade_context_provider.changed_trend();
-
-            // Set current static trade_context_provider and position to script functions can read this
-            ContextSingleton::set_current(trade_context_provider);
-            PositionRegisterSingleton::set_current(position_register);
-
-            // Get engine to run script
-            let engine_arc = EngineSingleton::current();
-            let (engine, scope, ast) = &engine_arc.engine_scope.as_ref().unwrap();
-
-            // Retrieving trend direction
-            let trend_direction = {
-                let trend: i64 = engine
-                    .call_fn(&mut scope.clone(), &ast, "trend", ())
-                    .unwrap();
-                match trend.cmp(&0) {
-                    Ordering::Greater => TrendDirection::Buy,
-                    Ordering::Less => TrendDirection::Sell,
-                    Ordering::Equal => TrendDirection::None,
-                }
-            };
-
-            // Retrieving quantity to buy or sell
-            let operation_opt = {
-                let quantity: f64 = if let Some(trend_direction) = changed_trend {
-                    let trend = match trend_direction {
-                        TrendDirection::Buy => 1,
-                        TrendDirection::Sell => -1,
-                        TrendDirection::None => 0,
-                    };
-                    engine
-                        .call_fn(&mut scope.clone(), &ast, "change_trend", (trend as i64,))
-                        .unwrap()
-                } else {
-                    engine.call_fn(&mut scope.clone(), &ast, "run", ()).unwrap()
-                };
-                quantity_to_operation_opt(quantity)
-            };
-
-            Ok(TrendState {
-                trend_direction,
-                operation_opt,
-            })
-        });
-
     let flow_repository = FlowRepository::new(pool.clone());
     let flow_register = FlowRegister::new(flow_repository.clone());
 
@@ -137,17 +80,18 @@ pub fn run_script<P: AsRef<Path>>(
 
     let trader_register = TraderRegister::from(position_register);
 
-    // TODO Probably candles_provider can be within something like a ContextProvider, then can provides date_time and price
-
     // Create trader from trend provider
     let trader_factory = TraderFactory::from(
         app.selection.candles_selection,
         app.candles_provider.clone(),
     );
-    let trend_provider: Box<dyn TrendProvider + Send + Sync> = Box::new(callback_trend_provider);
+
+    let script_trend_provider = ScriptTrendProvider::new();
+
+    let trend_provider: Box<dyn TrendProvider + Send + Sync> = Box::new(script_trend_provider);
     let mut trader = trader_factory.create_trader(trend_provider, trader_register);
 
-    // Run trader from candles, this invoke callback_trend_provider for each candle (run script)
+    // Run trader from candles, this invoke script_trend_provider.trend()
     candles.iter().for_each(|c| {
         trader.check(c.close_time, Price(c.close)).unwrap();
     });
@@ -182,21 +126,6 @@ pub fn run_script<P: AsRef<Path>>(
 
     Ok(trades)
 }
-
-fn quantity_to_operation_opt(quantity: f64) -> Option<Operation> {
-    if quantity > 0. {
-        Some(Operation::Buy(Quantity(
-            Decimal::from_f64(quantity).unwrap(),
-        )))
-    } else if quantity < 0. {
-        Some(Operation::Sell(Quantity(
-            Decimal::from_f64(quantity * -1.).unwrap(),
-        )))
-    } else {
-        None
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

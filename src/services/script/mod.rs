@@ -1,6 +1,9 @@
 pub mod position_register;
 pub mod script_back_test;
 pub mod script_fns;
+pub mod script_state;
+pub mod script_state_singleton;
+pub mod script_trend_provider;
 pub mod singleton_context;
 pub mod singleton_engine;
 pub mod singleton_position;

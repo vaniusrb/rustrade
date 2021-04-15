@@ -7,6 +7,6 @@ pub trait TrendProvider {
     fn trend(
         &mut self,
         position: &PositionRegister,
-        trend_context_provider: &TradeContextProvider,
+        trade_context_provider: &TradeContextProvider,
     ) -> eyre::Result<TrendState>;
 }

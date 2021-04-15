@@ -135,3 +135,9 @@ impl IndicatorProvider {
         Ok(indicator)
     }
 }
+
+impl Default for IndicatorProvider {
+    fn default() -> Self {
+        Self::new()
+    }
+}

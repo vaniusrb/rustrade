@@ -52,7 +52,7 @@ impl FlowRegister {
             real_balance_fiat_old: self.old_real_balance_usd,
             real_balance_fiat_new: position.real_balance_fiat,
             gain_perc,
-            log: None,
+            log: trade_operation.description_opt.clone(),
         };
         self.flow_repository.insert_flow(&mut flow)?;
 
