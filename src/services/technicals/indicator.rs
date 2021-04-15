@@ -1,6 +1,11 @@
 use super::serie::Serie;
 use eyre::eyre;
 
+// TODO transform Indicator into a trait
+// Rename this something like "SerieIndicator"
+// Create other like SingleIndicator (to store a single value f64)
+// Max and Min will be these type
+
 #[derive(Clone)]
 pub struct Indicator {
     pub name: String,
@@ -22,6 +27,10 @@ impl Indicator {
     }
 
     pub fn value(&self) -> eyre::Result<f64> {
-        Ok(self.series.last().ok_or_else(|| eyre!("No last candle!"))?.value)
+        Ok(self
+            .series
+            .last()
+            .ok_or_else(|| eyre!("No last candle!"))?
+            .value)
     }
 }
