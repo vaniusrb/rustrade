@@ -7,17 +7,16 @@ use crate::services::trader::trade_context_provider::TradeContextProvider;
 use crate::{model::price::Price, services::technicals::ind_provider::IndicatorProvider};
 use chrono::{DateTime, Utc};
 
-pub struct Trader {
-    // <T: TrendProvider + Send + Sync> TODO implement impl
-    trend_provider: Box<dyn TrendProvider + Send + Sync>,
+pub struct Trader<T: TrendProvider + Send + Sync> {
+    trend_provider: T,
     trade_operations: Vec<TradeOperation>,
     trade_context_provider: TradeContextProvider,
     trader_register: TraderRegister,
 }
 
-impl<'a> Trader {
+impl<'a, T: TrendProvider + Send + Sync> Trader<T> {
     pub fn new(
-        trend_provider: Box<dyn TrendProvider + Send + Sync>,
+        trend_provider: T,
         symbol: i32,
         indicator_provider: IndicatorProvider,
         candles_provider: CandlesProviderBuffer,
@@ -25,7 +24,6 @@ impl<'a> Trader {
     ) -> Self {
         let trade_context_provider =
             TradeContextProvider::new(symbol, indicator_provider, candles_provider);
-
         Self {
             trend_provider,
             trade_operations: Vec::new(),

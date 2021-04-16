@@ -22,11 +22,11 @@ impl TraderFactory {
         }
     }
 
-    pub fn create_trader(
+    pub fn create_trader<T: TrendProvider + Send + Sync>(
         &self,
-        trend_provider: Box<dyn TrendProvider + Send + Sync>,
+        trend_provider: T,
         trader_register: TraderRegister,
-    ) -> Trader {
+    ) -> Trader<T> {
         let mut candles_provider = self.candles_provider.clone();
         candles_provider.set_candles_selection(self.candles_selection);
         let indicator_provider = IndicatorProvider::new();

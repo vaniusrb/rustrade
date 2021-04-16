@@ -12,7 +12,6 @@ use crate::services::trader::flow_register::FlowRegister;
 use crate::services::trader::trade_operation::TradeOperation;
 use crate::services::trader::trader_factory::TraderFactory;
 use crate::services::trader::trader_register::TraderRegister;
-use crate::services::trader::trend::trend_provider::TrendProvider;
 use crate::{app::Application, model::price::Price};
 use colored::Colorize;
 use eyre::eyre;
@@ -88,8 +87,7 @@ pub fn run_script<P: AsRef<Path>>(
 
     let script_trend_provider = ScriptTrendProvider::new();
 
-    let trend_provider: Box<dyn TrendProvider + Send + Sync> = Box::new(script_trend_provider);
-    let mut trader = trader_factory.create_trader(trend_provider, trader_register);
+    let mut trader = trader_factory.create_trader(script_trend_provider, trader_register);
 
     // Run trader from candles, this invoke script_trend_provider.trend()
     candles.iter().for_each(|c| {

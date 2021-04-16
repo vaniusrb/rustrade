@@ -49,11 +49,14 @@ impl EngineSingleton {
         engine.register_fn("is_bought", is_bought);
         engine.register_fn("is_sold", is_sold);
         engine.register_fn("gain_perc", gain_perc);
-
         // Operations
         engine.register_fn("sell", sell);
         engine.register_fn("buy", buy);
-
+        // Trend
+        engine.register_fn("change_trend_sell", change_trend_sell);
+        engine.register_fn("change_trend_buy", change_trend_buy);
+        engine.register_fn("set_change_trend_sell", set_change_trend_sell);
+        engine.register_fn("set_change_trend_buy", set_change_trend_buy);
         // Debugging
         engine.register_fn("log", log);
 

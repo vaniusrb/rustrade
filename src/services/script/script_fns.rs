@@ -2,7 +2,11 @@ use super::{
     script_state_singleton::ScriptStateSingleton, singleton_context::ContextSingleton,
     singleton_position::PositionRegisterSingleton,
 };
+use crate::model::operation::Operation;
+use crate::model::quantity::Quantity;
 use crate::services::technicals::ind_type::IndicatorType;
+use crate::services::trader::trend::trend_direction::TrendDirection;
+use crate::utils::dec_utils::fdec;
 use crate::utils::dec_utils::percent;
 use colored::Colorize;
 use log::info;
@@ -113,9 +117,55 @@ pub fn is_sold() -> bool {
     !is_bought()
 }
 
-pub fn buy(_quantity: f64) {}
+pub fn buy(quantity: f64) {
+    let singleton = ScriptStateSingleton::current();
+    let script_state_provider = singleton.script_state_opt.as_ref().unwrap();
+    let mut script_state_provider = script_state_provider.clone();
+    script_state_provider.operation_opt = Some(Operation::Buy(Quantity(fdec(quantity))));
+    ScriptStateSingleton::set_current(script_state_provider);
+}
 
-pub fn sell(_quantity: f64) {}
+pub fn sell(quantity: f64) {
+    let singleton = ScriptStateSingleton::current();
+    let script_state = singleton.script_state_opt.as_ref().unwrap();
+    let mut script_state = script_state.clone();
+    script_state.operation_opt = Some(Operation::Sell(Quantity(fdec(quantity))));
+    ScriptStateSingleton::set_current(script_state);
+}
+
+pub fn change_trend_buy() -> bool {
+    let singleton = ScriptStateSingleton::current();
+    let script_state_provider = singleton.script_state_opt.as_ref().unwrap();
+    script_state_provider.changed_trend == Some(TrendDirection::Buy)
+}
+
+pub fn change_trend_sell() -> bool {
+    let singleton = ScriptStateSingleton::current();
+    let script_state_provider = singleton.script_state_opt.as_ref().unwrap();
+    script_state_provider.changed_trend == Some(TrendDirection::Sell)
+}
+
+pub fn set_change_trend_sell(change: bool) {
+    if !change {
+        return;
+    }
+    let singleton = ScriptStateSingleton::current();
+    let script_state = singleton.script_state_opt.as_ref().unwrap();
+    let mut script_state = script_state.clone();
+    script_state.trend_direction = TrendDirection::Sell;
+    ScriptStateSingleton::set_current(script_state);
+}
+
+pub fn set_change_trend_buy(change: bool) {
+    if !change {
+        return;
+    }
+    let singleton = ScriptStateSingleton::current();
+    let script_state = singleton.script_state_opt.as_ref().unwrap();
+    let mut script_state = script_state.clone();
+    script_state.trend_direction = TrendDirection::Buy;
+    ScriptStateSingleton::set_current(script_state);
+}
 
 pub fn balance_fiat() -> f64 {
     let singleton = PositionRegisterSingleton::current();

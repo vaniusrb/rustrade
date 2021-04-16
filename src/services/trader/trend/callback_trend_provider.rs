@@ -27,7 +27,7 @@ impl CallBackTrendProvider {
     }
 }
 
-impl<'a> TrendProvider for CallBackTrendProvider {
+impl TrendProvider for CallBackTrendProvider {
     fn trend(
         &mut self,
         position_register: &PositionRegister,
