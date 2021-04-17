@@ -1,8 +1,11 @@
+use super::indicator::Indicator;
+use super::serie_indicator::SerieIndicator;
 use super::technical::{TechnicalDefinition, TechnicalIndicators};
 use crate::config::definition::TacDefinition;
 use crate::services::provider::candles_provider::CandlesProvider;
 use chrono::{DateTime, Utc};
 use rust_decimal::Decimal;
+use std::collections::HashMap;
 use std::{cmp::Ordering, collections::HashSet};
 
 pub const IND_TOP_BOTTOM: &str = "topbottom";
@@ -75,11 +78,11 @@ impl TechnicalDefinition for TopBottomTac {
 }
 
 impl TechnicalIndicators for TopBottomTac {
-    fn indicators(&self) -> &std::collections::HashMap<String, super::indicator::Indicator> {
+    fn indicators(&self) -> &HashMap<String, SerieIndicator> {
         todo!()
     }
 
-    fn main_indicator(&self) -> &super::indicator::Indicator {
+    fn main_indicator(&self) -> &dyn Indicator {
         todo!()
     }
 

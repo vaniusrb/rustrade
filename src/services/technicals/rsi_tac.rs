@@ -1,6 +1,8 @@
+use super::indicator::Indicator;
+use super::technical::TecSerieIndicators;
 use super::{
-    indicator::Indicator,
     serie::Serie,
+    serie_indicator::SerieIndicator,
     technical::{TechnicalDefinition, TechnicalIndicators},
 };
 use crate::config::definition::TacDefinition;
@@ -13,9 +15,8 @@ pub const IND_RSI: &str = "rsi";
 
 pub const TEC_RSI: &str = "rsi";
 
-#[derive(Clone)]
 pub struct RsiTac {
-    pub indicators: HashMap<String, Indicator>,
+    pub indicators: HashMap<String, SerieIndicator>,
 }
 
 impl TechnicalDefinition for RsiTac {
@@ -26,12 +27,23 @@ impl TechnicalDefinition for RsiTac {
 }
 
 impl TechnicalIndicators for RsiTac {
-    fn indicators(&self) -> &HashMap<String, Indicator> {
+    fn indicators(&self) -> &HashMap<String, SerieIndicator> {
         &self.indicators
     }
 
-    fn main_indicator(&self) -> &Indicator {
-        self.indicators.get(IND_RSI).unwrap()
+    fn main_indicator(&self) -> &dyn Indicator {
+        let result = self.indicators.get(IND_RSI).unwrap();
+        result as &dyn Indicator
+    }
+
+    fn name(&self) -> String {
+        TEC_RSI.to_string()
+    }
+}
+
+impl TecSerieIndicators for RsiTac {
+    fn serie_indicators(&self) -> &HashMap<String, SerieIndicator> {
+        &self.indicators
     }
 
     fn name(&self) -> String {
@@ -53,8 +65,9 @@ impl<'a> RsiTac {
             rsi_series.push(Serie::new(candle.close_time, rsi_result));
         }
 
-        let rsi = Indicator::from(IND_RSI, rsi_series);
-        indicators.insert(rsi.name.clone(), rsi);
+        let name = IND_RSI.to_string();
+        let rsi = SerieIndicator::from(&name, rsi_series);
+        indicators.insert(name, rsi);
 
         Self { indicators }
     }

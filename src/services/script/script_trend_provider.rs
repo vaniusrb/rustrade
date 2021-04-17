@@ -4,12 +4,12 @@ use super::singleton_context::ContextSingleton;
 use super::singleton_engine::EngineSingleton;
 use super::singleton_position::PositionRegisterSingleton;
 use crate::services::script::position_register::PositionRegister;
+use crate::services::technicals::indicator::Indicator;
 use crate::services::trader::running_script_state::TrendState;
 use crate::services::trader::trade_context_provider::TradeContextProvider;
 use crate::services::trader::trade_operation::TradeOperation;
 use crate::services::trader::trend::trend_direction::TrendDirection;
 use crate::services::trader::trend::trend_provider::TrendProvider;
-use std::cmp::Ordering;
 
 pub struct ScriptTrendProvider {}
 

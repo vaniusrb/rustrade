@@ -1,6 +1,8 @@
 use super::plotter_indicator_area::PlotterIndicatorArea;
+use crate::services::technicals::indicator::Indicator;
+use crate::services::technicals::technical::TecSerieIndicators;
 use crate::services::technicals::technical::TechnicalIndicators;
-use crate::services::technicals::{indicator::Indicator, macd_tac::MacdTac};
+use crate::services::technicals::{macd_tac::MacdTac, serie_indicator::SerieIndicator};
 use plotters::prelude::*;
 
 pub struct MacdPlotter<'a> {
@@ -14,7 +16,7 @@ impl<'a> MacdPlotter<'a> {
 }
 
 impl<'a> PlotterIndicatorArea for MacdPlotter<'a> {
-    fn indicator_color(&self, indicator: &Indicator) -> RGBColor {
+    fn indicator_color(&self, indicator: &SerieIndicator) -> RGBColor {
         match &indicator.name[..] {
             "macd" => RGBColor(0, 0, 255),
             "signal" => RGBColor(255, 0, 0),
@@ -22,7 +24,7 @@ impl<'a> PlotterIndicatorArea for MacdPlotter<'a> {
         }
     }
 
-    fn technical_indicators(&self) -> &dyn TechnicalIndicators {
+    fn tec_serie_indicators(&self) -> &dyn TecSerieIndicators {
         self.macd_tac
     }
 }

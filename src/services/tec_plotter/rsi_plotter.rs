@@ -1,6 +1,8 @@
 use super::plotter_indicator_area::PlotterIndicatorArea;
+use crate::services::technicals::indicator::Indicator;
+use crate::services::technicals::technical::TecSerieIndicators;
 use crate::services::technicals::technical::TechnicalIndicators;
-use crate::services::technicals::{indicator::Indicator, rsi_tac::RsiTac};
+use crate::services::technicals::{rsi_tac::RsiTac, serie_indicator::SerieIndicator};
 use plotters::prelude::*;
 use plotters::style::BLACK;
 
@@ -15,14 +17,14 @@ impl<'a> RsiPlotter<'a> {
 }
 
 impl<'a> PlotterIndicatorArea for RsiPlotter<'a> {
-    fn technical_indicators(&self) -> &dyn TechnicalIndicators {
-        self.rsi_tac
-    }
-
-    fn indicator_color(&self, indicator: &Indicator) -> RGBColor {
+    fn indicator_color(&self, indicator: &SerieIndicator) -> RGBColor {
         match &indicator.name[..] {
             "rsi" => RGBColor(0, 0, 255),
             _ => BLACK,
         }
+    }
+
+    fn tec_serie_indicators(&self) -> &dyn TecSerieIndicators {
+        self.rsi_tac as &dyn TecSerieIndicators
     }
 }

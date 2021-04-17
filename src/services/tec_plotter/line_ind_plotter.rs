@@ -1,18 +1,19 @@
 use crate::config::selection::Selection;
 use crate::services::tec_plotter::plotter_indicator_context::PlotterIndicatorContext;
 use crate::services::technicals::indicator::Indicator;
+use crate::services::technicals::serie_indicator::SerieIndicator;
 use chrono::{DateTime, Utc};
 use plotters::{coord::types::RangedCoordf32, prelude::*};
 use plotters_bitmap::bitmap_pixel::RGBPixel;
 use plotters_bitmap::BitMapBackend;
 
 pub struct LineIndicatorPlotter<'a> {
-    indicator: &'a Indicator,
+    indicator: &'a SerieIndicator,
     color: RGBColor,
 }
 
 impl<'a> LineIndicatorPlotter<'a> {
-    pub fn new(indicator: &'a Indicator, color: RGBColor) -> Self {
+    pub fn new(indicator: &'a SerieIndicator, color: RGBColor) -> Self {
         Self { indicator, color }
     }
 }

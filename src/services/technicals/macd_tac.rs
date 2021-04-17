@@ -1,7 +1,7 @@
 use crate::services::technicals::serie::Serie;
 use crate::{
     config::definition::TacDefinition,
-    services::technicals::{indicator::Indicator, technical::TechnicalIndicators},
+    services::technicals::{serie_indicator::SerieIndicator, technical::TechnicalIndicators},
 };
 use crate::{model::candle::Candle, services::technicals::technical::TechnicalDefinition};
 use ifmt::iformat;
@@ -10,15 +10,17 @@ use rust_decimal::prelude::ToPrimitive;
 use std::{collections::HashMap, time::Instant};
 use ta::{indicators::MovingAverageConvergenceDivergence as Macd, Next};
 
+use super::indicator::Indicator;
+use super::technical::TecSerieIndicators;
+
 pub const IND_MACD: &str = "macd";
 pub const IND_MACD_SIG: &str = "signal";
 pub const IND_MACD_DIV: &str = "divergence";
 
 pub const TEC_MCAD: &str = "macd";
 
-#[derive(Clone)]
 pub struct MacdTac {
-    pub indicators: HashMap<String, Indicator>,
+    indicators: HashMap<String, SerieIndicator>,
 }
 
 impl TechnicalDefinition for MacdTac {
@@ -27,17 +29,29 @@ impl TechnicalDefinition for MacdTac {
         TacDefinition::new(IND_MACD, &indicators)
     }
 }
+
 impl TechnicalIndicators for MacdTac {
-    fn main_indicator(&self) -> &Indicator {
-        self.indicators.get(IND_MACD).unwrap()
+    fn main_indicator(&self) -> &dyn Indicator {
+        let result = self.indicators.get(IND_MACD).unwrap();
+        result as &(dyn Indicator)
     }
 
-    fn indicators(&self) -> &HashMap<String, Indicator> {
+    fn indicators(&self) -> &HashMap<String, SerieIndicator> {
         &self.indicators
     }
 
     fn name(&self) -> String {
         TEC_MCAD.to_string()
+    }
+}
+
+impl TecSerieIndicators for MacdTac {
+    fn serie_indicators(&self) -> &HashMap<String, SerieIndicator> {
+        &self.indicators
+    }
+
+    fn name(&self) -> String {
+        todo!()
     }
 }
 
@@ -68,13 +82,13 @@ impl<'a> MacdTac {
             divergence_series.push(Serie::new(candle.close_time, macd_result.2));
         }
 
-        let macd = Indicator::from(IND_MACD, macd_series);
-        let signal = Indicator::from(IND_MACD_SIG, signal_series);
-        let divergence = Indicator::from(IND_MACD_DIV, divergence_series);
+        let macd = SerieIndicator::from(IND_MACD, macd_series);
+        let signal = SerieIndicator::from(IND_MACD_SIG, signal_series);
+        let divergence = SerieIndicator::from(IND_MACD_DIV, divergence_series);
 
-        indicators.insert(macd.name.clone(), macd);
-        indicators.insert(signal.name.clone(), signal);
-        indicators.insert(divergence.name.clone(), divergence);
+        indicators.insert(IND_MACD.to_string(), macd);
+        indicators.insert(IND_MACD_SIG.to_string().clone(), signal);
+        indicators.insert(IND_MACD_DIV.to_string().clone(), divergence);
 
         debug!(
             "{}",

@@ -1,6 +1,7 @@
+use super::indicator::Indicator;
 use super::{
-    indicator::Indicator,
     serie::Serie,
+    serie_indicator::SerieIndicator,
     technical::{TechnicalDefinition, TechnicalIndicators},
 };
 use crate::config::definition::TacDefinition;
@@ -13,9 +14,8 @@ pub const IND_SMA: &str = "sma";
 
 pub const TEC_SMA: &str = "sma";
 
-#[derive(Clone)]
 pub struct SmaTac {
-    pub indicators: HashMap<String, Indicator>,
+    pub indicators: HashMap<String, SerieIndicator>,
 }
 
 impl TechnicalDefinition for SmaTac {
@@ -26,12 +26,12 @@ impl TechnicalDefinition for SmaTac {
 }
 
 impl TechnicalIndicators for SmaTac {
-    fn indicators(&self) -> &HashMap<String, Indicator> {
+    fn indicators(&self) -> &HashMap<String, SerieIndicator> {
         &self.indicators
     }
 
-    fn main_indicator(&self) -> &Indicator {
-        self.indicators.get(IND_SMA).unwrap()
+    fn main_indicator(&self) -> &dyn Indicator {
+        self.indicators.get(IND_SMA).unwrap() as &dyn Indicator
     }
 
     fn name(&self) -> String {
@@ -53,8 +53,9 @@ impl<'a> SmaTac {
             sma_series.push(Serie::new(candle.close_time, sma_result));
         }
 
-        let sma = Indicator::from(IND_SMA, sma_series);
-        indicators.insert(sma.name.clone(), sma);
+        let name = IND_SMA.to_string();
+        let sma = SerieIndicator::from(&name, sma_series);
+        indicators.insert(name, sma);
 
         Self { indicators }
     }

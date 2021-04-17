@@ -1,3 +1,4 @@
+use super::indicator::Indicator;
 use super::{
     ema_tac::{EmaTac, IND_EMA},
     ind_type::IndicatorType,
@@ -7,7 +8,7 @@ use super::{
     technical::TechnicalIndicators,
 };
 use crate::model::candle::Candle;
-use crate::services::technicals::indicator::Indicator;
+use crate::services::technicals::serie_indicator::SerieIndicator;
 use chrono::{DateTime, Utc};
 use eyre::eyre;
 use std::collections::HashMap;
@@ -18,14 +19,14 @@ pub struct IndicatorProvider {
         HashMap<(String, usize), eyre::Result<Box<dyn TechnicalIndicators + Send + Sync>>>, // <= to allow trait with different lifetime
 }
 
-impl Clone for IndicatorProvider {
-    fn clone(&self) -> Self {
-        Self {
-            macds_opt: self.macds_opt.clone(),
-            tec_indicators: HashMap::new(),
-        }
-    }
-}
+// impl Clone for IndicatorProvider {
+//     fn clone(&self) -> Self {
+//         Self {
+//             macds_opt: self.macds_opt.clone(),
+//             tec_indicators: HashMap::new(),
+//         }
+//     }
+// }
 
 impl IndicatorProvider {
     pub fn new() -> Self {
@@ -34,12 +35,13 @@ impl IndicatorProvider {
             tec_indicators: HashMap::new(),
         }
     }
+
     fn tec_indicator(
         &mut self,
         candles: &[Candle],
         ind_name: &str,
         period: usize,
-    ) -> eyre::Result<&Indicator> {
+    ) -> eyre::Result<&dyn Indicator> {
         self.tec_indicators.clear();
         // TODO I shouldn't store Indicator cache, or use "now" like a key
         let result: &mut eyre::Result<Box<dyn TechnicalIndicators + Send + Sync>> = self
@@ -50,7 +52,7 @@ impl IndicatorProvider {
                     // TODO here should use enum instead constant
                     match ind_name {
                         IND_EMA => Ok(Box::new(EmaTac::new(candles, period))
-                            as Box<dyn TechnicalIndicators + Send + Sync>), // <= cast box<struct> as box<trait>
+                            as Box<dyn TechnicalIndicators + Send + Sync>),
                         IND_SMA => Ok(Box::new(SmaTac::new(candles, period))
                             as Box<dyn TechnicalIndicators + Send + Sync>),
                         IND_RSI => Ok(Box::new(RsiTac::new(candles, period))
@@ -74,7 +76,7 @@ impl IndicatorProvider {
         fast_period: usize,
         slow_period: usize,
         signal_period: usize,
-    ) -> eyre::Result<&Indicator> {
+    ) -> eyre::Result<&dyn Indicator> {
         // Try to reuse the same triple macd/signal/divergence
         self.macds_opt = self.macds_opt.take().filter(|e| {
             e.0 == now && e.1 == fast_period && e.2 == slow_period && e.3 == signal_period
@@ -90,7 +92,7 @@ impl IndicatorProvider {
         });
         let result = macd
             .4
-            .indicators
+            .indicators()
             .get(ind_name)
             .ok_or_else(|| -> eyre::Error { eyre!("Not found indicator {}!", ind_name) });
         result
@@ -101,7 +103,7 @@ impl IndicatorProvider {
         now: DateTime<Utc>,
         candles: &[Candle],
         indicator_type: &IndicatorType,
-    ) -> eyre::Result<&Indicator> {
+    ) -> eyre::Result<&dyn Indicator> {
         let indicator = match indicator_type {
             IndicatorType::Macd(fast_period, slow_period, signal_period) => self.macd(
                 now,

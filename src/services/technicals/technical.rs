@@ -1,15 +1,19 @@
-use std::collections::HashMap;
-
-use crate::config::definition::TacDefinition;
-
 use super::indicator::Indicator;
+use super::serie_indicator::SerieIndicator;
+use crate::config::definition::TacDefinition;
+use std::collections::HashMap;
 
 pub trait TechnicalDefinition {
     fn definition() -> TacDefinition;
 }
 
 pub trait TechnicalIndicators {
-    fn indicators(&self) -> &HashMap<String, Indicator>;
-    fn main_indicator(&self) -> &Indicator;
+    fn indicators(&self) -> &HashMap<String, SerieIndicator>;
+    fn main_indicator(&self) -> &dyn Indicator;
+    fn name(&self) -> String;
+}
+
+pub trait TecSerieIndicators {
+    fn serie_indicators(&self) -> &HashMap<String, SerieIndicator>;
     fn name(&self) -> String;
 }

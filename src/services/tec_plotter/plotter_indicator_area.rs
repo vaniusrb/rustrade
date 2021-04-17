@@ -1,6 +1,8 @@
+use crate::services::technicals::indicator::Indicator;
+use crate::services::technicals::technical::TecSerieIndicators;
 use crate::{
     config::selection::Selection,
-    services::technicals::{indicator::Indicator, technical::TechnicalIndicators},
+    services::technicals::{serie_indicator::SerieIndicator, technical::TechnicalIndicators},
 };
 use eyre::bail;
 use eyre::eyre;
@@ -13,7 +15,7 @@ use plotters::{
 use plotters_bitmap::{bitmap_pixel::RGBPixel, BitMapBackend};
 
 pub trait PlotterIndicatorArea {
-    fn technical_indicators(&self) -> &dyn TechnicalIndicators;
+    fn tec_serie_indicators(&self) -> &dyn TecSerieIndicators;
 
     fn plot(
         &self,
@@ -22,21 +24,21 @@ pub trait PlotterIndicatorArea {
     ) -> eyre::Result<()> {
         let selected_tac = selection
             .tacs
-            .get(&self.technical_indicators().name())
-            .ok_or_else(|| eyre!("Tac {} not selected!", self.technical_indicators().name()))?;
-        let tac = self.technical_indicators();
+            .get(&self.tec_serie_indicators().name())
+            .ok_or_else(|| eyre!("Tac {} not selected!", self.tec_serie_indicators().name()))?;
+        let tac = self.tec_serie_indicators();
         let mut selected_inds = Vec::new();
 
-        if self.technical_indicators().indicators().is_empty() {
+        if self.tec_serie_indicators().serie_indicators().is_empty() {
             bail!(
                 "{}_tac.indicators.is_empty",
-                self.technical_indicators().name()
+                self.tec_serie_indicators().name()
             );
         }
 
         for sel_ind_name in selected_tac.indicators.iter() {
             let tec_ind = tac
-                .indicators()
+                .serie_indicators()
                 .get(sel_ind_name)
                 .ok_or_else(|| eyre!("Indicator {} not found!", sel_ind_name))?;
             selected_inds.push(tec_ind);
@@ -44,11 +46,11 @@ pub trait PlotterIndicatorArea {
         self.plot_indicators(&selected_inds, selection, lower)
     }
 
-    fn indicator_color(&self, indicator: &Indicator) -> RGBColor;
+    fn indicator_color(&self, indicator: &SerieIndicator) -> RGBColor;
 
     fn plot_indicators(
         &self,
-        indicators: &[&Indicator],
+        indicators: &[&SerieIndicator],
         selection: &Selection,
         lower: &DrawingArea<BitMapBackend<RGBPixel>, Shift>,
     ) -> eyre::Result<()> {

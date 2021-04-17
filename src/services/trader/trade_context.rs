@@ -97,7 +97,7 @@ impl TradeContext {
         &mut self,
         minutes: i32,
         indicator_type: &IndicatorType,
-    ) -> eyre::Result<&Indicator> {
+    ) -> eyre::Result<&dyn Indicator> {
         let now = self.now();
         let period = indicator_type.period();
         // This caching is working ok

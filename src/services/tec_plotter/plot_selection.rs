@@ -81,9 +81,9 @@ impl<'a> PlotterSelection<'a> {
         // Upper indicators plotters
         let candle_plotter = CandlePlotter::new(&candles);
         let ema_short_plotter =
-            LineIndicatorPlotter::new(ema_short_tac.main_indicator(), short_purple);
+            LineIndicatorPlotter::new(ema_short_tac.main_serie_indicator(), short_purple);
         let ema_long_plotter =
-            LineIndicatorPlotter::new(ema_long_tac.main_indicator(), long_orange);
+            LineIndicatorPlotter::new(ema_long_tac.main_serie_indicator(), long_orange);
         let top_bottom_plotter = TopBottomPlotter::new(&top_bottoms);
         plotter.add_plotter_upper_ind(&candle_plotter);
         plotter.add_plotter_upper_ind(&top_bottom_plotter);

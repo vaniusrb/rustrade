@@ -46,12 +46,16 @@
 ✔ Add RSI tac @done(21-04-06 19:58)
 ✔ RSI plot @done(21-04-06 23:12)
 ✔ How allow gain to start/stop gain? Should have a "trend" function to trigger a "change direction" @done(21-04-09 22:35)
+✔ Create range missing trades @done(21-04-13 21:18)
+✔ Imperative order to buy() or sell() @done(21-04-15 22:29)
+✔ Reduce plot dependency wasm x servo | slow time compilation @done(21-04-15 22:30)
 
 High
+☐ Create min/max indicator -> create trait for indictors
 ☐ Do not allow buy or seel behind the max
+☐ Test in neutral period 21/julho/2019 21/julho/2020
 ☐ Regiter script log operion on flow record
 ☐ Create index for candle: symbol+minutes+open_time
-✔ Create range missing trades @done(21-04-13 21:18)
 ☐ Considerer exchange tax/fee in trade orders
 ☐ Add command line to import/list trades_agg
 ☐ Download tickets/trade/bid
@@ -65,12 +69,11 @@ High
 ☐ TrendProvider.trend() should be something like ".script_state()"
 
 Medium
-☐ Imperative order to buy() or sell()
+☐ Create test to script (buy,sell,stop) -> mock flow/operation
 ☐ Is RefCell clone_provider effective? Check if is creating heavy structs. Add log
 ☐ Is indicators caching working? Add log
 ☐ Apply candles selection in all commands?
 ☐ Resolve confusion checker x synchronizer
-☐ Reduce plot dependency wasm x servo | slow time compilation
 ☐ Live download candle/tickets/trade
 ☐ Not working minutes 60 from Exchange, fn for h, m, d
 ☐ Parametrize output filename plot image

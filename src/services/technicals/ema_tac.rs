@@ -1,6 +1,7 @@
+use super::indicator::Indicator;
 use super::{
-    indicator::Indicator,
     serie::Serie,
+    serie_indicator::SerieIndicator,
     technical::{TechnicalDefinition, TechnicalIndicators},
 };
 use crate::config::definition::TacDefinition;
@@ -13,9 +14,8 @@ pub const IND_EMA: &str = "ema";
 
 pub const TEC_EMA: &str = "ema";
 
-#[derive(Clone)]
 pub struct EmaTac {
-    pub indicators: HashMap<String, Indicator>,
+    pub indicators: HashMap<String, SerieIndicator>,
 }
 
 impl TechnicalDefinition for EmaTac {
@@ -26,12 +26,12 @@ impl TechnicalDefinition for EmaTac {
 }
 
 impl TechnicalIndicators for EmaTac {
-    fn indicators(&self) -> &HashMap<String, Indicator> {
+    fn indicators(&self) -> &HashMap<String, SerieIndicator> {
         &self.indicators
     }
 
-    fn main_indicator(&self) -> &Indicator {
-        self.indicators.get(IND_EMA).unwrap()
+    fn main_indicator(&self) -> &dyn Indicator {
+        self.indicators.get(IND_EMA).unwrap() as &dyn Indicator
     }
 
     fn name(&self) -> String {
@@ -54,13 +54,13 @@ impl<'a> EmaTac {
             ema_series.push(Serie::new(candle.close_time, ema_result));
         }
 
-        let ema = Indicator::from(IND_EMA, ema_series);
-        indicators.insert(ema.name.clone(), ema);
+        let ema = SerieIndicator::from(IND_EMA, ema_series);
+        indicators.insert(IND_EMA.to_string(), ema);
 
         EmaTac { indicators }
     }
 
-    pub fn _indicator(&self) -> &Indicator {
+    pub fn main_serie_indicator(&self) -> &SerieIndicator {
         self.indicators.get(IND_EMA).unwrap()
     }
 }

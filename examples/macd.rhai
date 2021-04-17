@@ -21,12 +21,12 @@ fn run() {
     if change_trend_buy() && is_sold() {
         let fiat = balance_fiat();
         let asset = fiat_to_asset(fiat);
-        log("change_trend_buy");
+        //log("change_trend_buy");
         buy(asset);
     }
 
     if change_trend_sell() && is_bought() {
-        log("change_trend_sell");
+        //log("change_trend_sell");
         sell(balance_asset());
     }
 }
