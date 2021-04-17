@@ -16,11 +16,12 @@ pub const IND_RSI: &str = "rsi";
 pub const TEC_RSI: &str = "rsi";
 
 pub struct RsiTac {
-    pub indicators: HashMap<String, SerieIndicator>,
+    pub serie_ind_map: HashMap<String, SerieIndicator>,
+    //pub indicators_map: HashMap<String, &dyn Indicator>,
 }
 
 impl TechnicalDefinition for RsiTac {
-    fn definition() -> crate::config::definition::TacDefinition {
+    fn definition() -> TacDefinition {
         let indicators = vec![IND_RSI];
         TacDefinition::new(IND_RSI, &indicators)
     }
@@ -28,11 +29,11 @@ impl TechnicalDefinition for RsiTac {
 
 impl TechnicalIndicators for RsiTac {
     fn indicators(&self) -> &HashMap<String, SerieIndicator> {
-        &self.indicators
+        &self.serie_ind_map
     }
 
     fn main_indicator(&self) -> &dyn Indicator {
-        let result = self.indicators.get(IND_RSI).unwrap();
+        let result = self.serie_ind_map.get(IND_RSI).unwrap();
         result as &dyn Indicator
     }
 
@@ -43,7 +44,7 @@ impl TechnicalIndicators for RsiTac {
 
 impl TecSerieIndicators for RsiTac {
     fn serie_indicators(&self) -> &HashMap<String, SerieIndicator> {
-        &self.indicators
+        &self.serie_ind_map
     }
 
     fn name(&self) -> String {
@@ -52,6 +53,10 @@ impl TecSerieIndicators for RsiTac {
 }
 
 impl<'a> RsiTac {
+    pub fn get_indicator(&self, name: &str) -> Option<&dyn Indicator> {
+        self.indicators().get(name).map(|s| s as &dyn Indicator)
+    }
+
     pub fn new(candles: &[Candle], period: usize) -> Self {
         let mut rsi_series = Vec::with_capacity(candles.len());
 
@@ -67,8 +72,17 @@ impl<'a> RsiTac {
 
         let name = IND_RSI.to_string();
         let rsi = SerieIndicator::from(&name, rsi_series);
+
+        let rsi_ind = &rsi as &dyn Indicator;
+
         indicators.insert(name, rsi);
 
-        Self { indicators }
+        // let mut indicators_map = HashMap::new();
+        // indicators_map.insert(name, rsi_ind);
+
+        Self {
+            serie_ind_map: indicators,
+            // indicators_map,
+        }
     }
 }

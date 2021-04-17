@@ -15,7 +15,7 @@ pub const IND_MIN_MAX: &str = "min_max";
 pub const TEC_MIN_MAX: &str = "min_max";
 
 pub struct MinMaxTac {
-    pub indicators: HashMap<String, Box<dyn Indicator>>,
+    pub indicators: HashMap<String, ValueIndicator>,
 }
 
 impl TechnicalDefinition for MinMaxTac {
@@ -48,12 +48,12 @@ impl<'a> MinMaxTac {
         let max = last_candles.iter().fold(dec!(0), |acc, x| acc.max(x.high));
         let min = last_candles.iter().fold(max, |acc, x| acc.min(x.low));
 
-        let indicators = HashMap::new();
+        let mut indicators = HashMap::new();
 
-        let ind_max = Box::new(ValueIndicator::new(max.to_f64().unwrap())) as Box<dyn Indicator>;
+        let ind_max = ValueIndicator::new(max.to_f64().unwrap());
         indicators.insert("max".to_string(), ind_max);
 
-        let ind_min = Box::new(ValueIndicator::new(min.to_f64().unwrap())) as Box<dyn Indicator>;
+        let ind_min = ValueIndicator::new(min.to_f64().unwrap());
         indicators.insert("min".to_string(), ind_min);
 
         Self { indicators }

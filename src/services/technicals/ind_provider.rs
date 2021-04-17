@@ -92,8 +92,7 @@ impl IndicatorProvider {
         });
         let result = macd
             .4
-            .indicators()
-            .get(ind_name)
+            .get_indicator(ind_name)
             .ok_or_else(|| -> eyre::Error { eyre!("Not found indicator {}!", ind_name) });
         result
     }
