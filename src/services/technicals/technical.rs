@@ -8,11 +8,7 @@ pub trait TechnicalDefinition {
 }
 
 pub trait TechnicalIndicators {
-    fn get_indicator(&self, name: &str) -> Option<&dyn Indicator> {
-        self.indicators().get(name).map(|s| s as &dyn Indicator)
-    }
-
-    fn indicators(&self) -> &HashMap<String, SerieIndicator>;
+    fn get_indicator(&self, name: &str) -> Option<&dyn Indicator>;
     fn main_indicator(&self) -> &dyn Indicator;
     fn name(&self) -> String;
 }

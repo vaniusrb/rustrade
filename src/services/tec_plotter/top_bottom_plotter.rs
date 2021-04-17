@@ -1,6 +1,7 @@
+use crate::config::selection::Selection;
 use crate::services::tec_plotter::plotter_indicator_context::PlotterIndicatorContext;
-use crate::services::technicals::top_bottom_tac::TopBottom;
-use crate::{config::selection::Selection, services::technicals::top_bottom_tac::TopBottomType};
+use crate::services::technicals::top_bottom::TopBottom;
+use crate::services::technicals::top_bottom::TopBottomType;
 use chrono::{DateTime, Utc};
 use plotters::{
     coord::types::RangedCoordf32,

@@ -1,5 +1,4 @@
 use crate::services::script::position_register::PositionRegister;
-use crate::services::technicals::indicator::Indicator;
 use crate::services::trader::{
     running_script_state::TrendState, trade_context_provider::TradeContextProvider,
 };

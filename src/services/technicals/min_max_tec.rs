@@ -1,6 +1,5 @@
 use super::{
     indicator::Indicator,
-    serie::Serie,
     technical::{TechnicalDefinition, TechnicalIndicators},
 };
 use crate::config::definition::TacDefinition;
@@ -14,35 +13,34 @@ pub const IND_MIN_MAX: &str = "min_max";
 
 pub const TEC_MIN_MAX: &str = "min_max";
 
-pub struct MinMaxTac {
+pub struct MinMaxTec {
     pub indicators: HashMap<String, ValueIndicator>,
 }
 
-impl TechnicalDefinition for MinMaxTac {
+impl TechnicalDefinition for MinMaxTec {
     fn definition() -> crate::config::definition::TacDefinition {
         let indicators = vec![IND_MIN_MAX];
         TacDefinition::new(IND_MIN_MAX, &indicators)
     }
 }
 
-// impl TechnicalIndicators for MinMaxTac {
-//     fn indicators(&self) -> &HashMap<String, SerieIndicator> {
-//         &self.indicators
-//     }
+impl TechnicalIndicators for MinMaxTec {
+    fn get_indicator(&self, name: &str) -> Option<&dyn Indicator> {
+        self.indicators.get(name).map(|s| s as &dyn Indicator)
+    }
 
-//     fn main_indicator(&self) -> &dyn Indicator {
-//         &**self.indicators.get(IND_MIN_MAX).unwrap()
-//     }
+    fn main_indicator(&self) -> &dyn Indicator {
+        self.indicators.get(IND_MIN_MAX).unwrap() as &dyn Indicator
+    }
 
-//     fn name(&self) -> String {
-//         TEC_MIN_MAX.to_string()
-//     }
-// }
+    fn name(&self) -> String {
+        TEC_MIN_MAX.to_string()
+    }
+}
 
-impl<'a> MinMaxTac {
+impl<'a> MinMaxTec {
     pub fn new(candles: &[Candle], period: usize) -> Self {
         let start = (candles.len() - period).max(0);
-
         let last_candles = candles[start..candles.len()].to_vec();
 
         let max = last_candles.iter().fold(dec!(0), |acc, x| acc.max(x.high));

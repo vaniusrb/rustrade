@@ -14,22 +14,18 @@ pub const IND_EMA: &str = "ema";
 
 pub const TEC_EMA: &str = "ema";
 
-pub struct EmaTac {
+pub struct EmaTec {
     pub indicators: HashMap<String, SerieIndicator>,
 }
 
-impl TechnicalDefinition for EmaTac {
+impl TechnicalDefinition for EmaTec {
     fn definition() -> crate::config::definition::TacDefinition {
         let indicators = vec![IND_EMA];
         TacDefinition::new(IND_EMA, &indicators)
     }
 }
 
-impl TechnicalIndicators for EmaTac {
-    fn indicators(&self) -> &HashMap<String, SerieIndicator> {
-        &self.indicators
-    }
-
+impl TechnicalIndicators for EmaTec {
     fn main_indicator(&self) -> &dyn Indicator {
         self.indicators.get(IND_EMA).unwrap() as &dyn Indicator
     }
@@ -37,9 +33,13 @@ impl TechnicalIndicators for EmaTac {
     fn name(&self) -> String {
         TEC_EMA.to_string()
     }
+
+    fn get_indicator(&self, name: &str) -> Option<&dyn Indicator> {
+        self.indicators.get(name).map(|s| s as &dyn Indicator)
+    }
 }
 
-impl<'a> EmaTac {
+impl<'a> EmaTec {
     pub fn new(candles: &[Candle], period: usize) -> Self {
         let mut ema_series = Vec::with_capacity(candles.len());
 
@@ -57,7 +57,7 @@ impl<'a> EmaTac {
         let ema = SerieIndicator::from(IND_EMA, ema_series);
         indicators.insert(IND_EMA.to_string(), ema);
 
-        EmaTac { indicators }
+        EmaTec { indicators }
     }
 
     pub fn main_serie_indicator(&self) -> &SerieIndicator {

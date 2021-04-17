@@ -1,9 +1,6 @@
 use crate::services::technicals::indicator::Indicator;
 use crate::services::technicals::technical::TecSerieIndicators;
-use crate::{
-    config::selection::Selection,
-    services::technicals::{serie_indicator::SerieIndicator, technical::TechnicalIndicators},
-};
+use crate::{config::selection::Selection, services::technicals::serie_indicator::SerieIndicator};
 use eyre::bail;
 use eyre::eyre;
 use log::info;

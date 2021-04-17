@@ -14,8 +14,8 @@ use crate::repository::pool_factory::create_pool;
 use crate::repository::symbol_repository::SymbolRepository;
 use crate::services::candles_checker::CandlesChecker;
 use crate::services::streamer::Streamer;
-use crate::services::technicals::ema_tac::EmaTac;
-use crate::services::technicals::macd_tac::MacdTac;
+use crate::services::technicals::ema_tec::EmaTec;
+use crate::services::technicals::macd_tec::MacdTec;
 use crate::services::trade_aggs_checker::TradeAggsChecker;
 use crate::utils::date_utils::str_to_datetime;
 use config::{candles_selection::CandlesSelection, selection::Selection};
@@ -24,7 +24,7 @@ use log::{info, Level, LevelFilter};
 use services::provider::trade_history_provider::TradeHistoryProvider;
 use services::{
     exchange::Exchange,
-    technicals::{rsi_tac::RsiTac, technical::TechnicalDefinition},
+    technicals::{rsi_tec::RsiTec, technical::TechnicalDefinition},
 };
 use sqlx::PgPool;
 #[cfg(debug_assertions)]
@@ -112,9 +112,9 @@ enum Trade {
 pub fn selection_default(candles_selection: CandlesSelection) -> Selection {
     let mut tacs = HashMap::new();
     for tac in vec![
-        RsiTac::definition(),
-        MacdTac::definition(),
-        EmaTac::definition(),
+        RsiTec::definition(),
+        MacdTec::definition(),
+        EmaTec::definition(),
     ] {
         tacs.insert(tac.name.clone(), tac);
     }

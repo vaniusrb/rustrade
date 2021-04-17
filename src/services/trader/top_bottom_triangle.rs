@@ -1,5 +1,6 @@
-use crate::services::technicals::top_bottom_tac::TopBottom;
-use crate::{model::open_close::OpenClose, services::technicals::top_bottom_tac::TopBottomType};
+use crate::model::open_close::OpenClose;
+use crate::services::technicals::top_bottom::TopBottom;
+use crate::services::technicals::top_bottom::TopBottomType;
 
 pub fn top_bottom_triangle(top_bottoms: &[&TopBottom], minutes: i32) -> Vec<OpenClose> {
     let mut triangles = Vec::new();

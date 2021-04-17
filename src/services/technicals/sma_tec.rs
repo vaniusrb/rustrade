@@ -14,20 +14,20 @@ pub const IND_SMA: &str = "sma";
 
 pub const TEC_SMA: &str = "sma";
 
-pub struct SmaTac {
+pub struct SmaTec {
     pub indicators: HashMap<String, SerieIndicator>,
 }
 
-impl TechnicalDefinition for SmaTac {
+impl TechnicalDefinition for SmaTec {
     fn definition() -> crate::config::definition::TacDefinition {
         let indicators = vec![IND_SMA];
         TacDefinition::new(IND_SMA, &indicators)
     }
 }
 
-impl TechnicalIndicators for SmaTac {
-    fn indicators(&self) -> &HashMap<String, SerieIndicator> {
-        &self.indicators
+impl TechnicalIndicators for SmaTec {
+    fn get_indicator(&self, name: &str) -> Option<&dyn Indicator> {
+        self.indicators.get(name).map(|s| s as &dyn Indicator)
     }
 
     fn main_indicator(&self) -> &dyn Indicator {
@@ -39,7 +39,7 @@ impl TechnicalIndicators for SmaTac {
     }
 }
 
-impl<'a> SmaTac {
+impl<'a> SmaTec {
     pub fn new(candles: &[Candle], period: usize) -> Self {
         let mut sma_series = Vec::with_capacity(candles.len());
 

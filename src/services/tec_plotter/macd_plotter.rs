@@ -1,16 +1,14 @@
 use super::plotter_indicator_area::PlotterIndicatorArea;
-use crate::services::technicals::indicator::Indicator;
 use crate::services::technicals::technical::TecSerieIndicators;
-use crate::services::technicals::technical::TechnicalIndicators;
-use crate::services::technicals::{macd_tac::MacdTac, serie_indicator::SerieIndicator};
+use crate::services::technicals::{macd_tec::MacdTec, serie_indicator::SerieIndicator};
 use plotters::prelude::*;
 
 pub struct MacdPlotter<'a> {
-    macd_tac: &'a MacdTac,
+    macd_tac: &'a MacdTec,
 }
 
 impl<'a> MacdPlotter<'a> {
-    pub fn new(macd_tac: &'a MacdTac) -> Self {
+    pub fn new(macd_tac: &'a MacdTec) -> Self {
         MacdPlotter { macd_tac }
     }
 }

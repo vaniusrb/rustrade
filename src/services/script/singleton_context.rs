@@ -1,4 +1,3 @@
-use crate::services::technicals::indicator::Indicator;
 use crate::services::trader::trade_context_provider::TradeContextProvider;
 use std::sync::{Arc, RwLock};
 

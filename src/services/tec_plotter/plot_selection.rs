@@ -7,11 +7,10 @@ use crate::services::tec_plotter::plotter::Plotter;
 use crate::services::tec_plotter::plotter_indicator_context::PlotterIndicatorContext;
 use crate::services::tec_plotter::rsi_plotter::RsiPlotter;
 use crate::services::tec_plotter::top_bottom_plotter::TopBottomPlotter;
-use crate::services::technicals::macd_tac::MacdTac;
-use crate::services::technicals::rsi_tac::RsiTac;
-use crate::services::technicals::technical::TechnicalIndicators;
-use crate::services::technicals::top_bottom_tac::TopBottomTac;
-use crate::EmaTac;
+use crate::services::technicals::macd_tec::MacdTec;
+use crate::services::technicals::rsi_tec::RsiTec;
+use crate::services::technicals::top_bottom_tec::TopBottomTec;
+use crate::EmaTec;
 use colored::Colorize;
 use ifmt::iformat;
 use log::info;
@@ -41,7 +40,6 @@ impl<'a> PlotterSelection<'a> {
     pub fn plot(&mut self) -> eyre::Result<()> {
         let total_start = Instant::now();
 
-        let candles_provider_clone = self.candles_provider.clone_provider();
         let candles = self.candles_provider.candles()?;
 
         let start_time = self.selection.candles_selection.start_time;
@@ -64,12 +62,12 @@ impl<'a> PlotterSelection<'a> {
 
         // TODO must obey the Selection.tacs
         // Default technicals
-        let macd_tac = MacdTac::new(&candles, 34, 72, 17);
-        let rsi_tac = RsiTac::new(&candles, 14);
-        let ema_short_tac = EmaTac::new(&candles, 17);
-        let ema_long_tac = EmaTac::new(&candles, 72);
-        let mut top_bottom_tac = TopBottomTac::new(candles_provider_clone, 7);
-        let top_bottoms = top_bottom_tac.top_bottoms()?;
+        let macd_tac = MacdTec::new(&candles, 34, 72, 17);
+        let rsi_tac = RsiTec::new(&candles, 14);
+        let ema_short_tac = EmaTec::new(&candles, 17);
+        let ema_long_tac = EmaTec::new(&candles, 72);
+        let mut top_bottom_tec = TopBottomTec::new(&candles, candles.len(), 7);
+        let top_bottoms = top_bottom_tec.top_bottoms()?;
 
         // Create plotter object
         let mut plotter = Plotter::new(self.selection.clone());

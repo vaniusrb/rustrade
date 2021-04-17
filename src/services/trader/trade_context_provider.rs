@@ -1,7 +1,6 @@
 use super::{trade_context::TradeContext, trend::trend_direction::TrendDirection};
 use crate::services::provider::candles_provider::CandlesProviderBuffer;
 use crate::services::technicals::ind_type::IndicatorType;
-use crate::services::technicals::indicator::Indicator;
 use crate::{model::price::Price, services::technicals::ind_provider::IndicatorProvider};
 use chrono::{DateTime, Utc};
 use std::rc::Rc;

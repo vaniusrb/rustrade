@@ -19,24 +19,34 @@ pub const IND_MACD_DIV: &str = "divergence";
 
 pub const TEC_MCAD: &str = "macd";
 
-pub struct MacdTac {
+pub struct MacdTec {
     indicators: HashMap<String, SerieIndicator>,
 }
 
-impl TechnicalDefinition for MacdTac {
+impl TechnicalDefinition for MacdTec {
     fn definition() -> crate::config::definition::TacDefinition {
         let indicators = vec![IND_MACD, IND_MACD_SIG, IND_MACD_DIV];
         TacDefinition::new(IND_MACD, &indicators)
     }
 }
 
-impl TechnicalIndicators for MacdTac {
+impl TechnicalIndicators for MacdTec {
+    fn get_indicator(&self, name: &str) -> Option<&dyn Indicator> {
+        self.indicators.get(name).map(|s| s as &dyn Indicator)
+    }
+
     fn main_indicator(&self) -> &dyn Indicator {
         let result = self.indicators.get(IND_MACD).unwrap();
         result as &(dyn Indicator)
     }
 
-    fn indicators(&self) -> &HashMap<String, SerieIndicator> {
+    fn name(&self) -> String {
+        TEC_MCAD.to_string()
+    }
+}
+
+impl TecSerieIndicators for MacdTec {
+    fn serie_indicators(&self) -> &HashMap<String, SerieIndicator> {
         &self.indicators
     }
 
@@ -45,17 +55,7 @@ impl TechnicalIndicators for MacdTac {
     }
 }
 
-impl TecSerieIndicators for MacdTac {
-    fn serie_indicators(&self) -> &HashMap<String, SerieIndicator> {
-        &self.indicators
-    }
-
-    fn name(&self) -> String {
-        todo!()
-    }
-}
-
-impl<'a> MacdTac {
+impl<'a> MacdTec {
     pub fn new(
         candles: &[Candle],
         fast_period: usize,
@@ -95,6 +95,6 @@ impl<'a> MacdTac {
             iformat!("macd load {candles.len()}: {start.elapsed():?}")
         );
 
-        MacdTac { indicators }
+        MacdTec { indicators }
     }
 }

@@ -15,25 +15,24 @@ pub const IND_RSI: &str = "rsi";
 
 pub const TEC_RSI: &str = "rsi";
 
-pub struct RsiTac {
-    pub serie_ind_map: HashMap<String, SerieIndicator>,
-    //pub indicators_map: HashMap<String, &dyn Indicator>,
+pub struct RsiTec {
+    pub indicators: HashMap<String, SerieIndicator>,
 }
 
-impl TechnicalDefinition for RsiTac {
+impl TechnicalDefinition for RsiTec {
     fn definition() -> TacDefinition {
         let indicators = vec![IND_RSI];
         TacDefinition::new(IND_RSI, &indicators)
     }
 }
 
-impl TechnicalIndicators for RsiTac {
-    fn indicators(&self) -> &HashMap<String, SerieIndicator> {
-        &self.serie_ind_map
+impl TechnicalIndicators for RsiTec {
+    fn get_indicator(&self, name: &str) -> Option<&dyn Indicator> {
+        self.indicators.get(name).map(|s| s as &dyn Indicator)
     }
 
     fn main_indicator(&self) -> &dyn Indicator {
-        let result = self.serie_ind_map.get(IND_RSI).unwrap();
+        let result = self.indicators.get(IND_RSI).unwrap();
         result as &dyn Indicator
     }
 
@@ -42,9 +41,9 @@ impl TechnicalIndicators for RsiTac {
     }
 }
 
-impl TecSerieIndicators for RsiTac {
+impl TecSerieIndicators for RsiTec {
     fn serie_indicators(&self) -> &HashMap<String, SerieIndicator> {
-        &self.serie_ind_map
+        &self.indicators
     }
 
     fn name(&self) -> String {
@@ -52,11 +51,7 @@ impl TecSerieIndicators for RsiTac {
     }
 }
 
-impl<'a> RsiTac {
-    pub fn get_indicator(&self, name: &str) -> Option<&dyn Indicator> {
-        self.indicators().get(name).map(|s| s as &dyn Indicator)
-    }
-
+impl<'a> RsiTec {
     pub fn new(candles: &[Candle], period: usize) -> Self {
         let mut rsi_series = Vec::with_capacity(candles.len());
 
@@ -73,16 +68,8 @@ impl<'a> RsiTac {
         let name = IND_RSI.to_string();
         let rsi = SerieIndicator::from(&name, rsi_series);
 
-        let rsi_ind = &rsi as &dyn Indicator;
-
         indicators.insert(name, rsi);
 
-        // let mut indicators_map = HashMap::new();
-        // indicators_map.insert(name, rsi_ind);
-
-        Self {
-            serie_ind_map: indicators,
-            // indicators_map,
-        }
+        Self { indicators }
     }
 }

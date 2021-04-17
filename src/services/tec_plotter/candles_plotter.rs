@@ -1,5 +1,4 @@
 use crate::services::tec_plotter::plotter_indicator_context::PlotterIndicatorContext;
-use crate::utils::candles_utils::min_max_candles;
 use crate::{config::selection::Selection, model::candle::Candle};
 use chrono::{DateTime, Utc};
 use plotters::{coord::types::RangedCoordf32, prelude::*};

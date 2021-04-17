@@ -4,7 +4,7 @@ use crate::services::provider::candles_provider::CandlesProviderBuffer;
 use crate::services::provider::candles_provider::CandlesProviderBufferSingleton;
 use crate::services::provider::candles_provider::CandlesProviderSelection;
 use crate::services::script::script_back_test::run_script;
-use crate::services::technicals::top_bottom_tac::TopBottomTac;
+use crate::services::technicals::top_bottom_tec::TopBottomTec;
 use crate::services::trader::top_bottom_triangle::top_bottom_triangle;
 use crate::utils::date_utils::datetime_to_filename;
 use crate::Exchange;
@@ -79,9 +79,10 @@ impl Application {
 
 pub fn plot_triangles(
     selection: Selection,
-    candles_provider: Box<dyn CandlesProvider>,
+    mut candles_provider: Box<dyn CandlesProvider>,
 ) -> eyre::Result<()> {
-    let mut topbottom_tac = TopBottomTac::new(candles_provider.clone_provider(), 7);
+    let candles = candles_provider.candles()?;
+    let mut topbottom_tac = TopBottomTec::new(&candles, candles.len(), 7);
     let top_bottoms = topbottom_tac.top_bottoms()?;
 
     let top_bottoms = top_bottoms.iter().collect::<Vec<_>>();
