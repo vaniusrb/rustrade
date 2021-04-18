@@ -66,7 +66,7 @@ impl TradeContext {
 
     pub fn set_trend_direction(&mut self, trend_direction: TrendDirection) {
         if self.current_trend_direction_opt.is_none() {
-            self.current_trend_direction_opt = Some(trend_direction.clone());
+            self.current_trend_direction_opt = Some(trend_direction);
         }
         self.trend_directions.push(trend_direction);
         if self.trend_directions.len() > 3 {
@@ -75,7 +75,7 @@ impl TradeContext {
         if let Some(normalized_trend) = self.normalized_trend() {
             let current_trend_direction = self.current_trend_direction_opt.as_ref().unwrap();
             if &normalized_trend != current_trend_direction {
-                self.changed_trend = Some(normalized_trend.clone());
+                self.changed_trend = Some(normalized_trend);
                 self.current_trend_direction_opt = Some(normalized_trend);
             }
         }

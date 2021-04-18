@@ -20,12 +20,12 @@ pub struct TopBottomTec {
 
 impl TechnicalDefinition for TopBottomTec {
     fn definition() -> TacDefinition {
-        TacDefinition::new("topbottom", &[IND_TOP, IND_BOTTOM])
+        TacDefinition::new(TEC_TOP_BOTTOM, &[IND_TOP, IND_BOTTOM])
     }
 }
 
 impl TechnicalIndicators for TopBottomTec {
-    fn get_indicator(&self, name: &str) -> Option<&dyn Indicator> {
+    fn get_indicator(&self, _name: &str) -> Option<&dyn Indicator> {
         todo!()
     }
 

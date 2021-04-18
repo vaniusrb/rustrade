@@ -87,8 +87,8 @@ impl<'a> MacdTec {
         let divergence = SerieIndicator::from(IND_MACD_DIV, divergence_series);
 
         indicators.insert(IND_MACD.to_string(), macd);
-        indicators.insert(IND_MACD_SIG.to_string().clone(), signal);
-        indicators.insert(IND_MACD_DIV.to_string().clone(), divergence);
+        indicators.insert(IND_MACD_SIG.to_string(), signal);
+        indicators.insert(IND_MACD_DIV.to_string(), divergence);
 
         debug!(
             "{}",
