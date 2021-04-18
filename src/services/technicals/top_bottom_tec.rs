@@ -6,7 +6,9 @@ use crate::config::definition::TacDefinition;
 use crate::model::candle::Candle;
 use std::collections::HashSet;
 
-pub const IND_TOP_BOTTOM: &str = "topbottom";
+pub const IND_TOP: &str = "top";
+
+pub const IND_BOTTOM: &str = "bottom";
 
 pub const TEC_TOP_BOTTOM: &str = "topbottom";
 
@@ -18,7 +20,7 @@ pub struct TopBottomTec {
 
 impl TechnicalDefinition for TopBottomTec {
     fn definition() -> TacDefinition {
-        TacDefinition::new("topbottom", &["topbottom"])
+        TacDefinition::new("topbottom", &[IND_TOP, IND_BOTTOM])
     }
 }
 
