@@ -82,7 +82,7 @@ pub fn plot_triangles(
     mut candles_provider: Box<dyn CandlesProvider>,
 ) -> eyre::Result<()> {
     let candles = candles_provider.candles()?;
-    let mut topbottom_tac = TopBottomTec::new(&candles, candles.len(), 7);
+    let topbottom_tac = TopBottomTec::new(&candles, candles.len(), 7);
     let top_bottoms = topbottom_tac.top_bottoms()?;
 
     let top_bottoms = top_bottoms.iter().collect::<Vec<_>>();

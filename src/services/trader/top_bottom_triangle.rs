@@ -1,8 +1,8 @@
-use crate::model::open_close::OpenClose;
+use crate::model::open_close_time::OpenCloseTime;
 use crate::services::technicals::top_bottom::TopBottom;
 use crate::services::technicals::top_bottom::TopBottomType;
 
-pub fn top_bottom_triangle(top_bottoms: &[&TopBottom], minutes: i32) -> Vec<OpenClose> {
+pub fn top_bottom_triangle(top_bottoms: &[&TopBottom], minutes: i32) -> Vec<OpenCloseTime> {
     let mut triangles = Vec::new();
     for i in 0..top_bottoms.len() - 6 {
         let p = [
@@ -20,7 +20,7 @@ pub fn top_bottom_triangle(top_bottoms: &[&TopBottom], minutes: i32) -> Vec<Open
             && p[3].price < p[5].price
         {
             println!("{}", p[5].close_time);
-            triangles.push(OpenClose::from_date_close(&p[5].close_time, minutes));
+            triangles.push(OpenCloseTime::from_date_close(&p[5].close_time, minutes));
         };
     }
     triangles

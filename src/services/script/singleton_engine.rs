@@ -32,12 +32,14 @@ impl EngineSingleton {
     pub fn install<P: AsRef<Path>>(script_file: P) -> eyre::Result<()> {
         // Create engine script and register functions
         let mut engine = Engine::new();
-        // Current context
-        engine.register_fn("rsi", rsi);
+        // Current context/indicators
         engine.register_fn("price", price);
+        engine.register_fn("rsi", rsi);
         engine.register_fn("ema", ema);
         engine.register_fn("sma", sma);
         engine.register_fn("macd", macd);
+        engine.register_fn("min", min);
+        engine.register_fn("max", max);
         engine.register_fn("macd_signal", macd_signal);
         engine.register_fn("macd_divergence", macd_divergence);
         // Conversion functions

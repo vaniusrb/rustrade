@@ -43,7 +43,7 @@ impl<'a> PlotterIndicatorContext for TopBottomPlotter<'a> {
                 .filter(|p| p.type_p == TopBottomType::Top)
                 .map(|c| (c.close_time, c.price.to_f32().unwrap())),
             3,
-            ShapeStyle::from(&red).filled(),
+            ShapeStyle::from(&green).filled(),
             &|coord, size, style| {
                 EmptyElement::at(coord) + Circle::new((0, 0), size, style)
                 //+ Text::new(format!("{:?}", coord), (0, 15), ("sans-serif", 15))
@@ -57,7 +57,7 @@ impl<'a> PlotterIndicatorContext for TopBottomPlotter<'a> {
                 .filter(|p| p.type_p == TopBottomType::Bottom)
                 .map(|c| (c.close_time, c.price.to_f32().unwrap())),
             3,
-            ShapeStyle::from(&green).filled(),
+            ShapeStyle::from(&red).filled(),
             &|coord, size, style| {
                 EmptyElement::at(coord) + Circle::new((0, 0), size, style)
                 //+ Text::new(format!("{:?}", coord), (0, 15), ("sans-serif", 15))

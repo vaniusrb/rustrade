@@ -1,4 +1,4 @@
-use crate::model::{candle::Candle, open_close::OpenClose};
+use crate::model::{candle::Candle, open_close_time::OpenCloseTime};
 use crate::services::provider::candles_utils::min_max_close_time_from_candles;
 use chrono::prelude::*;
 use chrono::{DateTime, Duration, Utc};
@@ -29,7 +29,7 @@ impl<'a> CandlesRange<'a> {
         self.candles.is_empty()
     }
 
-    pub fn min_max_close(&self) -> eyre::Result<(OpenClose, OpenClose)> {
+    pub fn min_max_close(&self) -> eyre::Result<(OpenCloseTime, OpenCloseTime)> {
         min_max_close_time_from_candles(self.candles.as_slice())
             .context("CandlesRange.min_max: Candles is empty!")
     }
@@ -138,16 +138,16 @@ pub fn candles_ranges<'a>(candles: &[&'a Candle], minutes: i32) -> eyre::Result<
 }
 
 pub fn invert_ranges_close(
-    start_time: &OpenClose,
-    end_time: &OpenClose,
+    start_time: &OpenCloseTime,
+    end_time: &OpenCloseTime,
     ranges: &CandlesRanges,
     minutes: i32,
-) -> eyre::Result<Vec<(OpenClose, OpenClose)>> {
+) -> eyre::Result<Vec<(OpenCloseTime, OpenCloseTime)>> {
     fn add_range(
         ranges: &CandlesRanges,
-        inverted_ranges: &mut Vec<(OpenClose, OpenClose)>,
-        start: OpenClose,
-        end: OpenClose,
+        inverted_ranges: &mut Vec<(OpenCloseTime, OpenCloseTime)>,
+        start: OpenCloseTime,
+        end: OpenCloseTime,
     ) -> eyre::Result<()> {
         // TODO: use debug_assert!
         if start > end {
@@ -214,11 +214,11 @@ pub fn minutes_open_trunc(start_time: &DateTime<Utc>, minutes: i32) -> DateTime<
 }
 
 pub fn candles_to_ranges_missing(
-    start_time: &OpenClose,
-    end_time: &OpenClose,
+    start_time: &OpenCloseTime,
+    end_time: &OpenCloseTime,
     minutes: i32,
     candles: &[&Candle],
-) -> eyre::Result<Vec<(OpenClose, OpenClose)>> {
+) -> eyre::Result<Vec<(OpenCloseTime, OpenCloseTime)>> {
     if candles.is_empty() {
         return Ok(vec![(*start_time, *end_time)]);
     }
@@ -268,15 +268,16 @@ pub fn candles_to_ranges_missing(
 #[cfg(test)]
 pub mod testes {
     use super::*;
-    use crate::model::open_close::_str_close;
-    use crate::utils::date_utils::_datetime_to_str;
+    use crate::model::low_high_price::LowHighPrice;
+    use crate::model::open_close_price::OpenClosePrice;
+    use crate::model::open_close_time::_str_close;
     use crate::utils::date_utils::str_d;
     use crate::utils::date_utils::str_to_datetime;
     use crate::utils::dec_utils::fdec;
     use std::println;
 
-    pub fn str_open(date_time: &str) -> OpenClose {
-        OpenClose::Open(str_to_datetime(date_time))
+    pub fn str_open(date_time: &str) -> OpenCloseTime {
+        OpenCloseTime::Open(str_to_datetime(date_time))
     }
 
     pub fn close_time_from_open(minutes: i32, start: &DateTime<Utc>) -> DateTime<Utc> {
@@ -284,17 +285,13 @@ pub mod testes {
     }
 
     fn candle_test(start: &str) -> Candle {
-        let end = _datetime_to_str(&close_time_from_open(15, &str_d(start)));
         Candle::new(
             0,
-            start,
-            &end,
             1,
+            OpenCloseTime::Open(str_d(start)),
             15,
-            fdec(100.0),
-            fdec(100.0),
-            fdec(100.0),
-            fdec(100.0),
+            OpenClosePrice(fdec(100.0), fdec(100.0)),
+            LowHighPrice(fdec(100.0), fdec(100.0)),
             fdec(100.0),
         )
     }
@@ -322,22 +319,22 @@ pub mod testes {
         assert_eq!(
             ranges.ranges.get(0).unwrap().min_max_close().unwrap(),
             (
-                OpenClose::Close(str_d("2020-01-12 12:14:59")),
-                OpenClose::Close(str_d("2020-01-12 12:29:59"))
+                OpenCloseTime::Close(str_d("2020-01-12 12:14:59")),
+                OpenCloseTime::Close(str_d("2020-01-12 12:29:59"))
             )
         );
         assert_eq!(
             ranges.ranges.get(1).unwrap().min_max_close().unwrap(),
             (
-                OpenClose::Close(str_d("2020-11-16 01:29:59")),
-                OpenClose::Close(str_d("2020-11-16 01:29:59"))
+                OpenCloseTime::Close(str_d("2020-11-16 01:29:59")),
+                OpenCloseTime::Close(str_d("2020-11-16 01:29:59"))
             )
         );
         assert_eq!(
             ranges.ranges.get(2).unwrap().min_max_close().unwrap(),
             (
-                OpenClose::Close(str_d("2020-11-20 11:29:59")),
-                OpenClose::Close(str_d("2020-11-20 11:29:59"))
+                OpenCloseTime::Close(str_d("2020-11-20 11:29:59")),
+                OpenCloseTime::Close(str_d("2020-11-20 11:29:59"))
             )
         );
     }
@@ -355,8 +352,8 @@ pub mod testes {
         let ranges = candles_ranges(candles_ref.as_slice(), 15).unwrap();
         println!("Ranges:");
 
-        let start_time = OpenClose::Close(str_d("2020-01-01 00:00:00") - Duration::seconds(1));
-        let end_time = OpenClose::Close(str_d("2020-11-30 00:00:00") - Duration::seconds(1));
+        let start_time = OpenCloseTime::Close(str_d("2020-01-01 00:00:00") - Duration::seconds(1));
+        let end_time = OpenCloseTime::Close(str_d("2020-11-30 00:00:00") - Duration::seconds(1));
 
         let inverted_ranges = invert_ranges_close(&start_time, &end_time, &ranges, 15).unwrap();
 
@@ -401,8 +398,8 @@ pub mod testes {
         let candles_ref = candles.iter().collect::<Vec<_>>();
         let ranges = candles_ranges(candles_ref.as_slice(), 15).unwrap();
 
-        let start_time = OpenClose::Close(str_d("2020-01-01 00:00:00") - Duration::seconds(1));
-        let end_time = OpenClose::Close(str_d("2020-11-30 00:00:00") - Duration::seconds(1));
+        let start_time = OpenCloseTime::Close(str_d("2020-01-01 00:00:00") - Duration::seconds(1));
+        let end_time = OpenCloseTime::Close(str_d("2020-11-30 00:00:00") - Duration::seconds(1));
 
         let inverted_ranges = invert_ranges_close(&start_time, &end_time, &ranges, 15).unwrap();
 
@@ -454,8 +451,8 @@ pub mod testes {
 
     #[test]
     fn candles_to_ranges_missing_test() {
-        let start_time = OpenClose::from_str("2020-01-01 00:00:00", 15);
-        let end_time = OpenClose::from_str("2020-11-30 00:00:00", 15);
+        let start_time = OpenCloseTime::from_str("2020-01-01 00:00:00", 15);
+        let end_time = OpenCloseTime::from_str("2020-11-30 00:00:00", 15);
 
         let candles = candles_test(&[
             "2020-01-12 12:00:00",
@@ -509,8 +506,8 @@ pub mod testes {
 
     #[test]
     fn candles_to_ranges_missing_exact_bound_test() {
-        let start_time = OpenClose::from_str("2020-01-12 12:00:00", 15);
-        let end_time = OpenClose::from_str("2020-11-20 11:15:00", 15);
+        let start_time = OpenCloseTime::from_str("2020-01-12 12:00:00", 15);
+        let end_time = OpenCloseTime::from_str("2020-11-20 11:15:00", 15);
 
         let candles = candles_test(&[
             "2020-01-12 12:00:00",
@@ -554,13 +551,13 @@ pub mod testes {
             "2020-10-11 10:15:00",
             "2020-10-11 10:30:00",
         ]);
-        let start_time = OpenClose::from_date(&candles.first().unwrap().open_time, 15);
-        let end_time = OpenClose::from_date(&candles.last().unwrap().open_time, 15);
+        let start_time = OpenCloseTime::from_date(&candles.first().unwrap().open_time, 15);
+        let end_time = OpenCloseTime::from_date(&candles.last().unwrap().open_time, 15);
         let candles_ref = candles.iter().collect::<Vec<_>>();
         let ranges_missing =
             candles_to_ranges_missing(&start_time, &end_time, 15, candles_ref.as_slice()).unwrap();
 
-        let missing_candle = OpenClose::from_str("2020-10-11 10:00:00", 15);
+        let missing_candle = OpenCloseTime::from_str("2020-10-11 10:00:00", 15);
 
         println!("ranges_missing ({}):", ranges_missing.len());
         for range in ranges_missing.iter() {

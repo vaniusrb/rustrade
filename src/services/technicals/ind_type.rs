@@ -6,7 +6,8 @@ pub enum IndicatorType {
     Ema(usize),
     Sma(usize),
     Rsi(usize),
-    MinMax(usize),
+    Min(usize),
+    Max(usize),
     //TopBottom(usize),
 }
 
@@ -19,7 +20,8 @@ impl IndicatorType {
             IndicatorType::Ema(period) => *period as i32,
             IndicatorType::Sma(period) => *period as i32,
             IndicatorType::Rsi(period) => *period as i32,
-            IndicatorType::MinMax(period) => *period as i32,
+            IndicatorType::Min(period) => *period as i32,
+            IndicatorType::Max(period) => *period as i32,
         }
     }
 }

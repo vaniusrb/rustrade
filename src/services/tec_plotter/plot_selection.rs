@@ -66,7 +66,7 @@ impl<'a> PlotterSelection<'a> {
         let rsi_tac = RsiTec::new(&candles, 14);
         let ema_short_tac = EmaTec::new(&candles, 17);
         let ema_long_tac = EmaTec::new(&candles, 72);
-        let mut top_bottom_tec = TopBottomTec::new(&candles, candles.len(), 7);
+        let top_bottom_tec = TopBottomTec::new(&candles, candles.len(), 7);
         let top_bottoms = top_bottom_tec.top_bottoms()?;
 
         // Create plotter object

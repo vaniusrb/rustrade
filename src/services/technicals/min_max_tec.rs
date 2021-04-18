@@ -9,7 +9,9 @@ use rust_decimal::prelude::ToPrimitive;
 use rust_decimal_macros::dec;
 use std::collections::HashMap;
 
-pub const IND_MIN_MAX: &str = "min_max";
+pub const IND_MIN: &str = "min";
+
+pub const IND_MAX: &str = "max";
 
 pub const TEC_MIN_MAX: &str = "min_max";
 
@@ -19,8 +21,8 @@ pub struct MinMaxTec {
 
 impl TechnicalDefinition for MinMaxTec {
     fn definition() -> crate::config::definition::TacDefinition {
-        let indicators = vec![IND_MIN_MAX];
-        TacDefinition::new(IND_MIN_MAX, &indicators)
+        let indicators = vec![IND_MIN, IND_MAX];
+        TacDefinition::new(TEC_MIN_MAX, &indicators)
     }
 }
 
@@ -30,7 +32,7 @@ impl TechnicalIndicators for MinMaxTec {
     }
 
     fn main_indicator(&self) -> &dyn Indicator {
-        self.indicators.get(IND_MIN_MAX).unwrap() as &dyn Indicator
+        self.indicators.get(IND_MIN).unwrap() as &dyn Indicator
     }
 
     fn name(&self) -> String {
@@ -49,10 +51,10 @@ impl<'a> MinMaxTec {
         let mut indicators = HashMap::new();
 
         let ind_max = ValueIndicator::new(max.to_f64().unwrap());
-        indicators.insert("max".to_string(), ind_max);
+        indicators.insert(IND_MAX.to_string(), ind_max);
 
         let ind_min = ValueIndicator::new(min.to_f64().unwrap());
-        indicators.insert("min".to_string(), ind_min);
+        indicators.insert(IND_MIN.to_string(), ind_min);
 
         Self { indicators }
     }

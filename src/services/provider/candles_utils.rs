@@ -1,4 +1,4 @@
-use crate::model::{candle::Candle, open_close::OpenClose};
+use crate::model::{candle::Candle, open_close_time::OpenCloseTime};
 use crate::utils::date_utils::str_to_datetime;
 use crate::utils::date_utils::timestamp_to_datetime;
 use crate::utils::dec_utils::fdec;
@@ -77,11 +77,13 @@ pub fn inconsistent_candles(candles: &[&Candle], duration: &Duration) -> Vec<Can
 }
 
 /// Returns min/max close time from candles list
-pub fn min_max_close_time_from_candles(candles: &[&Candle]) -> Option<(OpenClose, OpenClose)> {
+pub fn min_max_close_time_from_candles(
+    candles: &[&Candle],
+) -> Option<(OpenCloseTime, OpenCloseTime)> {
     if candles.is_empty() {
         return None;
     }
-    let mut min_date = OpenClose::Open(str_to_datetime("2000-01-01 00:00:00"));
+    let mut min_date = OpenCloseTime::Open(str_to_datetime("2000-01-01 00:00:00"));
     let max_date = candles
         .iter()
         .map(|c| c.open_close())
@@ -96,6 +98,9 @@ pub fn min_max_close_time_from_candles(candles: &[&Candle]) -> Option<(OpenClose
 #[cfg(test)]
 pub mod tests {
     use super::*;
+    use crate::model::low_high_price::LowHighPrice;
+    use crate::model::open_close_price::OpenClosePrice;
+    use crate::utils::date_utils::str_d;
     use crate::utils::dec_utils::fdec;
     use chrono::Duration;
 
@@ -103,26 +108,20 @@ pub mod tests {
     fn candles_sorted_ok_test() {
         let c1 = Candle::new(
             0,
-            "2020-01-12 12:00:00",
-            "2020-01-12 12:14:59",
             1,
+            OpenCloseTime::OpenClose(str_d("2020-01-12 12:00:00"), str_d("2020-01-12 12:14:59")),
             15,
-            fdec(100.0),
-            fdec(100.0),
-            fdec(100.0),
-            fdec(100.0),
+            OpenClosePrice(fdec(100.0), fdec(100.0)),
+            LowHighPrice(fdec(100.0), fdec(100.0)),
             fdec(100.0),
         );
         let c2 = Candle::new(
             0,
-            "2020-01-12 12:15:00",
-            "2020-01-12 12:29:59",
             1,
+            OpenCloseTime::OpenClose(str_d("2020-01-12 12:15:00"), str_d("2020-01-12 12:29:59")),
             15,
-            fdec(100.0),
-            fdec(100.0),
-            fdec(100.0),
-            fdec(100.0),
+            OpenClosePrice(fdec(100.0), fdec(100.0)),
+            LowHighPrice(fdec(100.0), fdec(100.0)),
             fdec(100.0),
         );
 
@@ -144,27 +143,21 @@ pub mod tests {
 
         let c3 = Candle::new(
             0,
-            "2020-11-16 01:25:00",
-            "2020-11-16 01:29:59",
             1,
+            OpenCloseTime::OpenClose(str_d("2020-11-16 01:25:00"), str_d("2020-11-16 01:29:59")),
             15,
-            fdec(100.0),
-            fdec(100.0),
-            fdec(100.0),
-            fdec(100.0),
+            OpenClosePrice(fdec(100.0), fdec(100.0)),
+            LowHighPrice(fdec(100.0), fdec(100.0)),
             fdec(100.0),
         );
 
         let c4 = Candle::new(
             0,
-            "2020-11-20 11:15:00",
-            "2020-11-20 11:29:59",
             1,
+            OpenCloseTime::OpenClose(str_d("2020-11-20 11:15:00"), str_d("2020-11-20 11:29:59")),
             15,
-            fdec(100.0),
-            fdec(100.0),
-            fdec(100.0),
-            fdec(100.0),
+            OpenClosePrice(fdec(100.0), fdec(100.0)),
+            LowHighPrice(fdec(100.0), fdec(100.0)),
             fdec(100.0),
         );
 

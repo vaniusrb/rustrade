@@ -104,6 +104,22 @@ pub fn rsi(min: i64, a: i64) -> f64 {
         .unwrap()
 }
 
+pub fn min(min: i64, a: i64) -> f64 {
+    let singleton = ContextSingleton::current();
+    let trade_context_provider = singleton.trade_context_provider_opt.as_ref().unwrap();
+    trade_context_provider
+        .value(min as i32, &IndicatorType::Min(a as usize))
+        .unwrap()
+}
+
+pub fn max(min: i64, a: i64) -> f64 {
+    let singleton = ContextSingleton::current();
+    let trade_context_provider = singleton.trade_context_provider_opt.as_ref().unwrap();
+    trade_context_provider
+        .value(min as i32, &IndicatorType::Max(a as usize))
+        .unwrap()
+}
+
 /// If I have more assets (equivalent value) than fiat
 pub fn is_bought() -> bool {
     let singleton = PositionRegisterSingleton::current();

@@ -12,7 +12,8 @@ pub const TEC_TOP_BOTTOM: &str = "topbottom";
 
 #[derive(Clone)]
 pub struct TopBottomTec {
-    top_bottoms: Vec<TopBottom>,
+    tops: Vec<TopBottom>,
+    bottoms: Vec<TopBottom>,
 }
 
 impl TechnicalDefinition for TopBottomTec {
@@ -66,14 +67,14 @@ impl TopBottomTec {
                 .unwrap_or(candle.high);
             if candle.low < l_min && candle.low < r_min {
                 top_bottoms.push(TopBottom::new(
-                    TopBottomType::Top,
+                    TopBottomType::Bottom,
                     candle.close_time,
                     candle.low,
                 ));
             }
             if candle.high > l_max && candle.high > r_max {
                 top_bottoms.push(TopBottom::new(
-                    TopBottomType::Bottom,
+                    TopBottomType::Top,
                     candle.close_time,
                     candle.high,
                 ));
@@ -81,35 +82,32 @@ impl TopBottomTec {
         }
         normalize_top_bottoms(&mut top_bottoms);
 
-        TopBottomTec { top_bottoms }
+        let (tops, bottoms): (Vec<_>, Vec<_>) = top_bottoms
+            .into_iter()
+            .partition(|tb| tb.type_p == TopBottomType::Top);
+
+        TopBottomTec { tops, bottoms }
     }
 
     pub fn top_bottoms(&self) -> eyre::Result<Vec<TopBottom>> {
-        Ok(self.top_bottoms.clone())
+        let mut result = self
+            .tops
+            .iter()
+            .chain(self.bottoms.iter())
+            .cloned()
+            .collect::<Vec<TopBottom>>();
+        result.sort_by(|a, b| a.close_time.cmp(&b.close_time));
+        Ok(result)
     }
 
     pub fn last_n_bottom(&self, last: u32) -> Option<TopBottom> {
-        let result = self
-            .top_bottoms
-            .iter()
-            .filter(|tb| tb.type_p == TopBottomType::Bottom)
-            .collect::<Vec<_>>();
-        result
-            .get(result.len() - last as usize - 1)
-            .map(|tb| *tb)
+        self.bottoms
+            .get(self.bottoms.len() - last as usize - 1)
             .cloned()
     }
 
     pub fn last_n_top(&self, last: u32) -> Option<TopBottom> {
-        let result = self
-            .top_bottoms
-            .iter()
-            .filter(|tb| tb.type_p == TopBottomType::Top)
-            .collect::<Vec<_>>();
-        result
-            .get(result.len() - last as usize - 1)
-            .map(|tb| *tb)
-            .cloned()
+        self.tops.get(self.tops.len() - last as usize - 1).cloned()
     }
 }
 
@@ -117,13 +115,10 @@ fn normalize_top_bottoms(top_bottoms: &mut Vec<TopBottom>) {
     if top_bottoms.is_empty() {
         return;
     }
-
     let mut delete = HashSet::new();
     let mut reverse = top_bottoms.clone();
     reverse.reverse();
-
     let mut top_bottoms_iter = reverse.iter();
-
     let mut previous = top_bottoms_iter.next().unwrap();
     loop {
         match top_bottoms_iter.next() {
@@ -140,7 +135,6 @@ fn normalize_top_bottoms(top_bottoms: &mut Vec<TopBottom>) {
             }
         }
     }
-
     top_bottoms.retain(|p| delete.get(p).is_none());
 }
 
@@ -403,7 +397,7 @@ pub mod tests {
         let mut candles_provider = Box::new(candles_provider_vec);
         let candles = candles_provider.candles()?;
 
-        let mut topbottom_tac = TopBottomTec::new(&candles, candles.len(), 7);
+        let topbottom_tac = TopBottomTec::new(&candles, candles.len(), 7);
 
         let top_bottoms = topbottom_tac.top_bottoms().unwrap();
 

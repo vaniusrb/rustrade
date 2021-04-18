@@ -4,7 +4,7 @@ use crate::services::technicals::heikin_ashi;
 use crate::Exchange;
 use crate::{
     config::{candles_selection::CandlesSelection, symbol_minutes::SymbolMinutes},
-    model::{candle::Candle, open_close::OpenClose},
+    model::{candle::Candle, open_close_time::OpenCloseTime},
 };
 use eyre::eyre;
 use ifmt::iformat;
@@ -69,8 +69,8 @@ impl CandlesProviderBufferSingleton {
 
             debug!("Retrieving ranges missing from buffer...");
             let ranges_missing_from_buffer = candles_to_ranges_missing(
-                &OpenClose::from_date(start_time, minutes),
-                &OpenClose::from_date(end_time, minutes),
+                &OpenCloseTime::from_date(start_time, minutes),
+                &OpenCloseTime::from_date(end_time, minutes),
                 candles_selection.symbol_minutes.minutes,
                 candles_buf.iter().collect::<Vec<_>>().as_slice(),
             )?;

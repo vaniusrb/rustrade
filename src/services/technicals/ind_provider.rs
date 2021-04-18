@@ -1,6 +1,7 @@
 use super::indicator::Indicator;
 use super::min_max_tec::MinMaxTec;
-use super::min_max_tec::IND_MIN_MAX;
+use super::min_max_tec::IND_MAX;
+use super::min_max_tec::IND_MIN;
 use super::{
     ema_tec::{EmaTec, IND_EMA},
     ind_type::IndicatorType,
@@ -37,13 +38,11 @@ impl IndicatorProvider {
         period: usize,
     ) -> eyre::Result<&dyn Indicator> {
         self.tec_indicators.clear();
-        // TODO I shouldn't store Indicator cache, or use "now" like a key
         let result: &mut eyre::Result<Box<dyn TechnicalIndicators + Send + Sync>> = self
             .tec_indicators
             .entry((ind_name.to_string(), period))
             .or_insert_with(|| {
                 let result: eyre::Result<Box<dyn TechnicalIndicators + Send + Sync>> =
-                    // TODO here should use enum instead constant
                     match ind_name {
                         IND_EMA => Ok(Box::new(EmaTec::new(candles, period))
                             as Box<dyn TechnicalIndicators + Send + Sync>),
@@ -69,7 +68,6 @@ impl IndicatorProvider {
         ind_name: &str,
         period: usize,
     ) -> eyre::Result<&dyn Indicator> {
-        // Try to reuse the same triple macd/signal/divergence
         self.min_max_tec_opt = self
             .min_max_tec_opt
             .take()
@@ -120,10 +118,8 @@ impl IndicatorProvider {
         indicator_type: &IndicatorType,
     ) -> eyre::Result<&dyn Indicator> {
         let indicator = match indicator_type {
-            IndicatorType::MinMax(period) => {
-                self.min_max_indicator(now, candles, IND_MIN_MAX, *period)?
-            }
-
+            IndicatorType::Min(period) => self.min_max_indicator(now, candles, IND_MIN, *period)?,
+            IndicatorType::Max(period) => self.min_max_indicator(now, candles, IND_MAX, *period)?,
             IndicatorType::Macd(fast_period, slow_period, signal_period) => self.macd_indicator(
                 now,
                 candles,

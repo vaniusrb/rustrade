@@ -10,11 +10,13 @@ fn run() {
     let g = gain_perc();
     if g > 2.0 {
         log("stop gain: " + g);
+        show_min_man();
         sell(balance_asset());
     }
 
     if g < -3.0 {
         log("stop loss: " + g);
+        show_min_man();
         sell(balance_asset());
     }
 
@@ -29,4 +31,8 @@ fn run() {
         //log("change_trend_sell");
         sell(balance_asset());
     }
+}
+
+fn show_min_man() {
+    log("min " + min(15, 4) + " max " + max(15, 4));
 }
