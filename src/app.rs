@@ -1,8 +1,8 @@
 use crate::config::{definition::ConfigDefinition, selection::Selection};
 use crate::services::provider::candles_provider::CandlesProvider;
-use crate::services::provider::candles_provider::CandlesProviderBuffer;
-use crate::services::provider::candles_provider::CandlesProviderBufferSingleton;
-use crate::services::provider::candles_provider::CandlesProviderSelection;
+use crate::services::provider::candles_provider_buffer::CandlesProviderBuffer;
+use crate::services::provider::candles_provider_buffer_singleton::CandlesProviderBufferSingleton;
+use crate::services::provider::candles_provider_selection::CandlesProviderSelection;
 use crate::services::script::script_back_test::run_script;
 use crate::services::technicals::top_bottom_tec::TopBottomTec;
 use crate::services::trading::top_bottom_triangle::top_bottom_triangle;

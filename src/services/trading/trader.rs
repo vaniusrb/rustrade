@@ -2,7 +2,7 @@ use super::{
     trade_operation::TradeOperation, trader_register::TraderRegister,
     trend::trend_provider::TrendProvider,
 };
-use crate::services::provider::candles_provider::CandlesProviderBuffer;
+use crate::services::provider::candles_provider_buffer::CandlesProviderBuffer;
 use crate::services::trading::trade_context_provider::TradeContextProvider;
 use crate::{model::price::Price, services::technicals::ind_provider::IndicatorProvider};
 use chrono::{DateTime, Utc};

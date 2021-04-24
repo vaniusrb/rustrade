@@ -1,6 +1,7 @@
 use super::trend::trend_direction::TrendDirection;
-use crate::services::provider::candles_provider::CandlesProviderBuffer;
-use crate::services::provider::candles_provider::{CandlesProvider, CandlesProviderSelection};
+use crate::services::provider::candles_provider::CandlesProvider;
+use crate::services::provider::candles_provider_buffer::CandlesProviderBuffer;
+use crate::services::provider::candles_provider_selection::CandlesProviderSelection;
 use crate::services::technicals::ind_provider::IndicatorProvider;
 use crate::services::technicals::indicator::Indicator;
 use crate::{config::candles_selection::CandlesSelection, model::candle::Candle};

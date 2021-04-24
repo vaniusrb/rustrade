@@ -1,5 +1,5 @@
 use super::{trade_context::TradeContext, trend::trend_direction::TrendDirection};
-use crate::services::provider::candles_provider::CandlesProviderBuffer;
+use crate::services::provider::candles_provider_buffer::CandlesProviderBuffer;
 use crate::services::technicals::ind_type::IndicatorType;
 use crate::{model::price::Price, services::technicals::ind_provider::IndicatorProvider};
 use chrono::{DateTime, Utc};

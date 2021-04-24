@@ -161,7 +161,7 @@ pub mod tests {
     use super::*;
     use crate::model::candle::Candle;
     use crate::services::provider::candles_provider::CandlesProvider;
-    use crate::services::provider::candles_provider::CandlesProviderVec;
+    use crate::services::provider::candles_provider_vec::CandlesProviderVec;
     use crate::utils::date_utils::str_to_datetime;
     use ifmt::iprintln;
     use rust_decimal_macros::dec;

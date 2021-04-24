@@ -2,7 +2,7 @@ use super::{
     trader::Trader, trader_register::TraderRegister, trend::trend_provider::TrendProvider,
 };
 use crate::config::candles_selection::CandlesSelection;
-use crate::services::provider::candles_provider::CandlesProviderBuffer;
+use crate::services::provider::candles_provider_buffer::CandlesProviderBuffer;
 use crate::services::technicals::ind_provider::IndicatorProvider;
 
 #[derive(Clone)]
