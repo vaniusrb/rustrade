@@ -1,5 +1,7 @@
-use super::open_close::OpenClose;
-use crate::candles_utils::{str_to_datetime, time_to_str};
+use super::low_high_price::LowHighPrice;
+use super::open_close_price::OpenClosePrice;
+use super::open_close_time::OpenCloseTime;
+use crate::utils::date_utils::time_to_str;
 use chrono::{DateTime, Utc};
 use ifmt::iwrite;
 use rust_decimal::Decimal;
@@ -22,32 +24,29 @@ pub struct Candle {
 impl Candle {
     pub fn new(
         id: i32,
-        open_time: &str,
-        close_time: &str,
         symbol: i32,
+        open_close_time: OpenCloseTime,
         minutes: i32,
-        open: Decimal,
-        high: Decimal,
-        low: Decimal,
-        close: Decimal,
+        open_close_price: OpenClosePrice,
+        low_high_price: LowHighPrice,
         volume: Decimal,
     ) -> Self {
         Self {
             id,
-            open_time: str_to_datetime(open_time),
-            close_time: str_to_datetime(close_time),
+            open_time: open_close_time.open(minutes),
+            close_time: open_close_time.close(minutes),
             symbol,
             minutes,
-            open,
-            high,
-            low,
-            close,
+            open: open_close_price.0,
+            high: open_close_price.1,
+            low: low_high_price.0,
+            close: low_high_price.1,
             volume,
         }
     }
 
-    pub fn open_close(&self) -> OpenClose {
-        OpenClose::OpenClose(self.open_time, self.close_time)
+    pub fn open_close(&self) -> OpenCloseTime {
+        OpenCloseTime::OpenClose(self.open_time, self.close_time)
     }
 }
 

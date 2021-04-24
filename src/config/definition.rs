@@ -1,4 +1,5 @@
-use crate::service::technicals::top_bottom_tac::IND_TOP_BOTTOM;
+use crate::services::technicals::technical::TechnicalDefinition;
+use crate::services::technicals::top_bottom_tec::TopBottomTec;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
@@ -29,7 +30,7 @@ pub struct ConfigDefinition {
 impl ConfigDefinition {
     pub fn new() -> Self {
         ConfigDefinition {
-            tacs: vec![TacDefinition::new(IND_TOP_BOTTOM, &["topbottom"])],
+            tacs: vec![TopBottomTec::definition()],
             minutes: vec![5u32, 15u32, 30u32, 60u32],
             symbol: vec!["BTCUSDT".to_string()],
             period_start: "2020-06-01 00:00:00".to_string(),

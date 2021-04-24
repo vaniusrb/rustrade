@@ -1,10 +1,12 @@
 pub mod candle;
 pub mod flow;
-pub mod open_close;
+pub mod low_high_price;
+pub mod open_close_price;
+pub mod open_close_time;
 pub mod operation;
 pub mod position;
 pub mod price;
 pub mod quantity;
 pub mod side;
 pub mod symbol;
-pub mod trade_history;
+pub mod trade_agg;

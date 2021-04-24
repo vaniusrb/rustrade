@@ -1,17 +1,17 @@
-use crate::repository::repository_candle::RepositoryCandle;
-use crate::service::candles_provider::CandlesProvider;
-use crate::service::candles_provider::CandlesProviderBuffer;
-use crate::service::candles_provider::CandlesProviderBufferSingleton;
-use crate::service::candles_provider::CandlesProviderSelection;
-use crate::service::plot_selection::plot_selection;
-use crate::service::script::script_back_test::run_script;
-use crate::service::strategy::top_bottom_triangle::top_bottom_triangle;
-use crate::service::technicals::top_bottom_tac::TopBottomTac;
+use crate::config::{definition::ConfigDefinition, selection::Selection};
+use crate::services::provider::candles_provider::CandlesProvider;
+use crate::services::provider::candles_provider::CandlesProviderBuffer;
+use crate::services::provider::candles_provider::CandlesProviderBufferSingleton;
+use crate::services::provider::candles_provider::CandlesProviderSelection;
+use crate::services::script::script_back_test::run_script;
+use crate::services::technicals::top_bottom_tec::TopBottomTec;
+use crate::services::trader::top_bottom_triangle::top_bottom_triangle;
+use crate::utils::date_utils::datetime_to_filename;
 use crate::Exchange;
 use crate::Streamer;
 use crate::{
-    candles_utils::datetime_to_filename,
-    config::{definition::ConfigDefinition, selection::Selection},
+    repository::candle_repository::CandleRepository,
+    services::tec_plotter::plot_selection::plot_selection,
 };
 use chrono::Duration;
 use log::info;
@@ -26,7 +26,7 @@ pub struct Application {
 }
 
 impl Application {
-    pub fn new(repository: RepositoryCandle, exchange: Exchange, selection: Selection) -> Self {
+    pub fn new(repository: CandleRepository, exchange: Exchange, selection: Selection) -> Self {
         let candles_provider_singleton = CandlesProviderBufferSingleton::new(repository, exchange);
         Application {
             candles_provider: CandlesProviderBuffer::new(candles_provider_singleton),
@@ -70,7 +70,7 @@ impl Application {
         let selection = self.selection.clone();
         let candles_provider_selection = CandlesProviderSelection::new(
             self.candles_provider.clone(),
-            selection.candles_selection.clone(),
+            selection.candles_selection,
         );
         let candles_provider = Box::new(candles_provider_selection);
         plot_selection(selection, candles_provider, Vec::new())
@@ -79,9 +79,10 @@ impl Application {
 
 pub fn plot_triangles(
     selection: Selection,
-    candles_provider: Box<dyn CandlesProvider>,
+    mut candles_provider: Box<dyn CandlesProvider>,
 ) -> eyre::Result<()> {
-    let mut topbottom_tac = TopBottomTac::new(candles_provider.clone_provider(), 7);
+    let candles = candles_provider.candles()?;
+    let topbottom_tac = TopBottomTec::new(&candles, candles.len(), 7);
     let top_bottoms = topbottom_tac.top_bottoms()?;
 
     let top_bottoms = top_bottoms.iter().collect::<Vec<_>>();
