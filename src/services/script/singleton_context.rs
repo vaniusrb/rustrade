@@ -1,4 +1,4 @@
-use crate::services::trader::trade_context_provider::TradeContextProvider;
+use crate::services::trading::trade_context_provider::TradeContextProvider;
 use std::sync::{Arc, RwLock};
 
 /// Singleton for trade context

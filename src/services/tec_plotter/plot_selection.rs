@@ -52,14 +52,6 @@ impl<'a> PlotterSelection<'a> {
             .filter(|c| c.open_time >= start_time && c.open_time <= end_time)
             .collect::<Vec<_>>();
 
-        info!(
-            "Plotting selection {:?} {:?} candles.len {} image {}",
-            self.selection.candles_selection.start_time,
-            self.selection.candles_selection.end_time,
-            candles.len(),
-            self.selection.image_name.green()
-        );
-
         // TODO must obey the Selection.tacs
         // Default technicals
         let macd_tac = MacdTec::new(&candles, 34, 72, 17);
@@ -100,14 +92,18 @@ impl<'a> PlotterSelection<'a> {
         let rsi_plotter = RsiPlotter::new(&rsi_tac);
         plotter.add_plotter_lower_ind(&rsi_plotter);
 
-        let start = Instant::now();
-
         plotter.plot(&self.selection.image_name)?;
-        info!("{}", iformat!("### Plotting elapsed: {start.elapsed():?}"));
 
+        let elapsed = format!("{:?}", total_start.elapsed());
         info!(
             "{}",
-            iformat!("### Total plotting elapsed: {total_start.elapsed():?}")
+            iformat!(
+                "Plotted selection {self.selection.candles_selection.start_time:?} \
+            {self.selection.candles_selection.end_time:?} \
+            candles.len {candles.len()} \
+            elapsed {elapsed.green()} \
+            image {self.selection.image_name.green()}"
+            )
         );
 
         Ok(())

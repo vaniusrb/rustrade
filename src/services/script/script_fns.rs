@@ -5,7 +5,7 @@ use super::{
 use crate::model::operation::Operation;
 use crate::model::quantity::Quantity;
 use crate::services::technicals::ind_type::IndicatorType;
-use crate::services::trader::trend::trend_direction::TrendDirection;
+use crate::services::trading::trend::trend_direction::TrendDirection;
 use crate::utils::dec_utils::fdec;
 use crate::utils::dec_utils::percent;
 use colored::Colorize;

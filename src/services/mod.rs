@@ -6,4 +6,4 @@ pub mod streamer;
 pub mod tec_plotter;
 pub mod technicals;
 pub mod trade_aggs_checker;
-pub mod trader;
+pub mod trading;

@@ -4,11 +4,11 @@ use super::singleton_context::ContextSingleton;
 use super::singleton_engine::EngineSingleton;
 use super::singleton_position::PositionRegisterSingleton;
 use crate::services::script::position_register::PositionRegister;
-use crate::services::trader::running_script_state::TrendState;
-use crate::services::trader::trade_context_provider::TradeContextProvider;
-use crate::services::trader::trade_operation::TradeOperation;
-use crate::services::trader::trend::trend_direction::TrendDirection;
-use crate::services::trader::trend::trend_provider::TrendProvider;
+use crate::services::trading::running_script_state::TrendState;
+use crate::services::trading::trade_context_provider::TradeContextProvider;
+use crate::services::trading::trade_operation::TradeOperation;
+use crate::services::trading::trend::trend_direction::TrendDirection;
+use crate::services::trading::trend::trend_provider::TrendProvider;
 
 pub struct ScriptTrendProvider {}
 

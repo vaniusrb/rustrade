@@ -1,5 +1,5 @@
 use super::plotter_indicator_context::PlotterIndicatorContext;
-use crate::services::trader::trade_operation::TradeOperation;
+use crate::services::trading::trade_operation::TradeOperation;
 use crate::{config::selection::Selection, model::side::Side};
 use chrono::{DateTime, Utc};
 use plotters::{

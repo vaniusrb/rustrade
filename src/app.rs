@@ -5,7 +5,7 @@ use crate::services::provider::candles_provider::CandlesProviderBufferSingleton;
 use crate::services::provider::candles_provider::CandlesProviderSelection;
 use crate::services::script::script_back_test::run_script;
 use crate::services::technicals::top_bottom_tec::TopBottomTec;
-use crate::services::trader::top_bottom_triangle::top_bottom_triangle;
+use crate::services::trading::top_bottom_triangle::top_bottom_triangle;
 use crate::utils::date_utils::datetime_to_filename;
 use crate::Exchange;
 use crate::Streamer;

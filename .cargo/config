@@ -1,8 +1,9 @@
 [build]
 rustflags = ["-C", "target-cpu=native"]
-rustc-wrapper = "/home/vanius/.cargo/bin/sccache"
 
 [target.x86_64-pc-windows-msvc]
 rustflags = ["-Ctarget-feature=+crt-static"]
 
-# [target.x86_64-unknown-linux-gnu]
+[target.x86_64-unknown-linux-gnu.build]
+rustc-wrapper = "/home/vanius/.cargo/bin/sccache"
+

@@ -4,10 +4,9 @@ use super::{
 };
 use crate::config::selection::Selection;
 use ifmt::iformat;
-use log::info;
 use plotters::prelude::*;
 use plotters_bitmap::BitMapBackend;
-use std::{path::Path, time::Instant};
+use std::path::Path;
 
 pub struct Plotter<'a> {
     selection: Selection,
@@ -33,7 +32,6 @@ impl<'a> Plotter<'a> {
     }
 
     pub fn plot<P: AsRef<Path>>(&self, image_path: P) -> eyre::Result<()> {
-        let start = Instant::now();
         let symbol_minutes = &self.selection.candles_selection.symbol_minutes;
 
         let from_date = self.selection.candles_selection.start_time;
@@ -96,8 +94,6 @@ impl<'a> Plotter<'a> {
             lower_area.fill(&bg_color)?;
             plotter_lower_ind.plot(&self.selection, &lower_area)?;
         }
-
-        info!("{}", iformat!("*** Plotting elapsed: {start.elapsed():?}"));
         Ok(())
     }
 }

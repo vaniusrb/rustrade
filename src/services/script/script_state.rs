@@ -1,5 +1,5 @@
 use crate::model::operation::Operation;
-use crate::services::trader::trend::trend_direction::TrendDirection;
+use crate::services::trading::trend::trend_direction::TrendDirection;
 
 #[derive(Clone)]
 pub struct ScriptState {

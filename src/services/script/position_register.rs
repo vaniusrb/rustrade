@@ -1,7 +1,7 @@
 use crate::model::position::Position;
 use crate::model::quantity::Quantity;
-use crate::services::trader::trade_operation::TradeOperation;
-use crate::{model::operation::Operation, services::trader::flow_register::FlowRegister};
+use crate::services::trading::trade_operation::TradeOperation;
+use crate::{model::operation::Operation, services::trading::flow_register::FlowRegister};
 use log::warn;
 use rust_decimal::prelude::Zero;
 use rust_decimal::Decimal;

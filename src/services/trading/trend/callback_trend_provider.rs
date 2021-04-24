@@ -1,6 +1,6 @@
 use crate::services::{
     script::position_register::PositionRegister,
-    trader::{running_script_state::TrendState, trade_context_provider::TradeContextProvider},
+    trading::{running_script_state::TrendState, trade_context_provider::TradeContextProvider},
 };
 
 use super::trend_provider::TrendProvider;

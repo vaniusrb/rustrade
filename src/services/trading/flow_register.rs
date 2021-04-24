@@ -2,7 +2,7 @@ use crate::model::flow::Flow;
 use crate::model::operation::Operation;
 use crate::model::position::Position;
 use crate::repository::flow_repository::FlowRepository;
-use crate::services::trader::trade_operation::TradeOperation;
+use crate::services::trading::trade_operation::TradeOperation;
 use crate::utils::dec_utils::percent;
 use colored::Colorize;
 use ifmt::iformat;

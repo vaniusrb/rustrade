@@ -3,7 +3,7 @@ use crate::services::technicals::technical::TecSerieIndicators;
 use crate::{config::selection::Selection, services::technicals::serie_indicator::SerieIndicator};
 use eyre::bail;
 use eyre::eyre;
-use log::info;
+use log::debug;
 use plotters::{coord::Shift, prelude::DrawingArea, style::RGBColor};
 use plotters::{
     prelude::{ChartBuilder, LabelAreaPosition, LineSeries},
@@ -78,7 +78,7 @@ pub trait PlotterIndicatorArea {
             .draw()?;
 
         for indicator in indicators {
-            info!("Plotting indicator {}", indicator.name);
+            debug!("Plotting indicator {}", indicator.name);
             let color = self.indicator_color(indicator);
             let macd_series = LineSeries::new(
                 indicator.series.iter().map(|s| (s.date_time, s.value)),
