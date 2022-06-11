@@ -1,3 +1,4 @@
+pub mod candles_buffer;
 pub mod candles_provider;
 pub mod candles_provider_buffer;
 pub mod candles_provider_buffer_singleton;

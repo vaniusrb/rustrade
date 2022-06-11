@@ -82,6 +82,7 @@ pub fn run_script<P: AsRef<Path>>(
     // Create trader from trend provider
     let trader_factory = TraderFactory::from(
         app.selection.candles_selection,
+        // TODO This candles_provider can get the real final end to buffer next candles
         app.candles_provider.clone(),
     );
 

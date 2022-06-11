@@ -2,6 +2,7 @@ pub mod candle;
 pub mod flow;
 pub mod low_high_price;
 pub mod open_close_price;
+pub mod open_close_range;
 pub mod open_close_time;
 pub mod operation;
 pub mod position;

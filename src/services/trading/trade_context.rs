@@ -1,7 +1,6 @@
 use super::trend::trend_direction::TrendDirection;
 use crate::services::provider::candles_provider::CandlesProvider;
 use crate::services::provider::candles_provider_buffer::CandlesProviderBuffer;
-use crate::services::provider::candles_provider_selection::CandlesProviderSelection;
 use crate::services::technicals::ind_provider::IndicatorProvider;
 use crate::services::technicals::indicator::Indicator;
 use crate::{config::candles_selection::CandlesSelection, model::candle::Candle};
@@ -12,7 +11,7 @@ pub struct TradeContext {
     symbol: i32,
     indicator_provider: IndicatorProvider,
     candles_provider: CandlesProviderBuffer,
-    candles_opt: Option<(DateTime<Utc>, i32, i32, Vec<Candle>)>,
+    candles_opt: Option<(Vec<Candle>, DateTime<Utc>, i32, i32)>,
     now: Option<DateTime<Utc>>,
     price: Option<Price>,
     current_trend_direction_opt: Option<TrendDirection>,
@@ -105,19 +104,24 @@ impl TradeContext {
         self.candles_opt = self
             .candles_opt
             .take()
-            .filter(|e| e.0 == now && e.1 == minutes && e.2 == period);
+            .filter(|e| e.1 == now && e.2 == minutes && e.3 == period);
 
-        let candles_provider = &self.candles_provider;
+        let candles_provider = &mut self.candles_provider;
         let symbol = self.symbol;
 
-        let now_candles = self.candles_opt.get_or_insert_with(|| {
+        let (candles, _, _, _) = self.candles_opt.get_or_insert_with(|| {
             let candles_selection = CandlesSelection::last_n(symbol, minutes, period, now);
-            let mut candles_provider_selection =
-                CandlesProviderSelection::new(candles_provider.clone(), candles_selection);
-            let candles = candles_provider_selection.candles().unwrap();
-            (now, minutes, period, candles)
+            // TODO here should considere use range
+            // let mut candles_provider_selection =
+            //     CandlesProviderSelection::new(candles_provider.clone(), candles_selection);
+            // let candles = candles_provider_selection.candles().unwrap();
+
+            candles_provider.set_candles_selection(candles_selection);
+            let candles = candles_provider.candles().unwrap();
+
+            (candles, now, minutes, period)
         });
         self.indicator_provider
-            .indicator(now, &now_candles.3, indicator_type)
+            .indicator(now, candles, indicator_type)
     }
 }

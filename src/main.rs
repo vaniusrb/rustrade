@@ -1,3 +1,4 @@
+#![feature(map_first_last)]
 #![feature(nll)]
 #![feature(associated_type_bounds)]
 #[macro_use]
@@ -27,7 +28,7 @@ use services::{
     technicals::{rsi_tec::RsiTec, technical::TechnicalDefinition},
 };
 use sqlx::PgPool;
-#[cfg(debug_assertions)]
+//#[cfg(debug_assertions)]
 use std::env;
 use std::time::Instant;
 use std::{
@@ -181,11 +182,11 @@ async fn main(args: Args) -> color_eyre::eyre::Result<()> {
     };
     utils::log_utils::setup_log(level, module_path!());
 
-    #[cfg(debug_assertions)]
-    {
-        info!("Ativando backtrace");
-        env::set_var("RUST_BACKTRACE", "1");
-    };
+    // #[cfg(debug_assertions)]
+    //     {
+    info!("Enabled backtrace");
+    env::set_var("RUST_BACKTRACE", "full");
+    //     };
 
     dotenv::dotenv()?;
 

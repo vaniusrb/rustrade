@@ -13,7 +13,7 @@ pub fn fdec(value: f64) -> Decimal {
 
 #[inline]
 pub fn percent(new: &Decimal, old: &Decimal) -> Decimal {
-    ((new / old - DEC_1) * DEC_100).round_dp_with_strategy(2, RoundingStrategy::RoundDown)
+    ((new / old - DEC_1) * DEC_100).round_dp_with_strategy(2, RoundingStrategy::ToZero)
 }
 
 #[cfg(test)]

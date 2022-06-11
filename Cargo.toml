@@ -31,7 +31,7 @@ plotters = {git = "https://github.com/38/plotters.git", default_features = false
 ]}
 plotters-bitmap = "0.3.0"
 rayon = "1.5"
-rhai = "0.20.0"
+rhai = "1.7.0"
 rust_decimal = {version = "1.10"}
 rust_decimal_macros = "1.10"
 serde = {version = "1.0", features = ["derive"]}
@@ -39,6 +39,7 @@ serde_json = "1.0"
 sqlx = {version = "0.5", features = ["runtime-async-std-native-tls", "postgres", "macros", "decimal", "chrono"]}
 structopt = {version = "0.3.21", features = ["paw"]}
 ta = "0.4"
+backtrace = "0.3"
 termcolor = "1.1"
 # lockfree-object-pool = "0.1"
 # object-pool = "0.5.3"
@@ -51,3 +52,6 @@ ctor = "0.1.20"
 # lto = true
 # codegen-units = 1
 # panic = "abort"
+
+[profile.release]
+debug = true

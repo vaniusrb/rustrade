@@ -1,3 +1,4 @@
+use crate::model::open_close_range::OpenCloseRange;
 use crate::model::{candle::Candle, open_close_time::OpenCloseTime};
 use crate::services::provider::candles_utils::min_max_close_time_from_candles;
 use chrono::prelude::*;
@@ -142,10 +143,10 @@ pub fn invert_ranges_close(
     end_time: &OpenCloseTime,
     ranges: &CandlesRanges,
     minutes: i32,
-) -> eyre::Result<Vec<(OpenCloseTime, OpenCloseTime)>> {
+) -> eyre::Result<Vec<OpenCloseRange>> {
     fn add_range(
         ranges: &CandlesRanges,
-        inverted_ranges: &mut Vec<(OpenCloseTime, OpenCloseTime)>,
+        inverted_ranges: &mut Vec<OpenCloseRange>,
         start: OpenCloseTime,
         end: OpenCloseTime,
     ) -> eyre::Result<()> {
@@ -170,11 +171,10 @@ pub fn invert_ranges_close(
             bail!(message);
         }
 
-        //if start != end {
-        inverted_ranges.push((start, end));
-        //}
+        inverted_ranges.push(OpenCloseRange::from_open_close(start, end)?);
         Ok(())
     }
+
     let mut inverted_ranges = Vec::new();
     let duration = Duration::minutes(minutes as i64);
 
@@ -218,9 +218,12 @@ pub fn candles_to_ranges_missing(
     end_time: &OpenCloseTime,
     minutes: i32,
     candles: &[&Candle],
-) -> eyre::Result<Vec<(OpenCloseTime, OpenCloseTime)>> {
+) -> eyre::Result<Vec<OpenCloseRange>> {
     if candles.is_empty() {
-        return Ok(vec![(*start_time, *end_time)]);
+        return Ok(vec![OpenCloseRange::from_open_close(
+            *start_time,
+            *end_time,
+        )?]);
     }
 
     // TODO protect with debug assert
@@ -363,25 +366,25 @@ pub mod testes {
         }
 
         assert_eq!(
-            *inverted_ranges.get(0).unwrap(),
+            inverted_ranges.get(0).unwrap().open_close(),
             (start_time, _str_close("2020-01-12 11:59:59"))
         );
         assert_eq!(
-            *inverted_ranges.get(1).unwrap(),
+            inverted_ranges.get(1).unwrap().open_close(),
             (
                 _str_close("2020-01-12 12:44:59"),
                 _str_close("2020-11-16 01:14:59")
             )
         );
         assert_eq!(
-            *inverted_ranges.get(2).unwrap(),
+            inverted_ranges.get(2).unwrap().open_close(),
             (
                 _str_close("2020-11-16 01:44:59"),
                 _str_close("2020-11-20 11:14:59")
             )
         );
         assert_eq!(
-            *inverted_ranges.get(3).unwrap(),
+            inverted_ranges.get(3).unwrap().open_close(),
             (_str_close("2020-11-20 11:44:59"), end_time)
         );
     }
@@ -409,25 +412,25 @@ pub mod testes {
         }
 
         assert_eq!(
-            *inverted_ranges.get(0).unwrap(),
+            inverted_ranges.get(0).unwrap().open_close(),
             (start_time, _str_close("2020-01-12 11:59:59"))
         );
         assert_eq!(
-            *inverted_ranges.get(1).unwrap(),
+            inverted_ranges.get(1).unwrap().open_close(),
             (
                 _str_close("2020-01-12 12:44:59"),
                 _str_close("2020-11-16 01:14:59")
             )
         );
         assert_eq!(
-            *inverted_ranges.get(2).unwrap(),
+            inverted_ranges.get(2).unwrap().open_close(),
             (
                 _str_close("2020-11-16 01:44:59"),
                 _str_close("2020-11-20 11:14:59")
             )
         );
         assert_eq!(
-            *inverted_ranges.get(3).unwrap(),
+            inverted_ranges.get(3).unwrap().open_close(),
             (_str_close("2020-11-20 11:44:59"), end_time)
         );
     }
@@ -471,7 +474,7 @@ pub mod testes {
         }
 
         assert_eq!(
-            *ranges_missing.get(0).unwrap(),
+            ranges_missing.get(0).unwrap().open_close(),
             (
                 str_open("2020-01-01 00:00:00"),
                 str_open("2020-01-12 11:45:00")
@@ -479,7 +482,7 @@ pub mod testes {
             "1"
         );
         assert_eq!(
-            *ranges_missing.get(1).unwrap(),
+            ranges_missing.get(1).unwrap().open_close(),
             (
                 str_open("2020-01-12 12:30:00"),
                 str_open("2020-11-16 01:00:00"),
@@ -487,7 +490,7 @@ pub mod testes {
             "2"
         );
         assert_eq!(
-            *ranges_missing.get(2).unwrap(),
+            ranges_missing.get(2).unwrap().open_close(),
             (
                 str_open("2020-11-16 01:30:00"),
                 str_open("2020-11-20 11:00:00"),
@@ -495,7 +498,7 @@ pub mod testes {
             "3"
         );
         assert_eq!(
-            *ranges_missing.get(3).unwrap(),
+            ranges_missing.get(3).unwrap().open_close(),
             (
                 str_open("2020-11-20 11:30:00"),
                 str_open("2020-11-30 00:00:00"),
@@ -526,7 +529,7 @@ pub mod testes {
         }
 
         assert_eq!(
-            *ranges_missing.get(0).unwrap(),
+            ranges_missing.get(0).unwrap().open_close(),
             (
                 str_open("2020-01-12 12:30:00"),
                 str_open("2020-11-16 01:00:00"),
@@ -534,7 +537,7 @@ pub mod testes {
             "1"
         );
         assert_eq!(
-            *ranges_missing.get(1).unwrap(),
+            ranges_missing.get(1).unwrap().open_close(),
             (
                 str_open("2020-11-16 01:30:00"),
                 str_open("2020-11-20 11:00:00"),

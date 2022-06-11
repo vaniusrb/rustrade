@@ -58,7 +58,7 @@ impl FlowRegister {
 
         {
             let gain_usd = (position.real_balance_fiat - self.old_real_balance_usd)
-                .round_dp_with_strategy(8, RoundingStrategy::RoundDown);
+                .round_dp_with_strategy(8, RoundingStrategy::ToZero);
             let state_str = if is_buyer_maker {
                 "Bought".pad_to_width(6).green()
             } else {

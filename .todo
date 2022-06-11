@@ -51,6 +51,8 @@
 ✔ Reduce plot dependency wasm x servo | slow time compilation @done(21-04-15 22:30)
 
 High
+☐ CandlesBuffer should allow add low or high new ranges
+☐ CandlesBuffer should be methods to return "missing range" from start or end range
 ☐ Create min/max indicator -> create trait for indictors
 ☐ Do not allow buy or seel behind the max
 ☐ Test in neutral period 21/julho/2019 21/julho/2020

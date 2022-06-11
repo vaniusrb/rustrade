@@ -19,6 +19,7 @@ impl CandlesProviderBuffer {
             candles_selection_opt: None,
         }
     }
+
     pub fn set_candles_selection(&mut self, candles_selection: CandlesSelection) {
         self.candles_selection_opt = Some(candles_selection);
     }

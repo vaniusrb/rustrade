@@ -222,7 +222,7 @@ pub fn _str_close(date_time: &str) -> OpenCloseTime {
 pub mod tests {
     use super::*;
     #[test]
-    fn test_open_close_test() {
+    fn open_close_test() {
         let open_close = OpenCloseTime::try_from("2020-01-20 00:00:00").unwrap();
         let date = str_d("2020-01-20 00:00:00");
         assert_eq!(open_close, OpenCloseTime::Open(date));
@@ -230,5 +230,15 @@ pub mod tests {
         let open_close = OpenCloseTime::try_from("2020-01-20 00:00:00").unwrap();
         let date = str_d("2020-01-20 00:00:00");
         assert_eq!(open_close, OpenCloseTime::Open(date));
+    }
+
+    #[test]
+    fn compare_open_close_test() {
+        let open_close_1 = OpenCloseTime::try_from("2020-01-20 00:00:00").unwrap();
+        let open_close_2 = OpenCloseTime::try_from("2020-01-20 10:00:00").unwrap();
+
+        assert!(open_close_2 > open_close_1);
+        assert!(open_close_1 < open_close_2);
+        assert!(open_close_1 != open_close_2);
     }
 }

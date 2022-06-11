@@ -37,16 +37,16 @@ impl Position {
 
     pub fn balance_asset_r(&self) -> Decimal {
         self.balance_asset
-            .round_dp_with_strategy(8, RoundingStrategy::RoundDown)
+            .round_dp_with_strategy(8, RoundingStrategy::ToZero)
     }
 
     pub fn balance_fiat_r(&self) -> Decimal {
         self.balance_fiat
-            .round_dp_with_strategy(8, RoundingStrategy::RoundDown)
+            .round_dp_with_strategy(8, RoundingStrategy::ToZero)
     }
 
     pub fn real_balance_fiat_r(&self) -> Decimal {
         self.real_balance_fiat
-            .round_dp_with_strategy(8, RoundingStrategy::RoundDown)
+            .round_dp_with_strategy(8, RoundingStrategy::ToZero)
     }
 }
